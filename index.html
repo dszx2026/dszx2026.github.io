@@ -1,1 +1,214 @@
-<p><font color="red">7</font></p>
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>.?.?</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color:black;
+            color: white; 
+            font-family: "KaiTi", "楷体", "STKaiti", serif;
+            font-size: 84px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 20px;
+            transition: background-color 0.3s ease; /* 背景色过渡效果 */
+        }
+
+        .tip-box {
+            background-color: transparent;
+            padding: 40px 60px;
+            border-radius: 10px;
+            border:none;
+            transition: opacity 0.3s ease; /* 透明度过渡效果 */
+
+        }
+
+        .current-time {
+            margin-top: 30px;
+            font-size: 40px;
+            color: black;
+        }
+
+        /* 黑屏状态样式 */
+        .black-screen {
+            opacity: 0; /* 内容隐藏 */
+        }
+
+        /* 正常显示状态 */
+        .normal-screen {
+            opacity: 1; /* 内容显示 */
+        }
+
+        /* 作业内容样式 */
+        .homework-content {
+            font-size: 48px; /* 作业内容字体稍小 */
+            margin-top: 20px;
+            white-space: pre-line; /* 保留换行 */
+        }
+    </style>
+</head>
+<body>
+    <div class="tip-box normal-screen" id="tipContent">
+        <!-- 动态显示作业内容 -->
+    </div>
+    <div class="current-time" id="currentTime">
+        <!-- 显示当前系统时间 -->
+    </div>
+
+    <script>
+        // 获取显示内容的元素
+        const tipContent = document.getElementById('tipContent');
+        const currentTimeEl = document.getElementById('currentTime');
+
+        // ========== 作业内容配置区（你可以在这里修改/添加各科目作业） ==========
+        const homeworkConfig = {
+            allSubjects: {
+                title: '语文 数学 英语 政治 历史 地理',
+                content: ''
+            },
+            chinese: {
+                title: '语文',
+                content: '读《红楼梦》第一章，摘抄WORD文档，做批注'
+            },
+            math: {
+                title: '数学',
+                formula: '二倍角公式：\nsin2α = 2sinαcosα\ncos2α = cos²α - sin²α = 2cos²α - 1 = 1 - 2sin²α\ntan2α = 2tanα / (1 - tan²α)',
+                content: '完成联系五'
+            },
+            english: {
+                title: '英语',
+                content: '试卷I，IV，V&P5阅读A，留痕迹'
+            },
+            history: {
+                title: '历史',
+                content: '高考领航材料题'
+            },
+            submitChineseMathEnglish: {
+                title: '交语数英作业',
+                content: '。'
+            },
+            politics: {
+                title: '政治',
+                content: '无'
+            },
+            geography: {
+                title: '地理',
+                content: '无'
+            },
+            review: {
+                title: '睡觉',
+                content: '&nbsp'
+            },
+            default: {
+                title: '&nbsp',
+                content: '&nbsp'
+            }
+
+        };
+
+        // 核心函数：根据时间判断显示的文字
+        function updateTipText() {
+            // 获取当前时间
+            const now = new Date();
+            const hours = now.getHours(); // 小时（0-23）
+            const minutes = now.getMinutes(); // 分钟（0-59）
+            const seconds = now.getSeconds(); // 秒数（0-59）
+
+            // 格式化当前时间显示（例如：17:50:30）
+            const formattedTime = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+            currentTimeEl.textContent = `当前时间：${formattedTime}`;
+
+            // 转换为分钟数，方便判断时间段
+            const totalMinutes = hours * 60 + minutes;
+
+            // 重置样式
+            tipContent.className = 'tip-box normal-screen';
+            tipContent.style.fontSize = '84px';
+            let displayHtml = '';
+
+            // 定义各个时间段的分钟数范围并判断
+            if (totalMinutes === 17*60 + 50) { // 17:50（整分钟）
+                displayHtml = `
+                    <div>${homeworkConfig.allSubjects.title}</div>
+                    <div class="homework-content">${homeworkConfig.allSubjects.content}</div>
+                `;
+            } else if (totalMinutes >= 17*60 + 51 && totalMinutes <= 18*60) { // 17:51-18:00
+                const remainingSeconds = 60 - seconds;
+                const dots = '.'.repeat(Math.min(remainingSeconds % 5, 5)); // 最多5个点
+                displayHtml = `
+                    <div>${homeworkConfig.chinese.title} ${dots}</div>
+                    <div class="homework-content">${homeworkConfig.chinese.content}</div>
+                `;
+            } else if (totalMinutes >= 18*60 + 20 && totalMinutes <= 18*60 + 40) { // 18:20-18:40
+                tipContent.style.fontSize = '48px'; // 缩小字体以显示完整公式
+                displayHtml = `
+                    <div>${homeworkConfig.math.title}</div>
+                    <div class="homework-content">${homeworkConfig.math.formula}</div>
+                    <div class="homework-content">${homeworkConfig.math.content}</div>
+                `;
+            } else if (totalMinutes >= 18*60 + 40 && totalMinutes <= 18*60 + 50) { // 18:40-18:50 黑屏
+                tipContent.className = 'tip-box black-screen';
+            } else if (totalMinutes >= 18*60 + 51 && totalMinutes <= 19*60 + 10) { // 18:51-19:10
+                displayHtml = `
+                    <div>${homeworkConfig.english.title}</div>
+                    <div class="homework-content">${homeworkConfig.english.content}</div>
+                `;
+            } else if (totalMinutes >= 19*60 + 30 && totalMinutes <= 19*60 + 50) { // 19:30-19:50
+                displayHtml = `
+                    <div>${homeworkConfig.history.title}</div>
+                    <div class="homework-content">${homeworkConfig.history.content}</div>
+                `;
+            } else if (totalMinutes >= 19*60 + 50 && totalMinutes <= 20*60) { // 19:50-20:00
+                displayHtml = `
+                    <div>${homeworkConfig.submitChineseMathEnglish.title}</div>
+                    <div class="homework-content">${homeworkConfig.submitChineseMathEnglish.content}</div>
+                `;
+            } else if (totalMinutes >= 20*60 + 10 && totalMinutes <= 20*60 + 20) { // 20:10-20:20
+                displayHtml = `
+                    <div>${homeworkConfig.politics.title}</div>
+                    <div class="homework-content">${homeworkConfig.politics.content}</div>
+                `;
+            } else if (totalMinutes >= 20*60 + 21 && totalMinutes <= 20*60 + 40) { // 20:21-20:40
+                displayHtml = `
+                    <div>${homeworkConfig.geography.title}</div>
+                    <div class="homework-content">${homeworkConfig.geography.content}</div>
+                `;
+            } else if (totalMinutes >= 20*60 + 41 && totalMinutes <= 20*60 + 50) { // 20:41-20:50 黑屏
+                tipContent.className = 'tip-box black-screen';
+            } else if (totalMinutes >= 12*60 + 10 && totalMinutes <= 12*60 + 50) { // 20:51-21:30
+                displayHtml = `
+                    <div>${homeworkConfig.review.title}</div>
+                    <div class="homework-content">${homeworkConfig.review.content}</div>
+                `;
+            } else { // 其他时间
+                displayHtml = `
+                    <div>${homeworkConfig.default.title}</div>
+                    ${homeworkConfig.default.content ? `<div class="homework-content">${homeworkConfig.default.content}</div>` : ''}
+                `;
+            }
+
+            // 渲染内容（黑屏时段不渲染）
+            if (!tipContent.classList.contains('black-screen')) {
+                tipContent.innerHTML = displayHtml;
+            }
+        }
+
+        // 页面加载时立即执行一次
+        updateTipText();
+        // 每秒更新一次（保证时间实时变化）
+        setInterval(updateTipText, 1000);
+    </script>
+</body>
+</html>
