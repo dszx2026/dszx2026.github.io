@@ -2,8 +2,11 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>.?.?</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Google 深色首页 - 安全登录</title>
+    <!-- Google Material Design 图标库 (Web Fonts + Icons) -->
+    <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0,1" />
     <style>
         * {
             margin: 0;
@@ -12,203 +15,795 @@
         }
 
         body {
-            background-color:black;
-            color: white; 
-            font-family: "KaiTi", "楷体", "STKaiti", serif;
-            font-size: 84px;
+            background-color: #202124;
+            font-family: 'Google Sans', 'Roboto', Arial, sans-serif;
+            color: #e8eaed;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
+            justify-content: space-between;
+        }
+
+        /* 主容器 */
+        .main-wrapper {
+            flex: 1;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
             justify-content: center;
-            text-align: center;
+        }
+
+        /* 搜索首页容器 */
+        .home-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            max-width: 584px;
+            margin: 0 auto;
             padding: 20px;
-            transition: background-color 0.3s ease; /* 背景色过渡效果 */
+            animation: fadeIn 0.3s ease;
         }
 
-        .tip-box {
-            background-color: transparent;
-            padding: 40px 60px;
-            border-radius: 10px;
-            border:none;
-            transition: opacity 0.3s ease; /* 透明度过渡效果 */
-
+        /* Logo 区域 */
+        .logo-area {
+            margin-bottom: 32px;
+            text-align: center;
         }
 
-        .current-time {
-            margin-top: 30px;
-            font-size: 40px;
-            color: white;
+        .google-logo {
+            margin-top: 20%;
+            width: 290px;
+            height: auto;
+            object-fit: contain;
         }
 
-        /* 黑屏状态样式 */
-        .black-screen {
-            opacity: 0; /* 内容隐藏 */
+        /* 搜索框 Material 风格 */
+        .search-box {
+            margin-top: 10px;
+            width: 500px;
+            height: 50px;
+            background: #303134;
+            border: 1px solid #5f6368;
+            border-radius: 45px;
+            display: flex;
+            align-items: center;
+            padding: 8px 16px;
+            transition: all 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            margin-bottom: 38px;
+            box-shadow: none;
         }
 
-        /* 正常显示状态 */
-        .normal-screen {
-            opacity: 1; /* 内容显示 */
+        .search-box:hover, .search-box:focus-within {
+            background-color: #303134;
+            border-color: #8ab4f8;
+            box-shadow: 0 1px 6px rgba(0,0,0,0.3);
         }
 
-        /* 作业内容样式 */
-        .homework-content {
-            font-size: 48px; /* 作业内容字体稍小 */
-            margin-top: 20px;
-            white-space: pre-line; /* 保留换行 */
+        .search-icon {
+            color: #9aa0a6;
+            font-size: 24px;
+            margin-right: 12px;
+            user-select: none;
+        }
+
+        .search-input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            font-size: 16px;
+            font-weight: 400;
+            color: #e8eaed;
+            font-family: 'Google Sans', 'Roboto', Arial, sans-serif;
+            padding: 12px 0;
+        }
+
+        .search-input::placeholder {
+            color: #9aa0a6;
+        }
+
+        /* 按钮组 */
+        .button-group {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 32px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .md-button {
+            background-color: #303134;
+            border: 1px solid #5f6368;
+            color: #e8eaed;
+            font-family: 'Google Sans', 'Roboto', sans-serif;
+            font-size: 14px;
+            font-weight: 500;
+            padding: 10px 20px;
+            border-radius: 22px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .md-button:hover {
+            background-color: #3c4043;
+            border-color: #5f6368;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        }
+
+        /* 网站链接按钮组 */
+        .sites-section {
+            margin: 24px 0 16px;
+            text-align: center;
+            width: 100%;
+        }
+
+        .section-label {
+            font-size: 14px;
+            font-weight: 500;
+            letter-spacing: 0.25px;
+            color: #9aa0a6;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .chip-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .site-chip {
+            background: #303134;
+            border-radius: 30px;
+            padding: 8px 18px;
+            font-size: 14px;
+            font-weight: 500;
+            font-family: 'Google Sans', 'Roboto', sans-serif;
+            color: #e8eaed;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: background 0.2s, transform 0.1s;
+            border: 1px solid #5f6368;
+        }
+
+        .site-chip:hover {
+            background-color: #3c4043;
+            border-color: #8ab4f8;
+        }
+
+        .material-symbols-outlined {
+            font-size: 18px;
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20;
+        }
+
+        /* 底部 footer */
+        .footer {
+            width: 100%;
+            background-color: #171717;
+            border-top: 1px solid #3c4043;
+            padding: 16px 24px;
+            font-size: 12px;
+            color: #9aa0a6;
+            text-align: center;
+            margin-top: 40px;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 28px;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: #9aa0a6;
+            text-decoration: none;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .footer-links a:hover {
+            text-decoration: underline;
+            color: #8ab4f8;
+        }
+
+        /* 动画 */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px);}
+            to { opacity: 1; transform: translateY(0);}
+        }
+
+        /* 灰色弹窗 (Google Material 风格 Dialog) */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(3px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            animation: fadeIn 0.2s ease;
+        }
+
+        .login-modal {
+            background-color: #2d2e32;  /* 深灰色卡片 */
+            border-radius: 28px;
+            width: 90%;
+            max-width: 420px;
+            padding: 28px 24px 32px;
+            box-shadow: 0 19px 38px rgba(0,0,0,0.3), 0 15px 12px rgba(0,0,0,0.22);
+            border: 1px solid #5f6368;
+            transition: all 0.2s;
+            font-family: 'Google Sans', 'Roboto', sans-serif;
+        }
+
+        .login-modal h2 {
+            font-size: 24px;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: #e8eaed;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .login-modal .sub {
+            color: #9aa0a6;
+            font-size: 14px;
+            margin-bottom: 28px;
+            border-left: 3px solid #8ab4f8;
+            padding-left: 12px;
+        }
+
+        .input-group {
+            margin-bottom: 24px;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            color: #e8eaed;
+            margin-bottom: 8px;
+            letter-spacing: 0.3px;
+        }
+
+        .material-input {
+            width: 100%;
+            background: #202124;
+            border: 1px solid #5f6368;
+            border-radius: 24px;
+            padding: 12px 18px;
+            font-size: 15px;
+            color: #e8eaed;
+            font-family: 'Google Sans', 'Roboto', sans-serif;
+            transition: all 0.2s;
+            outline: none;
+        }
+
+        .material-input:focus {
+            border-color: #8ab4f8;
+            box-shadow: 0 1px 4px rgba(138, 180, 248, 0.2);
+        }
+
+        .login-btn {
+            width: 100%;
+            background-color: #8ab4f8;
+            border: none;
+            border-radius: 28px;
+            padding: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            font-family: 'Google Sans', 'Roboto', sans-serif;
+            color: #202124;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-top: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .login-btn:hover {
+            background-color: #aec9fa;
+        }
+
+        .error-msg {
+            color: #f28b82;
+            font-size: 12px;
+            margin-top: 12px;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        /* 欢迎弹窗 (二次弹窗) */
+        .welcome-modal {
+            background-color: #2d2e32;
+            border-radius: 28px;
+            max-width: 360px;
+            width: 90%;
+            padding: 28px 24px;
+            text-align: center;
+            border: 1px solid #5f6368;
+            box-shadow: 0 19px 38px rgba(0,0,0,0.3);
+        }
+
+        .welcome-modal h3 {
+            font-size: 22px;
+            font-weight: 500;
+            margin: 16px 0 12px;
+            color: #e8eaed;
+        }
+
+        .welcome-modal p {
+            color: #9aa0a6;
+            margin-bottom: 24px;
+        }
+
+        .welcome-btn {
+            background-color: #8ab4f8;
+            border: none;
+            border-radius: 28px;
+            padding: 10px 24px;
+            font-weight: 500;
+            cursor: pointer;
+            color: #202124;
+            font-family: 'Google Sans', 'Roboto', sans-serif;
+        }
+
+        /* 响应式 */
+        @media (max-width: 600px) {
+            .google-logo {
+                width: 180px;
+            }
+            .home-container {
+                padding: 16px;
+            }
+            .search-box {
+                width: 100%;
+                padding: 4px 12px;
+            }
+            .md-button {
+                padding: 8px 16px;
+                font-size: 13px;
+            }
+            .site-chip {
+                padding: 6px 14px;
+                font-size: 13px;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="tip-box normal-screen" id="tipContent">
-        <!-- 动态显示作业内容 -->
+
+<div class="main-wrapper">
+    <div class="home-container">
+        <!-- Google Logo -->
+        <div class="logo-area">
+            <img class="google-logo" 
+                 src="https://raw.githubusercontent.com/lobehub/lobe-icons/refs/heads/master/packages/static-png/dark/google-brand.png" 
+                 alt="Google"
+                 onerror="this.onerror=null; this.src='https://www.google.com/images/branding/googlelogo/2x/googlelogo_dark_color_272x92dp.png';">
+        </div>
+
+        <!-- 搜索表单: 代理地址 -->
+        <form id="searchForm" method="GET" action="https://fan21.933695.xyz/Alvin9999/https/www.startpage.com/sp/search">
+            <div class="search-box">
+                <span class="material-symbols-outlined search-icon">search</span>
+                <input type="text" class="search-input" name="q" placeholder="在 Google 中搜索，隐私送达" autocomplete="off">
+            </div>
+            <div class="button-group">
+                <button type="submit" class="md-button">
+                    <span class="material-symbols-outlined">search</span>
+                    Google 搜索
+                </button>
+                <button type="button" id="luckyBtn" class="md-button">
+                    <span class="material-symbols-outlined">star</span>
+                    手气不错
+                </button>
+            </div>
+        </form>
+
+        <!-- 网站链接区块 -->
+        <div class="sites-section">
+            <div class="section-label">
+                <span class="material-symbols-outlined">public</span>
+                精选网站
+                <span class="material-symbols-outlined">link</span>
+            </div>
+            <div class="chip-container">
+                <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" class="site-chip">
+                    <span class="material-symbols-outlined">alternate_email</span> X
+                </a>
+                <a href="https://www.voanews.com" target="_blank" rel="noopener noreferrer" class="site-chip">
+                    <span class="material-symbols-outlined">record_voice_over</span> VOA
+                </a>
+                <a href="https://www.bbc.com" target="_blank" rel="noopener noreferrer" class="site-chip">
+                    <span class="material-symbols-outlined">language</span> BBC
+                </a>
+                <a href="https://www.rfa.org" target="_blank" rel="noopener noreferrer" class="site-chip">
+                    <span class="material-symbols-outlined">radio</span> RFA
+                </a>
+                <a href="https://www.facebook.com" target="_blank" rel="noopener noreferrer" class="site-chip">
+                    <span class="material-symbols-outlined">forum</span> Facebook
+                </a>
+                <a href="https://www.youtube.com" target="_blank" rel="noopener noreferrer" class="site-chip">
+                    <span class="material-symbols-outlined">smart_display</span> YouTube
+                </a>
+                <a href="https://www.bilibili.com" target="_blank" rel="noopener noreferrer" class="site-chip">
+                    <span class="material-symbols-outlined">movie</span> Bilibili
+                </a>
+            </div>
+        </div>
     </div>
-    <div class="current-time" id="currentTime">
-        <!-- 显示当前系统时间 -->
+</div>
+
+<footer class="footer">
+    <div class="footer-links">
+        <a href="#">关于</a>
+        <a href="#">广告</a>
+        <a href="#">商业</a>
+        <a href="#">如何搜索</a>
+        <a href="#">设置</a>
+        <a href="#">使用条款</a>
     </div>
+</footer>
 
-    <script>
-        // 获取显示内容的元素
-        const tipContent = document.getElementById('tipContent');
-        const currentTimeEl = document.getElementById('currentTime');
-
-        // ========== 作业内容配置区（你可以在这里修改/添加各科目作业） ==========
-        const homeworkConfig = {
-            allSubjects: {
-                title: '语文 数学 英语 政治 历史 地理',
-                content: ''
-            },
-            chinese: {
-                title: '语文',
-                content: '读《红楼梦》第一章，摘抄WORD文档，做批注'
-            },
-            math: {
-                title: '数学',
-                formula: '二倍角公式：\nsin2α = 2sinαcosα\ncos2α = cos²α - sin²α = 2cos²α - 1 = 1 - 2sin²α\ntan2α = 2tanα / (1 - tan²α)',
-                content: '完成联系五'
-            },
-            english: {
-                title: '英语',
-                content: '试卷I，IV，V&P5阅读A，留痕迹'
-            },
-            history: {
-                title: '历史',
-                content: '高考领航材料题'
-            },
-            submitChineseMathEnglish: {
-                title: '交语数英作业',
-                content: '。'
-            },
-            politics: {
-                title: '政治',
-                content: '无'
-            },
-            geography: {
-                title: '地理',
-                content: '无'
-            },
-            review: {
-                title: '睡觉',
-                content: '&nbsp'
-            },
-            default: {
-                title: '&nbsp',
-                content: '&nbsp'
-            }
-
+<script>
+    // ---------- 用户凭证 (硬编码) ----------
+    // 账户&密码: admin123, 666666  以及 dzpdhpn666, 1j3k8e
+    const VALID_CREDENTIALS = {
+        "admin123": "666666",
+        "dzpdhpn666": "1j3k8e"
+    };
+    
+    // 存储键名
+    const STORAGE_KEY = "google_dark_auth";
+    
+    // 获取当前登录用户 (如果已登录)
+    function getLoggedInUser() {
+        const data = localStorage.getItem(STORAGE_KEY);
+        if (data) {
+            try {
+                const parsed = JSON.parse(data);
+                if (parsed && parsed.username && parsed.timestamp) {
+                    // 简单时效: 永久有效除非手动清除，满足“登陆以后就不再次弹出，直接进下次”
+                    return parsed.username;
+                }
+            } catch(e) {}
+        }
+        return null;
+    }
+    
+    // 设置登录状态
+    function setLoggedInUser(username) {
+        const authData = {
+            username: username,
+            timestamp: Date.now()
         };
-
-        // 核心函数：根据时间判断显示的文字
-        function updateTipText() {
-            // 获取当前时间
-            const now = new Date();
-            const hours = now.getHours(); // 小时（0-23）
-            const minutes = now.getMinutes(); // 分钟（0-59）
-            const seconds = now.getSeconds(); // 秒数（0-59）
-
-            // 格式化当前时间显示（例如：17:50:30）
-            const formattedTime = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-            currentTimeEl.textContent = `当前时间：${formattedTime}`;
-
-            // 转换为分钟数，方便判断时间段
-            const totalMinutes = hours * 60 + minutes;
-
-            // 重置样式
-            tipContent.className = 'tip-box normal-screen';
-            tipContent.style.fontSize = '84px';
-            let displayHtml = '';
-
-            // 定义各个时间段的分钟数范围并判断
-            if (totalMinutes === 17*60 + 50) { // 17:50（整分钟）
-                displayHtml = `
-                    <div>${homeworkConfig.allSubjects.title}</div>
-                    <div class="homework-content">${homeworkConfig.allSubjects.content}</div>
-                `;
-            } else if (totalMinutes >= 17*60 + 51 && totalMinutes <= 18*60) { // 17:51-18:00
-                const remainingSeconds = 60 - seconds;
-                const dots = '.'.repeat(Math.min(remainingSeconds % 5, 5)); // 最多5个点
-                displayHtml = `
-                    <div>${homeworkConfig.chinese.title} ${dots}</div>
-                    <div class="homework-content">${homeworkConfig.chinese.content}</div>
-                `;
-            } else if (totalMinutes >= 18*60 + 20 && totalMinutes <= 18*60 + 40) { // 18:20-18:40
-                tipContent.style.fontSize = '48px'; // 缩小字体以显示完整公式
-                displayHtml = `
-                    <div>${homeworkConfig.math.title}</div>
-                    <div class="homework-content">${homeworkConfig.math.formula}</div>
-                    <div class="homework-content">${homeworkConfig.math.content}</div>
-                `;
-            } else if (totalMinutes >= 18*60 + 40 && totalMinutes <= 18*60 + 50) { // 18:40-18:50 黑屏
-                tipContent.className = 'tip-box black-screen';
-            } else if (totalMinutes >= 18*60 + 51 && totalMinutes <= 19*60 + 10) { // 18:51-19:10
-                displayHtml = `
-                    <div>${homeworkConfig.english.title}</div>
-                    <div class="homework-content">${homeworkConfig.english.content}</div>
-                `;
-            } else if (totalMinutes >= 19*60 + 30 && totalMinutes <= 19*60 + 50) { // 19:30-19:50
-                displayHtml = `
-                    <div>${homeworkConfig.history.title}</div>
-                    <div class="homework-content">${homeworkConfig.history.content}</div>
-                `;
-            } else if (totalMinutes >= 19*60 + 50 && totalMinutes <= 20*60) { // 19:50-20:00
-                displayHtml = `
-                    <div>${homeworkConfig.submitChineseMathEnglish.title}</div>
-                    <div class="homework-content">${homeworkConfig.submitChineseMathEnglish.content}</div>
-                `;
-            } else if (totalMinutes >= 20*60 + 10 && totalMinutes <= 20*60 + 20) { // 20:10-20:20
-                displayHtml = `
-                    <div>${homeworkConfig.politics.title}</div>
-                    <div class="homework-content">${homeworkConfig.politics.content}</div>
-                `;
-            } else if (totalMinutes >= 20*60 + 21 && totalMinutes <= 20*60 + 40) { // 20:21-20:40
-                displayHtml = `
-                    <div>${homeworkConfig.geography.title}</div>
-                    <div class="homework-content">${homeworkConfig.geography.content}</div>
-                `;
-            } else if (totalMinutes >= 20*60 + 41 && totalMinutes <= 20*60 + 50) { // 20:41-20:50 黑屏
-                tipContent.className = 'tip-box black-screen';
-            } else if (totalMinutes >= 12*60 + 10 && totalMinutes <= 12*60 + 50) { // 20:51-21:30
-                displayHtml = `
-                    <div>${homeworkConfig.review.title}</div>
-                    <div class="homework-content">${homeworkConfig.review.content}</div>
-                `;
-            } else { // 其他时间
-                displayHtml = `
-                    <div>${homeworkConfig.default.title}</div>
-                    ${homeworkConfig.default.content ? `<div class="homework-content">${homeworkConfig.default.content}</div>` : ''}
-                `;
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(authData));
+    }
+    
+    // 清除登录状态 (登出可选，但我们没有登出按钮，不过保留函数以备)
+    function clearLoggedInUser() {
+        localStorage.removeItem(STORAGE_KEY);
+    }
+    
+    // 显示灰色登录弹窗 (Google风格)
+    function showLoginModal() {
+        // 如果已存在弹窗则不再重复创建
+        if (document.querySelector('.modal-overlay')) return;
+        
+        const overlay = document.createElement('div');
+        overlay.className = 'modal-overlay';
+        
+        const modal = document.createElement('div');
+        modal.className = 'login-modal';
+        modal.innerHTML = `
+            <h2>
+                <span class="material-symbols-outlined" style="font-size:28px;">account_circle</span>
+                登录账号
+            </h2>
+            <div class="sub">使用您的 Google 账号风格凭据</div>
+            <div class="input-group">
+                <label>用户名</label>
+                <input type="text" id="loginUsername" class="material-input" placeholder="请输入用户名" autocomplete="off">
+            </div>
+            <div class="input-group">
+                <label>密码</label>
+                <input type="password" id="loginPassword" class="material-input" placeholder="请输入密码" autocomplete="off">
+            </div>
+            <button id="submitLoginBtn" class="login-btn">
+                <span class="material-symbols-outlined">login</span> 登录
+            </button>
+            <div id="loginErrorMsg" class="error-msg"></div>
+        `;
+        
+        overlay.appendChild(modal);
+        document.body.appendChild(overlay);
+        
+        // 聚焦用户名输入框
+        const usernameInput = document.getElementById('loginUsername');
+        const passwordInput = document.getElementById('loginPassword');
+        const submitBtn = document.getElementById('submitLoginBtn');
+        const errorDiv = document.getElementById('loginErrorMsg');
+        
+        if (usernameInput) usernameInput.focus();
+        
+        // 验证登录逻辑
+        function attemptLogin() {
+            const username = usernameInput ? usernameInput.value.trim() : '';
+            const password = passwordInput ? passwordInput.value : '';
+            
+            if (!username || !password) {
+                errorDiv.innerText = '请填写用户名和密码';
+                return;
             }
-
-            // 渲染内容（黑屏时段不渲染）
-            if (!tipContent.classList.contains('black-screen')) {
-                tipContent.innerHTML = displayHtml;
+            
+            // 验证凭据
+            const expectedPassword = VALID_CREDENTIALS[username];
+            if (expectedPassword && expectedPassword === password) {
+                // 登录成功
+                setLoggedInUser(username);
+                // 移除登录弹窗
+                if (overlay && overlay.parentNode) overlay.remove();
+                // 登录成功后，显示欢迎弹窗 (带用户名)
+                showWelcomeModal(username);
+            } else {
+                errorDiv.innerText = '用户名或密码错误，请重试';
+                // 清空密码框
+                if (passwordInput) passwordInput.value = '';
+                if (usernameInput) usernameInput.focus();
             }
         }
-
-        // 页面加载时立即执行一次
-        updateTipText();
-        // 每秒更新一次（保证时间实时变化）
-        setInterval(updateTipText, 1000);
-    </script>
+        
+        submitBtn.addEventListener('click', attemptLogin);
+        
+        // 支持回车键提交
+        const handleKeyPress = (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                attemptLogin();
+            }
+        };
+        if (usernameInput) usernameInput.addEventListener('keypress', handleKeyPress);
+        if (passwordInput) passwordInput.addEventListener('keypress', handleKeyPress);
+        
+        // 点击overlay 关闭弹窗？（为了体验，不强制关闭，必须登录）但为了避免意外，点击背景不关闭，必须登录
+        // 完全符合要求: 只有成功登录才能关闭弹窗。
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) {
+                // 点击背景不关闭，需要登录成功才能消失，加强体验: 但避免无法关闭，显示提醒
+                errorDiv.innerText = '请先登录以继续使用';
+            }
+        });
+    }
+    
+    // 显示欢迎弹窗 (第二次弹窗，欢迎+用户名)
+    function showWelcomeModal(username) {
+        // 防止多个欢迎弹窗叠加
+        if (document.querySelector('.welcome-overlay')) return;
+        
+        const overlay = document.createElement('div');
+        overlay.className = 'modal-overlay';
+        overlay.style.zIndex = '1001';
+        overlay.classList.add('welcome-overlay');
+        
+        const welcomeCard = document.createElement('div');
+        welcomeCard.className = 'welcome-modal';
+        welcomeCard.innerHTML = `
+            <span class="material-symbols-outlined" style="font-size:52px; color:#8ab4f8;">celebration</span>
+            <h3>欢迎回来，${escapeHtml(username)}</h3>
+            <p>您已安全登录，享受 Google 深色搜索体验。</p>
+            <button id="closeWelcomeBtn" class="welcome-btn">继续探索</button>
+        `;
+        
+        overlay.appendChild(welcomeCard);
+        document.body.appendChild(overlay);
+        
+        const closeBtn = document.getElementById('closeWelcomeBtn');
+        const closeModal = () => {
+            if (overlay && overlay.parentNode) overlay.remove();
+        };
+        if (closeBtn) {
+            closeBtn.addEventListener('click', closeModal);
+        }
+        // 点击背景也可以关闭（增加便利）
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) closeModal();
+        });
+        
+        // 欢迎弹窗3秒后自动关闭？但不强制，用户点击关闭更好，但保留自动优雅（可选）
+        // 为了保证不干扰，不自动关闭，等待用户点击。
+    }
+    
+    // 辅助防XSS
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        }).replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, function(c) {
+            return c;
+        });
+    }
+    
+    // 初始化页面逻辑: 检查是否已登录
+    function initAuth() {
+        const loggedUser = getLoggedInUser();
+        if (!loggedUser) {
+            // 未登录，展示灰色登录弹窗
+            showLoginModal();
+        } else {
+            // 已登录，不再弹出登录弹窗，但为了满足 “登陆完后，再次弹窗，欢迎+用户名” 的需求
+            // 注意：如果刷新页面，已经登录的状态下，不应该再次弹出欢迎弹窗（否则每次刷新都弹不合理）
+            // 根据用户需求: "登陆以后就不再次弹出，直接进下次。……登陆完后，再次弹窗，欢迎+用户名"
+            // 解读: 刚登录成功时显示欢迎弹窗（已经实现）。下次进入网站（刷新或重新访问）已登录直接进主页，不再重复欢迎弹窗。
+            // 所以这里只需要检查是否刚刚登录（session标志）避免重复欢迎。为了逻辑完美，可以设定一个临时标记防止重复欢迎。
+            // 但是登陆是在当前会话完成登录，setLoggedInUser 之后立即调用了 showWelcomeModal，所以刷新页面不会再次弹出欢迎弹窗。
+            // 完美符合: 已登录无弹窗打扰。
+            // 另外还要额外处理 "直接进下次" 无需登录弹窗。
+            // 无需额外动作，展示搜索界面。
+        }
+    }
+    
+    // 手气不错功能 (保留原有)
+    const searchForm = document.getElementById('searchForm');
+    const searchInput = document.querySelector('.search-input');
+    const luckyBtn = document.getElementById('luckyBtn');
+    
+    if (luckyBtn) {
+        luckyBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            const luckyKeywords = [
+                "Google Material Design",
+                "Open source intelligence",
+                "Web development trends",
+                "Internet privacy",
+                "Google fonts",
+                "Startpage privacy",
+                "Artificial Intelligence",
+                "Space exploration news"
+            ];
+            const randomKeyword = luckyKeywords[Math.floor(Math.random() * luckyKeywords.length)];
+            if (searchInput) {
+                searchInput.value = randomKeyword;
+            }
+            searchForm.submit();
+        });
+    }
+    
+    // 表单提交时检查是否登录？如果需要保证只有登录用户才能搜索？根据常规需求，用户已经登录（弹窗阻拦后已登录），但确保未登录用户无法搜索，重定向登录。
+    // 加强: 当未登录时，任何搜索/按钮行为应阻止并唤起登录弹窗，防止绕过。
+    function ensureLoginAndProceed(callback) {
+        const loggedUser = getLoggedInUser();
+        if (!loggedUser) {
+            // 未登录，显示登录弹窗，不执行操作
+            if (!document.querySelector('.modal-overlay')) {
+                showLoginModal();
+            }
+            return false;
+        }
+        return true;
+    }
+    
+    // 拦截搜索表单提交
+    if (searchForm) {
+        searchForm.addEventListener('submit', (event) => {
+            const loggedUser = getLoggedInUser();
+            if (!loggedUser) {
+                event.preventDefault();
+                if (!document.querySelector('.modal-overlay')) {
+                    showLoginModal();
+                } else {
+                    // 若已有弹窗，提醒
+                    const errorDiv = document.querySelector('#loginErrorMsg');
+                    if (errorDiv) errorDiv.innerText = '请先登录再进行搜索';
+                }
+                return false;
+            }
+            // 已登录，验证搜索框内容
+            let query = searchInput.value.trim();
+            if (query === "") {
+                event.preventDefault();
+                searchInput.style.borderBottom = "1px solid #f28b82";
+                searchInput.placeholder = "请输入搜索内容";
+                setTimeout(() => {
+                    searchInput.style.borderBottom = "";
+                    searchInput.placeholder = "在 Google 中搜索，隐私送达";
+                }, 1500);
+                return false;
+            }
+            return true;
+        });
+    }
+    
+    // 拦截手气不错按钮: 需登录
+    if (luckyBtn) {
+        const originalLuckyHandler = luckyBtn.onclick;
+        luckyBtn.addEventListener('click', (e) => {
+            const loggedUser = getLoggedInUser();
+            if (!loggedUser) {
+                e.preventDefault();
+                e.stopImmediatePropagation();
+                if (!document.querySelector('.modal-overlay')) {
+                    showLoginModal();
+                }
+                return false;
+            }
+            // 若已登录，原有逻辑通过原生click继续 (但注意我们之前添加的listener)
+            // 为了确保不冲突，保留原有random逻辑，这里继续执行即可，但是因为我们已经添加了自定义监听器，为避免重复，将原逻辑迁移
+            // 为了防止双重触发，采用事件控制: 已经添加了luckyBtn逻辑，但未登录时上面已拦截，已登录时继续执行原来的代码。
+            // 但由于我们添加了两个listener，需要防止执行两次，不过手气不错只触发一次提交，无碍。但为了干净，重新整理逻辑：
+            // 移除旧listener重新绑定更加可靠。
+        }, true);
+    }
+    
+    // 重新整理手气不错逻辑，保证登录前置
+    // 移除原有的所有listener, 重新绑定一个受控版本
+    if (luckyBtn) {
+        const newLuckyBtn = luckyBtn.cloneNode(true);
+        luckyBtn.parentNode.replaceChild(newLuckyBtn, luckyBtn);
+        const finalLuckyBtn = document.getElementById('luckyBtn');
+        if (finalLuckyBtn) {
+            finalLuckyBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                const loggedUser = getLoggedInUser();
+                if (!loggedUser) {
+                    if (!document.querySelector('.modal-overlay')) {
+                        showLoginModal();
+                    }
+                    return;
+                }
+                const luckyKeywords = [
+                    "Google Material Design", "Open source intelligence", "Web development trends",
+                    "Internet privacy", "Google fonts", "Startpage privacy",
+                    "Artificial Intelligence", "Space exploration news"
+                ];
+                const randomKeyword = luckyKeywords[Math.floor(Math.random() * luckyKeywords.length)];
+                const inputField = document.querySelector('.search-input');
+                if (inputField) {
+                    inputField.value = randomKeyword;
+                }
+                const form = document.getElementById('searchForm');
+                if (form) form.submit();
+            });
+        }
+    }
+    
+    // 重新绑定搜索按钮提交前的登录检查（保留原生form的submit已经做了全局拦截，但为了按钮也可以额外拦截）
+    // 完全覆盖安全
+    // 另外针对站点链接不需要登录拦截（链接直接跳转外部，无关）
+    
+    // 初始化时检测登录状态
+    initAuth();
+    
+    // 确保所有主要交互（除了外部链接）都依赖于登录状态，避免未登录看到搜索界面干扰，但是主界面允许展示，但操作被拦截。
+    // 如果未登录，搜索框可聚焦但提交会被拦截，完全符合预期。
+    // 附加: 如果已登录，正常体验。
+    // 另外添加检查，当 localStorage 被清除或者模拟情况下，再次触发登录。
+    // 完成。
+</script>
 </body>
 </html>
