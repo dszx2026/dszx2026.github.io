@@ -27,7 +27,6 @@
             justify-content: center;
             z-index: 9999;
             transition: opacity 0.5s ease, visibility 0.5s ease;
-            backdrop-filter: blur(0px);
         }
         
         .splash-content {
@@ -91,7 +90,7 @@
             position: relative;
         }
         
-        /* 动态背景容器 */
+        /* 动态背景容器 - 高清无模糊，保持原图清晰度 */
         .dynamic-bg {
             position: fixed;
             top: 0;
@@ -104,9 +103,11 @@
             background-position: center;
             background-repeat: no-repeat;
             transition: background-image 0.3s ease;
+            /* 确保图片以原始清晰度显示，无任何模糊处理 */
+            image-rendering: auto;
         }
         
-        /* 背景遮罩保证文字可读性 */
+        /* 背景遮罩 - 只做半透明暗化，移除模糊滤镜，防止壁纸变糊 */
         .bg-overlay {
             position: fixed;
             top: 0;
@@ -115,7 +116,7 @@
             height: 100%;
             background-color: rgba(0, 0, 0, 0.65);
             z-index: -1;
-            backdrop-filter: blur(2px);
+            /* 关键修改：移除 backdrop-filter: blur(2px); 防止壁纸模糊 */
         }
         
         .main-wrapper {
@@ -304,6 +305,18 @@
             box-shadow: 0 2px 8px rgba(0,0,0,0.3);
         }
         
+        .music-toggle-btn.playing {
+            border-color: #8ab4f8;
+            box-shadow: 0 0 12px rgba(138, 180, 248, 0.3);
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(138, 180, 248, 0.4); }
+            70% { box-shadow: 0 0 0 8px rgba(138, 180, 248, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(138, 180, 248, 0); }
+        }
+        
         /* 设置按钮 - 位于右上角音乐按钮左侧 */
         .settings-btn {
             position: fixed;
@@ -483,7 +496,7 @@
             color: #9aa0a6;
             text-align: center;
             margin-top: 40px;
-            backdrop-filter: blur(4px);
+            /* 移除footer的模糊滤镜，保持壁纸清晰 */
         }
         
         .footer-links {
@@ -521,7 +534,7 @@
 </head>
 <body>
 
-<!-- 动态背景层 -->
+<!-- 动态背景层 - 高清无模糊 -->
 <div id="dynamicBg" class="dynamic-bg" style="background-image: none;"></div>
 <div class="bg-overlay"></div>
 
@@ -572,7 +585,7 @@
                 </div>
             </form>
 
-            <!-- 网站链接区块 (保留所有自定义图标) -->
+            <!-- 网站链接区块 -->
             <div class="sites-section">
                 <div class="section-label">
                     <span class="material-symbols-outlined">public</span>
@@ -642,6 +655,7 @@
         <div class="modal-input-group">
             <label>背景图片 URL</label>
             <input type="text" id="bgUrlInput" class="modal-input" placeholder="输入图片地址 https://...">
+            <div style="font-size: 12px; color: #9aa0a6; margin-top: 8px;">✨ 推荐使用高清原图链接，壁纸将保持原始清晰度</div>
         </div>
         <div class="preview-area">
             <div class="preview-label">预览效果</div>
@@ -667,13 +681,12 @@
         splash.style.opacity = '0';
         splash.style.visibility = 'hidden';
         mainContent.classList.add('visible');
-        // 完全移除 splash 占位
         setTimeout(() => {
             splash.style.display = 'none';
         }, 500);
-    }, 2000); // 展示2秒后进入主页面
+    }, 2000);
     
-    // 背景管理
+    // 背景管理 - 高清无模糊
     const dynamicBg = document.getElementById('dynamicBg');
     let currentBgUrl = localStorage.getItem('customBgUrl') || '';
     if (currentBgUrl) {
@@ -689,7 +702,6 @@
     const bgUrlInput = document.getElementById('bgUrlInput');
     const bgPreview = document.getElementById('bgPreview');
     
-    // 打开弹窗
     function openModal() {
         modal.classList.add('active');
         bgUrlInput.value = currentBgUrl;
@@ -704,7 +716,6 @@
     closeModalBtn.addEventListener('click', closeModal);
     modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
     
-    // 预览更新
     function updatePreview(url) {
         if (url && url.trim() !== '') {
             bgPreview.style.backgroundImage = `url("${url}")`;
@@ -720,7 +731,7 @@
         updatePreview(e.target.value);
     });
     
-    // 应用背景
+    // 应用背景 - 直接使用原图，不添加任何模糊效果
     applyBgBtn.addEventListener('click', () => {
         let newUrl = bgUrlInput.value.trim();
         if (newUrl) {
@@ -735,7 +746,7 @@
         closeModal();
     });
     
-    // 音乐控制 (完全独立，默认暂停，点击按钮播放/停止)
+    // 音乐控制
     const audioElement = document.getElementById('bgAudio');
     const musicBtn = document.getElementById('musicToggleBtn');
     const musicIconSpan = musicBtn.querySelector('.material-symbols-outlined');
@@ -792,7 +803,7 @@
             searchInput.placeholder = "请输入搜索内容";
             setTimeout(() => {
                 searchInput.style.borderBottom = "";
-                searchInput.placeholder = "在 Google 中搜索，隐私送达";
+                searchInput.placeholder = "在 Google 中搜索";
             }, 1500);
         }
     });
@@ -814,8 +825,10 @@
     // 调整布局
     function adjustLayout() {
         const logo = document.querySelector('.google-logo');
-        if (window.innerWidth <= 600) logo.style.marginTop = '10%';
-        else logo.style.marginTop = '20%';
+        if (logo) {
+            if (window.innerWidth <= 600) logo.style.marginTop = '10%';
+            else logo.style.marginTop = '20%';
+        }
     }
     window.addEventListener('resize', adjustLayout);
     adjustLayout();
