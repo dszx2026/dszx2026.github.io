@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>Google 深色首页 - 隐私搜索</title>
-    <!-- Google Material Design 图标库 (仅用于搜索等系统图标) -->
+    <!-- Google Material Design 图标库 -->
     <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0,1" />
     <style>
@@ -14,10 +14,64 @@
             box-sizing: border-box;
         }
 
-        body {
+        /* 启动封面层 - 全屏居中显示指定图片 */
+        .splash-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             background-color: #202124;
-            font-family: 'Google Sans', 'Roboto', Arial, sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+            backdrop-filter: blur(0px);
+        }
+        
+        .splash-content {
+            text-align: center;
+            animation: fadeInUp 0.6s ease;
+        }
+        
+        .splash-logo {
+            width: 200px;
+            height: 200px;
+            object-fit: contain;
+            border-radius: 32px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease;
+        }
+        
+        .splash-logo:hover {
+            transform: scale(1.02);
+        }
+        
+        .splash-text {
+            margin-top: 24px;
+            font-size: 18px;
+            font-weight: 500;
             color: #e8eaed;
+            font-family: 'Google Sans', 'Roboto', sans-serif;
+            letter-spacing: 0.5px;
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* 启动封面隐藏后主内容可见 */
+        .main-content {
+            opacity: 0;
+            transition: opacity 0.4s ease;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
@@ -25,7 +79,45 @@
             justify-content: space-between;
             position: relative;
         }
-
+        
+        .main-content.visible {
+            opacity: 1;
+        }
+        
+        body {
+            font-family: 'Google Sans', 'Roboto', Arial, sans-serif;
+            color: #e8eaed;
+            min-height: 100vh;
+            position: relative;
+        }
+        
+        /* 动态背景容器 */
+        .dynamic-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            background-color: #202124;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            transition: background-image 0.3s ease;
+        }
+        
+        /* 背景遮罩保证文字可读性 */
+        .bg-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.65);
+            z-index: -1;
+            backdrop-filter: blur(2px);
+        }
+        
         .main-wrapper {
             flex: 1;
             width: 100%;
@@ -34,7 +126,7 @@
             align-items: center;
             justify-content: center;
         }
-
+        
         .home-container {
             display: flex;
             flex-direction: column;
@@ -46,19 +138,19 @@
             padding: 20px;
             animation: fadeIn 0.3s ease;
         }
-
+        
         .logo-area {
             margin-bottom: 32px;
             text-align: center;
         }
-
+        
         .google-logo {
             margin-top: 20%;
             width: 290px;
             height: auto;
             object-fit: contain;
         }
-
+        
         .search-box {
             margin-top: 10px;
             width: 500px;
@@ -73,20 +165,20 @@
             margin-bottom: 38px;
             box-shadow: none;
         }
-
+        
         .search-box:hover, .search-box:focus-within {
             background-color: #303134;
             border-color: #8ab4f8;
             box-shadow: 0 1px 6px rgba(0,0,0,0.3);
         }
-
+        
         .search-icon {
             color: #9aa0a6;
             font-size: 24px;
             margin-right: 12px;
             user-select: none;
         }
-
+        
         .search-input {
             flex: 1;
             background: transparent;
@@ -98,11 +190,11 @@
             font-family: 'Google Sans', 'Roboto', Arial, sans-serif;
             padding: 12px 0;
         }
-
+        
         .search-input::placeholder {
             color: #9aa0a6;
         }
-
+        
         .button-group {
             display: flex;
             gap: 16px;
@@ -110,7 +202,7 @@
             flex-wrap: wrap;
             justify-content: center;
         }
-
+        
         .md-button {
             background-color: #303134;
             border: 1px solid #5f6368;
@@ -126,19 +218,19 @@
             align-items: center;
             gap: 8px;
         }
-
+        
         .md-button:hover {
             background-color: #3c4043;
             border-color: #5f6368;
             box-shadow: 0 1px 2px rgba(0,0,0,0.2);
         }
-
+        
         .sites-section {
             margin: 24px 0 16px;
             text-align: center;
             width: 100%;
         }
-
+        
         .section-label {
             font-size: 14px;
             font-weight: 500;
@@ -150,7 +242,7 @@
             justify-content: center;
             gap: 12px;
         }
-
+        
         .chip-container {
             display: flex;
             flex-wrap: wrap;
@@ -158,8 +250,7 @@
             gap: 12px;
             margin-bottom: 20px;
         }
-
-        /* 新版网站按钮样式：支持自定义图标图片 */
+        
         .site-chip {
             background: #303134;
             border-radius: 30px;
@@ -175,38 +266,25 @@
             transition: background 0.2s, transform 0.1s;
             border: 1px solid #5f6368;
         }
-
+        
         .site-chip:hover {
             background-color: #3c4043;
             border-color: #8ab4f8;
         }
-
-        /* 自定义图标样式 */
+        
         .site-custom-icon {
             width: 20px;
             height: 20px;
             object-fit: contain;
             border-radius: 4px;
-            display: inline-block;
-            vertical-align: middle;
         }
-
-        /* 默认图标（如果图片加载失败，降级为Material图标） */
-        .site-chip .material-symbols-outlined.fallback-icon {
-            font-size: 18px;
-            display: none;
-        }
-
-        .site-chip img + .fallback-icon {
-            display: none;
-        }
-
+        
         .material-symbols-outlined {
             font-size: 18px;
             font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20;
         }
-
-        /* 右上角圆形音乐播放按钮 - Material Design 风格 */
+        
+        /* 右上角音乐按钮 */
         .music-toggle-btn {
             position: fixed;
             top: 20px;
@@ -221,302 +299,494 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: all 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            transition: all 0.2s;
             z-index: 1000;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-            backdrop-filter: blur(4px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
         }
-
-        .music-toggle-btn:hover {
+        
+        /* 设置按钮 - 位于右上角音乐按钮左侧 */
+        .settings-btn {
+            position: fixed;
+            top: 20px;
+            right: 88px;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background-color: #303134;
+            border: 1px solid #5f6368;
+            color: #e8eaed;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            z-index: 1000;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+        
+        .settings-btn:hover, .music-toggle-btn:hover {
             background-color: #3c4043;
             border-color: #8ab4f8;
             transform: scale(1.05);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
         }
-
-        .music-toggle-btn:active {
-            transform: scale(0.98);
+        
+        /* 设置弹窗 Modal */
+        .settings-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            visibility: hidden;
+            opacity: 0;
+            transition: visibility 0.2s, opacity 0.2s;
         }
-
-        .music-toggle-btn .material-symbols-outlined {
-            font-size: 28px;
-            font-variation-settings: 'FILL' 1, 'wght' 500, 'GRAD' 0, 'opsz' 24;
+        
+        .settings-modal.active {
+            visibility: visible;
+            opacity: 1;
         }
-
-        .music-toggle-btn.playing {
+        
+        .modal-card {
+            background: #303134;
+            border-radius: 28px;
+            width: 90%;
+            max-width: 460px;
+            padding: 28px 24px;
+            border: 1px solid #5f6368;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            animation: modalPop 0.25s ease;
+        }
+        
+        @keyframes modalPop {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        
+        .modal-title {
+            font-size: 22px;
+            font-weight: 500;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #e8eaed;
+        }
+        
+        .modal-input-group {
+            margin-bottom: 24px;
+        }
+        
+        .modal-input-group label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: #9aa0a6;
+        }
+        
+        .modal-input {
+            width: 100%;
+            background: #202124;
+            border: 1px solid #5f6368;
+            border-radius: 24px;
+            padding: 12px 18px;
+            font-size: 14px;
+            color: #e8eaed;
+            font-family: inherit;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        
+        .modal-input:focus {
             border-color: #8ab4f8;
-            box-shadow: 0 0 12px rgba(138, 180, 248, 0.3);
-            animation: pulse 1.5s ease-in-out infinite;
         }
-
-        @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 rgba(138, 180, 248, 0.4); }
-            70% { box-shadow: 0 0 0 8px rgba(138, 180, 248, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(138, 180, 248, 0); }
+        
+        .preview-area {
+            margin: 20px 0;
+            background: #202124;
+            border-radius: 16px;
+            padding: 12px;
+            text-align: center;
         }
-
+        
+        .preview-label {
+            font-size: 12px;
+            color: #9aa0a6;
+            margin-bottom: 8px;
+        }
+        
+        .bg-preview {
+            width: 100%;
+            height: 100px;
+            border-radius: 12px;
+            background-size: cover;
+            background-position: center;
+            background-color: #202124;
+            border: 1px solid #5f6368;
+        }
+        
+        .modal-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+        
+        .modal-btn {
+            padding: 8px 20px;
+            border-radius: 24px;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+            font-family: inherit;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+        
+        .modal-btn-primary {
+            background: #8ab4f8;
+            color: #202124;
+        }
+        
+        .modal-btn-primary:hover {
+            background: #aecbfa;
+        }
+        
+        .modal-btn-secondary {
+            background: #3c4043;
+            color: #e8eaed;
+        }
+        
+        .modal-btn-secondary:hover {
+            background: #4a4e52;
+        }
+        
         .footer {
             width: 100%;
-            background-color: #171717;
+            background-color: #171717cc;
             border-top: 1px solid #3c4043;
             padding: 16px 24px;
             font-size: 12px;
             color: #9aa0a6;
             text-align: center;
             margin-top: 40px;
+            backdrop-filter: blur(4px);
         }
-
+        
         .footer-links {
             display: flex;
             justify-content: center;
             gap: 28px;
             flex-wrap: wrap;
         }
-
+        
         .footer-links a {
             color: #9aa0a6;
             text-decoration: none;
             font-size: 12px;
             font-weight: 500;
         }
-
+        
         .footer-links a:hover {
             text-decoration: underline;
             color: #8ab4f8;
         }
-
+        
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px);}
             to { opacity: 1; transform: translateY(0);}
         }
-
+        
         @media (max-width: 600px) {
             .google-logo { width: 180px; margin-top: 15%; }
-            .home-container { padding: 16px; }
-            .search-box { width: 90%; padding: 4px 12px; }
-            .md-button { padding: 8px 16px; font-size: 13px; }
-            .site-chip { padding: 6px 14px; font-size: 13px; }
+            .search-box { width: 90%; }
+            .settings-btn { top: 12px; right: 70px; width: 42px; height: 42px; }
             .music-toggle-btn { top: 12px; right: 12px; width: 42px; height: 42px; }
-            .music-toggle-btn .material-symbols-outlined { font-size: 24px; }
-            .site-custom-icon { width: 18px; height: 18px; }
-        }
-
-        @media (max-height: 700px) {
-            .google-logo { margin-top: 8%; }
+            .splash-logo { width: 150px; height: 150px; }
         }
     </style>
 </head>
 <body>
 
-<!-- 右上角圆形音乐播放按钮 -->
-<button id="musicToggleBtn" class="music-toggle-btn" aria-label="播放/暂停背景音乐">
-    <span class="material-symbols-outlined">play_circle</span>
-</button>
+<!-- 动态背景层 -->
+<div id="dynamicBg" class="dynamic-bg" style="background-image: none;"></div>
+<div class="bg-overlay"></div>
 
-<div class="main-wrapper">
-    <div class="home-container">
-        <div class="logo-area">
-            <img class="google-logo" 
-                 src="https://raw.githubusercontent.com/lobehub/lobe-icons/refs/heads/master/packages/static-png/dark/google-brand.png" 
-                 alt="Google"
-                 onerror="this.onerror=null; this.src='https://www.google.com/images/branding/googlelogo/2x/googlelogo_dark_color_272x92dp.png';">
+<!-- 启动封面 -->
+<div id="splashScreen" class="splash-screen">
+    <div class="splash-content">
+        <img class="splash-logo" 
+             src="https://is1-ssl.mzstatic.com/image/thumb/PurpleSource211/v4/69/c8/a0/69c8a030-11d1-2bdf-6ac8-a94970b3633f/Placeholder.mill/200x200bb-75.webp" 
+             alt="启动图标"
+             onerror="this.src='https://www.gstatic.com/images/branding/googlelogo/2x/googlelogo_dark_color_272x92dp.png'">
+        <div class="splash-text"></div>
+    </div>
+</div>
+
+<!-- 主内容区 -->
+<div id="mainContent" class="main-content">
+    <!-- 右上角按钮组 -->
+    <button id="settingsBtn" class="settings-btn" aria-label="设置">
+        <span class="material-symbols-outlined">settings</span>
+    </button>
+    <button id="musicToggleBtn" class="music-toggle-btn" aria-label="播放/暂停背景音乐">
+        <span class="material-symbols-outlined">play_circle</span>
+    </button>
+
+    <div class="main-wrapper">
+        <div class="home-container">
+            <div class="logo-area">
+                <img class="google-logo" 
+                     src="https://raw.githubusercontent.com/lobehub/lobe-icons/refs/heads/master/packages/static-png/dark/google-brand.png" 
+                     alt="Google"
+                     onerror="this.onerror=null; this.src='https://www.google.com/images/branding/googlelogo/2x/googlelogo_dark_color_272x92dp.png';">
+            </div>
+
+            <form id="searchForm" method="GET" action="https://fan21.933695.xyz/Alvin9999/https/www.startpage.com/sp/search">
+                <div class="search-box">
+                    <span class="material-symbols-outlined search-icon">search</span>
+                    <input type="text" class="search-input" name="q" placeholder="在 Google 中搜索" autocomplete="off">
+                </div>
+                <div class="button-group">
+                    <button type="submit" class="md-button">
+                        <span class="material-symbols-outlined">search</span>
+                        Google 搜索
+                    </button>
+                    <button type="button" id="luckyBtn" class="md-button">
+                        <span class="material-symbols-outlined">star</span>
+                        手气不错
+                    </button>
+                </div>
+            </form>
+
+            <!-- 网站链接区块 (保留所有自定义图标) -->
+            <div class="sites-section">
+                <div class="section-label">
+                    <span class="material-symbols-outlined">public</span>
+                    精选网站
+                    <span class="material-symbols-outlined">link</span>
+                </div>
+                <div class="chip-container">
+                    <a href="https://fan21.933695.xyz/Alvin9999/https/twitter.com" target="_blank" rel="noopener noreferrer" class="site-chip">
+                        <img class="site-custom-icon" src="https://is1-ssl.mzstatic.com/image/thumb/PurpleSource211/v4/e2/c6/f2/e2c6f2d0-8051-f062-baff-3340b85e5b17/Placeholder.mill/200x200bb-75.webp" alt="X" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-flex';">
+                        <span class="material-symbols-outlined" style="display: none;">alternate_email</span>
+                        X
+                    </a>
+                    <a href="https://fan21.933695.xyz/Alvin9999/https/www.voachinese.com" target="_blank" rel="noopener noreferrer" class="site-chip">
+                        <img class="site-custom-icon" src="https://ts3.tc.mm.bing.net/th/id/OIP-C.EyuSlIkZcpnhIYl3-glugQEsCd?w=108&h=108&c=1&bgcl=f07b63&r=0&o=7&pid=ImgRC&rm=3" alt="VOA" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-flex';">
+                        <span class="material-symbols-outlined" style="display: none;">record_voice_over</span>
+                        VOA
+                    </a>
+                    <a href="https://www.bbc.com" target="_blank" rel="noopener noreferrer" class="site-chip">
+                        <img class="site-custom-icon" src="https://bbcnews.bbcstudios.com/media/6203/bbc_news_logo.png" alt="BBC" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-flex';">
+                        <span class="material-symbols-outlined" style="display: none;">language</span>
+                        BBC
+                    </a>
+                    <a href="https://fan21.933695.xyz/Alvin9999/https/www.rfa.org" target="_blank" rel="noopener noreferrer" class="site-chip">
+                        <img class="site-custom-icon" src="https://is1-ssl.mzstatic.com/image/thumb/Purple123/v4/28/d2/ba/28d2ba03-0db6-db38-e121-60074db7ed27/AppIcon-0-0-1x_U007emarketing-0-0-0-7-0-0-sRGB-0-0-0-GLES2_U002c0-512MB-85-220-0-0.png/200x200ia-75.webp" alt="RFA" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-flex';">
+                        <span class="material-symbols-outlined" style="display: none;">radio</span>
+                        RFA
+                    </a>
+                    <a href="https://fan21.933695.xyz/Alvin9999/https/www.facebook.com" target="_blank" rel="noopener noreferrer" class="site-chip">
+                        <img class="site-custom-icon" src="https://is1-ssl.mzstatic.com/image/thumb/PurpleSource211/v4/39/53/a2/3953a27e-ae50-2242-d17e-9a872344fe8c/Placeholder.mill/200x200bb-75.webp" alt="Facebook" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-flex';">
+                        <span class="material-symbols-outlined" style="display: none;">forum</span>
+                        Facebook
+                    </a>
+                    <a href="https://fan21.933695.xyz/Alvin9999/https/www.youtube.com" target="_blank" rel="noopener noreferrer" class="site-chip">
+                        <img class="site-custom-icon" src="https://is1-ssl.mzstatic.com/image/thumb/PurpleSource221/v4/1d/3b/db/1d3bdb19-555c-7a77-01f0-49f5abff1ba8/Placeholder.mill/200x200bb-75.webp" alt="YouTube" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-flex';">
+                        <span class="material-symbols-outlined" style="display: none;">smart_display</span>
+                        YouTube
+                    </a>
+                    <a href="https://www.bilibili.com" target="_blank" rel="noopener noreferrer" class="site-chip">
+                        <img class="site-custom-icon" src="https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/fb/22/ee/fb22ee85-9814-5b32-4541-991b36e4db68/AppIcon-0-0-1x_U007epad-0-1-0-85-220.png/200x200ia-75.webp" alt="Bilibili" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-flex';">
+                        <span class="material-symbols-outlined" style="display: none;">movie</span>
+                        Bilibili
+                    </a>
+                </div>
+            </div>
         </div>
+    </div>
 
-        <form id="searchForm" method="GET" action="https://fan21.933695.xyz/Alvin9999/https/www.startpage.com/sp/search">
-            <div class="search-box">
-                <span class="material-symbols-outlined search-icon">search</span>
-                <input type="text" class="search-input" name="q" placeholder="在 Google 中搜索，隐私送达" autocomplete="off">
-            </div>
-            <div class="button-group">
-                <button type="submit" class="md-button">
-                    <span class="material-symbols-outlined">search</span>
-                    Google 搜索
-                </button>
-                <button type="button" id="luckyBtn" class="md-button">
-                    <span class="material-symbols-outlined">star</span>
-                    手气不错
-                </button>
-            </div>
-        </form>
+    <footer class="footer">
+        <div class="footer-links">
+            <a href="#">关于</a>
+            <a href="#">广告</a>
+            <a href="#">商业</a>
+            <a href="#">如何搜索</a>
+            <a href="#" id="footerSettingsLink">设置</a>
+            <a href="#">使用条款</a>
+        </div>
+    </footer>
+</div>
 
-        <!-- 网站链接区块 - 全部使用自定义图片图标 -->
-        <div class="sites-section">
-            <div class="section-label">
-                <span class="material-symbols-outlined">public</span>
-                精选网站
-                <span class="material-symbols-outlined">link</span>
-            </div>
-            <div class="chip-container">
-                <!-- X (Twitter) -->
-                <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" class="site-chip" data-name="X">
-                    <img class="site-custom-icon" src="https://is1-ssl.mzstatic.com/image/thumb/PurpleSource211/v4/e2/c6/f2/e2c6f2d0-8051-f062-baff-3340b85e5b17/Placeholder.mill/200x200bb-75.webp" alt="X icon" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-flex';">
-                    <span class="material-symbols-outlined fallback-icon">alternate_email</span>
-                    X
-                </a>
-                <!-- VOA 美国之音 -->
-                <a href="https://www.voanews.com" target="_blank" rel="noopener noreferrer" class="site-chip" data-name="VOA">
-                    <img class="site-custom-icon" src="https://ts3.tc.mm.bing.net/th/id/OIP-C.EyuSlIkZcpnhIYl3-glugQEsCd?w=108&h=108&c=1&bgcl=f07b63&r=0&o=7&pid=ImgRC&rm=3" alt="VOA icon" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-flex';">
-                    <span class="material-symbols-outlined fallback-icon">record_voice_over</span>
-                    VOA
-                </a>
-                <!-- BBC -->
-                <a href="https://www.bbc.com" target="_blank" rel="noopener noreferrer" class="site-chip" data-name="BBC">
-                    <img class="site-custom-icon" src="https://bbcnews.bbcstudios.com/media/6203/bbc_news_logo.png" alt="BBC icon" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-flex';">
-                    <span class="material-symbols-outlined fallback-icon">language</span>
-                    BBC
-                </a>
-                <!-- RFA 自由亚洲电台 -->
-                <a href="https://www.rfa.org" target="_blank" rel="noopener noreferrer" class="site-chip" data-name="RFA">
-                    <img class="site-custom-icon" src="https://is1-ssl.mzstatic.com/image/thumb/Purple123/v4/28/d2/ba/28d2ba03-0db6-db38-e121-60074db7ed27/AppIcon-0-0-1x_U007emarketing-0-0-0-7-0-0-sRGB-0-0-0-GLES2_U002c0-512MB-85-220-0-0.png/200x200ia-75.webp" alt="RFA icon" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-flex';">
-                    <span class="material-symbols-outlined fallback-icon">radio</span>
-                    RFA
-                </a>
-                <!-- Facebook -->
-                <a href="https://www.facebook.com" target="_blank" rel="noopener noreferrer" class="site-chip" data-name="Facebook">
-                    <img class="site-custom-icon" src="https://is1-ssl.mzstatic.com/image/thumb/PurpleSource211/v4/39/53/a2/3953a27e-ae50-2242-d17e-9a872344fe8c/Placeholder.mill/200x200bb-75.webp" alt="Facebook icon" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-flex';">
-                    <span class="material-symbols-outlined fallback-icon">forum</span>
-                    Facebook
-                </a>
-                <!-- YouTube -->
-                <a href="https://www.youtube.com" target="_blank" rel="noopener noreferrer" class="site-chip" data-name="YouTube">
-                    <img class="site-custom-icon" src="https://is1-ssl.mzstatic.com/image/thumb/PurpleSource221/v4/1d/3b/db/1d3bdb19-555c-7a77-01f0-49f5abff1ba8/Placeholder.mill/200x200bb-75.webp" alt="YouTube icon" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-flex';">
-                    <span class="material-symbols-outlined fallback-icon">smart_display</span>
-                    YouTube
-                </a>
-                <!-- Bilibili -->
-                <a href="https://www.bilibili.com" target="_blank" rel="noopener noreferrer" class="site-chip" data-name="Bilibili">
-                    <img class="site-custom-icon" src="https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/fb/22/ee/fb22ee85-9814-5b32-4541-991b36e4db68/AppIcon-0-0-1x_U007epad-0-1-0-85-220.png/200x200ia-75.webp" alt="Bilibili icon" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-flex';">
-                    <span class="material-symbols-outlined fallback-icon">movie</span>
-                    Bilibili
-                </a>
-            </div>
+<!-- 设置弹窗 Modal -->
+<div id="settingsModal" class="settings-modal">
+    <div class="modal-card">
+        <div class="modal-title">
+            <span class="material-symbols-outlined">wallpaper</span>
+            自定义背景
+        </div>
+        <div class="modal-input-group">
+            <label>背景图片 URL</label>
+            <input type="text" id="bgUrlInput" class="modal-input" placeholder="输入图片地址 https://...">
+        </div>
+        <div class="preview-area">
+            <div class="preview-label">预览效果</div>
+            <div id="bgPreview" class="bg-preview" style="background-image: none;"></div>
+        </div>
+        <div class="modal-buttons">
+            <button id="applyBgBtn" class="modal-btn modal-btn-primary">应用背景</button>
+            <button id="closeModalBtn" class="modal-btn modal-btn-secondary">取消</button>
         </div>
     </div>
 </div>
 
-<footer class="footer">
-    <div class="footer-links">
-        <a href="#">关于</a>
-        <a href="#">广告</a>
-        <a href="#">商业</a>
-        <a href="#">如何搜索</a>
-        <a href="#">设置</a>
-        <a href="#">使用条款</a>
-    </div>
-</footer>
-
 <audio id="bgAudio" loop preload="auto" style="display: none;">
     <source src="https://qins.ccccocccc.cc/view.php/3f45b9378bd4e5733940f2ac2f89182e.mp3" type="audio/mpeg">
-    您的浏览器不支持音频播放。
 </audio>
 
 <script>
-    // 获取元素
-    const searchForm = document.getElementById('searchForm');
-    const searchInput = document.querySelector('.search-input');
-    const luckyBtn = document.getElementById('luckyBtn');
+    // 启动封面逻辑: 停留2秒后淡出并显示主内容
+    const splash = document.getElementById('splashScreen');
+    const mainContent = document.getElementById('mainContent');
+    
+    setTimeout(() => {
+        splash.style.opacity = '0';
+        splash.style.visibility = 'hidden';
+        mainContent.classList.add('visible');
+        // 完全移除 splash 占位
+        setTimeout(() => {
+            splash.style.display = 'none';
+        }, 500);
+    }, 2000); // 展示2秒后进入主页面
+    
+    // 背景管理
+    const dynamicBg = document.getElementById('dynamicBg');
+    let currentBgUrl = localStorage.getItem('customBgUrl') || '';
+    if (currentBgUrl) {
+        dynamicBg.style.backgroundImage = `url("${currentBgUrl}")`;
+    }
+    
+    // 设置弹窗元素
+    const modal = document.getElementById('settingsModal');
+    const settingsBtn = document.getElementById('settingsBtn');
+    const footerSettingsLink = document.getElementById('footerSettingsLink');
+    const closeModalBtn = document.getElementById('closeModalBtn');
+    const applyBgBtn = document.getElementById('applyBgBtn');
+    const bgUrlInput = document.getElementById('bgUrlInput');
+    const bgPreview = document.getElementById('bgPreview');
+    
+    // 打开弹窗
+    function openModal() {
+        modal.classList.add('active');
+        bgUrlInput.value = currentBgUrl;
+        updatePreview(currentBgUrl);
+    }
+    function closeModal() {
+        modal.classList.remove('active');
+    }
+    
+    settingsBtn.addEventListener('click', openModal);
+    if (footerSettingsLink) footerSettingsLink.addEventListener('click', (e) => { e.preventDefault(); openModal(); });
+    closeModalBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+    
+    // 预览更新
+    function updatePreview(url) {
+        if (url && url.trim() !== '') {
+            bgPreview.style.backgroundImage = `url("${url}")`;
+            bgPreview.style.backgroundSize = 'cover';
+            bgPreview.style.backgroundPosition = 'center';
+        } else {
+            bgPreview.style.backgroundImage = 'none';
+            bgPreview.style.backgroundColor = '#202124';
+        }
+    }
+    
+    bgUrlInput.addEventListener('input', (e) => {
+        updatePreview(e.target.value);
+    });
+    
+    // 应用背景
+    applyBgBtn.addEventListener('click', () => {
+        let newUrl = bgUrlInput.value.trim();
+        if (newUrl) {
+            dynamicBg.style.backgroundImage = `url("${newUrl}")`;
+            currentBgUrl = newUrl;
+            localStorage.setItem('customBgUrl', newUrl);
+        } else {
+            dynamicBg.style.backgroundImage = 'none';
+            currentBgUrl = '';
+            localStorage.removeItem('customBgUrl');
+        }
+        closeModal();
+    });
+    
+    // 音乐控制 (完全独立，默认暂停，点击按钮播放/停止)
     const audioElement = document.getElementById('bgAudio');
     const musicBtn = document.getElementById('musicToggleBtn');
     const musicIconSpan = musicBtn.querySelector('.material-symbols-outlined');
-    
     let isPlaying = false;
     
-    // 更新按钮UI
-    function updateButtonUI() {
+    function updateMusicUI() {
         if (isPlaying) {
             musicIconSpan.textContent = 'pause_circle';
             musicBtn.classList.add('playing');
-            musicBtn.setAttribute('aria-label', '暂停背景音乐');
         } else {
             musicIconSpan.textContent = 'play_circle';
             musicBtn.classList.remove('playing');
-            musicBtn.setAttribute('aria-label', '播放背景音乐');
         }
     }
     
-    // 播放音乐
     function playMusic() {
         if (!audioElement) return;
-        const playPromise = audioElement.play();
-        if (playPromise !== undefined) {
-            playPromise.then(() => {
-                isPlaying = true;
-                updateButtonUI();
-            }).catch((error) => {
-                console.log("播放失败:", error);
-                isPlaying = false;
-                updateButtonUI();
-            });
-        }
+        audioElement.play().then(() => {
+            isPlaying = true;
+            updateMusicUI();
+        }).catch(() => {});
     }
-    
-    // 暂停音乐
     function pauseMusic() {
-        if (!audioElement) return;
         audioElement.pause();
         isPlaying = false;
-        updateButtonUI();
+        updateMusicUI();
     }
-    
-    // 切换播放/暂停
     function toggleMusic() {
-        if (!audioElement) return;
-        if (isPlaying) {
-            pauseMusic();
-        } else {
-            if (audioElement.readyState >= 2) {
-                playMusic();
-            } else {
-                audioElement.load();
-                audioElement.addEventListener('canplay', function onCanPlay() {
-                    playMusic();
-                    audioElement.removeEventListener('canplay', onCanPlay);
-                }, { once: true });
-                setTimeout(() => {
-                    if (!isPlaying && audioElement.readyState < 2) {
-                        playMusic();
-                    }
-                }, 500);
-            }
-        }
+        if (isPlaying) pauseMusic();
+        else playMusic();
     }
+    musicBtn.addEventListener('click', toggleMusic);
+    audioElement.addEventListener('ended', () => { if (isPlaying && audioElement.loop === false) playMusic(); });
+    audioElement.pause();
+    isPlaying = false;
+    updateMusicUI();
     
-    // 绑定音乐按钮事件
-    musicBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        toggleMusic();
-    });
+    // 手气不错与搜索表单逻辑
+    const searchForm = document.getElementById('searchForm');
+    const searchInput = document.querySelector('.search-input');
+    const luckyBtn = document.getElementById('luckyBtn');
     
-    // 初始化音频状态: 停止状态
-    if (audioElement) {
-        audioElement.pause();
-        audioElement.currentTime = 0;
-        isPlaying = false;
-        updateButtonUI();
-    }
-    
-    // 监听音频事件保持状态同步
-    audioElement.addEventListener('play', () => { isPlaying = true; updateButtonUI(); });
-    audioElement.addEventListener('pause', () => { isPlaying = false; updateButtonUI(); });
-    audioElement.addEventListener('ended', () => { if (audioElement.loop === false && isPlaying) { audioElement.play().catch(() => {}); } });
-    
-    // 手气不错逻辑
     luckyBtn.addEventListener('click', (e) => {
         e.preventDefault();
-        const luckyKeywords = [
-            "Google Material Design", "Open source intelligence", "Web development trends",
-            "Internet privacy", "Google fonts", "Startpage privacy", "Artificial Intelligence",
-            "Space exploration news", "Deep learning", "Quantum computing", "Sustainable energy"
-        ];
-        const randomKeyword = luckyKeywords[Math.floor(Math.random() * luckyKeywords.length)];
-        if (searchInput) searchInput.value = randomKeyword;
+        const keywords = ["Google Material Design", "Open source intelligence", "Web development trends", "Internet privacy", "Google fonts", "Startpage privacy", "Artificial Intelligence", "Space exploration", "Quantum computing"];
+        searchInput.value = keywords[Math.floor(Math.random() * keywords.length)];
         searchForm.submit();
     });
     
-    // 表单空值检查
     searchForm.addEventListener('submit', (event) => {
-        let query = searchInput.value.trim();
-        if (query === "") {
+        if (searchInput.value.trim() === "") {
             event.preventDefault();
             searchInput.style.borderBottom = "1px solid #f28b82";
             searchInput.placeholder = "请输入搜索内容";
@@ -524,55 +794,31 @@
                 searchInput.style.borderBottom = "";
                 searchInput.placeholder = "在 Google 中搜索，隐私送达";
             }, 1500);
-            return false;
         }
-        return true;
     });
     
-    // 响应式调整logo间距
-    function adjustLayout() {
-        const logo = document.querySelector('.google-logo');
-        if (window.innerWidth <= 600) {
-            if (logo) logo.style.marginTop = '10%';
-        } else {
-            if (logo) logo.style.marginTop = '20%';
-        }
-    }
-    window.addEventListener('resize', adjustLayout);
-    adjustLayout();
-    
-    // logo 容错
-    const googleLogoImg = document.querySelector('.google-logo');
-    if (googleLogoImg) {
-        googleLogoImg.addEventListener('error', () => {
-            if (!googleLogoImg.src.includes('googlelogo_dark_color')) {
-                googleLogoImg.src = 'https://www.google.com/images/branding/googlelogo/2x/googlelogo_dark_color_272x92dp.png';
-            }
-        });
-    }
-    
-    // 为所有网站链接添加额外的图片加载失败处理（确保降级图标显示）
+    // 处理图片加载失败降级
     document.querySelectorAll('.site-chip img').forEach(img => {
         img.addEventListener('error', function() {
             this.style.display = 'none';
-            const fallbackSpan = this.nextElementSibling;
-            if (fallbackSpan && fallbackSpan.classList.contains('fallback-icon')) {
-                fallbackSpan.style.display = 'inline-flex';
-            }
+            const sibling = this.nextElementSibling;
+            if (sibling && sibling.classList.contains('material-symbols-outlined')) sibling.style.display = 'inline-flex';
         });
-        // 如果图片已经加载失败（缓存情况），手动触发一次
-        if (img.complete && img.naturalWidth === 0) {
-            img.dispatchEvent(new Event('error'));
-        }
+        if (img.complete && img.naturalWidth === 0) img.dispatchEvent(new Event('error'));
     });
     
-    // 移动端触摸优化
-    musicBtn.addEventListener('touchstart', (e) => {
-        e.preventDefault();
-        toggleMusic();
-    }, { passive: false });
+    // logo 容错
+    const googleLogo = document.querySelector('.google-logo');
+    if (googleLogo) googleLogo.addEventListener('error', () => { if (!googleLogo.src.includes('googlelogo_dark_color')) googleLogo.src = 'https://www.google.com/images/branding/googlelogo/2x/googlelogo_dark_color_272x92dp.png'; });
     
-    console.log("页面加载完成 | 所有网站图标已替换为指定图片，右上角音乐按钮控制播放/停止");
+    // 调整布局
+    function adjustLayout() {
+        const logo = document.querySelector('.google-logo');
+        if (window.innerWidth <= 600) logo.style.marginTop = '10%';
+        else logo.style.marginTop = '20%';
+    }
+    window.addEventListener('resize', adjustLayout);
+    adjustLayout();
 </script>
 </body>
 </html>
