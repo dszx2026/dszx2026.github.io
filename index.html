@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Google</title>
-    <!-- Google Material Design 图标库 (Web Fonts + Icons) -->
+    <title>Google 深色首页 - 隐私搜索</title>
+    <!-- Google Material Design 图标库 (仅用于搜索等系统图标) -->
     <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0,1" />
     <style>
@@ -23,92 +23,9 @@
             flex-direction: column;
             align-items: center;
             justify-content: space-between;
+            position: relative;
         }
 
-        /* 顶部导航栏 - Google 风格 */
-        .top-bar {
-            width: 100%;
-            display: flex;
-            justify-content: flex-end;
-            align-items: center;
-            padding: 12px 24px;
-            position: fixed;
-            top: 0;
-            right: 0;
-            z-index: 100;
-            background: transparent;
-        }
-
-        .user-menu {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            background: rgba(48, 49, 52, 0.8);
-            backdrop-filter: blur(8px);
-            padding: 6px 16px 6px 12px;
-            border-radius: 32px;
-            border: 1px solid #5f6368;
-            transition: all 0.2s;
-        }
-
-        .user-menu:hover {
-            background: #3c4043;
-            border-color: #8ab4f8;
-        }
-
-        .user-avatar {
-            background: #8ab4f8;
-            border-radius: 50%;
-            width: 32px;
-            height: 32px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #202124;
-            font-weight: 500;
-            font-size: 14px;
-        }
-
-        .user-name {
-            font-size: 14px;
-            font-weight: 500;
-            color: #e8eaed;
-            max-width: 120px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-
-        .auth-btn {
-            background: transparent;
-            border: none;
-            color: #e8eaed;
-            font-family: 'Google Sans', 'Roboto', sans-serif;
-            font-size: 14px;
-            font-weight: 500;
-            padding: 8px 16px;
-            border-radius: 24px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: background 0.2s;
-        }
-
-        .auth-btn:hover {
-            background: rgba(232, 234, 237, 0.1);
-        }
-
-        .logout-btn {
-            background: #303134;
-            border: 1px solid #5f6368;
-        }
-
-        .logout-btn:hover {
-            background: #3c4043;
-        }
-
-        /* 主容器 */
         .main-wrapper {
             flex: 1;
             width: 100%;
@@ -116,10 +33,8 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            margin-top: 60px;
         }
 
-        /* 搜索首页容器 */
         .home-container {
             display: flex;
             flex-direction: column;
@@ -132,19 +47,18 @@
             animation: fadeIn 0.3s ease;
         }
 
-        /* Logo 区域 */
         .logo-area {
             margin-bottom: 32px;
             text-align: center;
         }
 
         .google-logo {
+            margin-top: 20%;
             width: 290px;
             height: auto;
             object-fit: contain;
         }
 
-        /* 搜索框 Material 风格 */
         .search-box {
             margin-top: 10px;
             width: 500px;
@@ -189,7 +103,6 @@
             color: #9aa0a6;
         }
 
-        /* 按钮组 */
         .button-group {
             display: flex;
             gap: 16px;
@@ -220,7 +133,6 @@
             box-shadow: 0 1px 2px rgba(0,0,0,0.2);
         }
 
-        /* 网站链接按钮组 */
         .sites-section {
             margin: 24px 0 16px;
             text-align: center;
@@ -247,6 +159,7 @@
             margin-bottom: 20px;
         }
 
+        /* 新版网站按钮样式：支持自定义图标图片 */
         .site-chip {
             background: #303134;
             border-radius: 30px;
@@ -268,12 +181,80 @@
             border-color: #8ab4f8;
         }
 
+        /* 自定义图标样式 */
+        .site-custom-icon {
+            width: 20px;
+            height: 20px;
+            object-fit: contain;
+            border-radius: 4px;
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        /* 默认图标（如果图片加载失败，降级为Material图标） */
+        .site-chip .material-symbols-outlined.fallback-icon {
+            font-size: 18px;
+            display: none;
+        }
+
+        .site-chip img + .fallback-icon {
+            display: none;
+        }
+
         .material-symbols-outlined {
             font-size: 18px;
             font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20;
         }
 
-        /* 底部 footer */
+        /* 右上角圆形音乐播放按钮 - Material Design 风格 */
+        .music-toggle-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background-color: #303134;
+            border: 1px solid #5f6368;
+            color: #e8eaed;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            z-index: 1000;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(4px);
+        }
+
+        .music-toggle-btn:hover {
+            background-color: #3c4043;
+            border-color: #8ab4f8;
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+        }
+
+        .music-toggle-btn:active {
+            transform: scale(0.98);
+        }
+
+        .music-toggle-btn .material-symbols-outlined {
+            font-size: 28px;
+            font-variation-settings: 'FILL' 1, 'wght' 500, 'GRAD' 0, 'opsz' 24;
+        }
+
+        .music-toggle-btn.playing {
+            border-color: #8ab4f8;
+            box-shadow: 0 0 12px rgba(138, 180, 248, 0.3);
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(138, 180, 248, 0.4); }
+            70% { box-shadow: 0 0 0 8px rgba(138, 180, 248, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(138, 180, 248, 0); }
+        }
+
         .footer {
             width: 100%;
             background-color: #171717;
@@ -304,247 +285,36 @@
             color: #8ab4f8;
         }
 
-        /* 动画 */
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px);}
             to { opacity: 1; transform: translateY(0);}
         }
 
-        /* 灰色弹窗 (Google Material 风格 Dialog) */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(4px);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            animation: fadeIn 0.2s ease;
-        }
-
-        .login-modal {
-            background-color: #2d2e32;
-            border-radius: 28px;
-            width: 90%;
-            max-width: 420px;
-            padding: 28px 24px 32px;
-            box-shadow: 0 19px 38px rgba(0,0,0,0.3);
-            border: 1px solid #5f6368;
-        }
-
-        .login-modal h2 {
-            font-size: 24px;
-            font-weight: 500;
-            margin-bottom: 8px;
-            color: #e8eaed;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .login-modal .sub {
-            color: #9aa0a6;
-            font-size: 14px;
-            margin-bottom: 28px;
-            border-left: 3px solid #8ab4f8;
-            padding-left: 12px;
-        }
-
-        .input-group {
-            margin-bottom: 24px;
-        }
-
-        .input-group label {
-            display: block;
-            font-size: 13px;
-            font-weight: 500;
-            color: #e8eaed;
-            margin-bottom: 8px;
-        }
-
-        .material-input {
-            width: 100%;
-            background: #202124;
-            border: 1px solid #5f6368;
-            border-radius: 24px;
-            padding: 12px 18px;
-            font-size: 15px;
-            color: #e8eaed;
-            font-family: 'Google Sans', 'Roboto', sans-serif;
-            transition: all 0.2s;
-            outline: none;
-        }
-
-        .material-input:focus {
-            border-color: #8ab4f8;
-            box-shadow: 0 1px 4px rgba(138, 180, 248, 0.2);
-        }
-
-        .login-btn {
-            width: 100%;
-            background-color: #8ab4f8;
-            border: none;
-            border-radius: 28px;
-            padding: 12px;
-            font-size: 14px;
-            font-weight: 600;
-            font-family: 'Google Sans', 'Roboto', sans-serif;
-            color: #202124;
-            cursor: pointer;
-            transition: background 0.2s;
-            margin-top: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-
-        .login-btn:hover {
-            background-color: #aec9fa;
-        }
-
-        .error-msg {
-            color: #f28b82;
-            font-size: 12px;
-            margin-top: 12px;
-            text-align: center;
-            font-weight: 500;
-        }
-
-        /* 欢迎弹窗 */
-        .welcome-modal {
-            background-color: #2d2e32;
-            border-radius: 28px;
-            max-width: 360px;
-            width: 90%;
-            padding: 28px 24px;
-            text-align: center;
-            border: 1px solid #5f6368;
-        }
-
-        .welcome-modal h3 {
-            font-size: 22px;
-            font-weight: 500;
-            margin: 16px 0 12px;
-            color: #e8eaed;
-        }
-
-        .welcome-btn {
-            background-color: #8ab4f8;
-            border: none;
-            border-radius: 28px;
-            padding: 10px 24px;
-            font-weight: 500;
-            cursor: pointer;
-            color: #202124;
-        }
-
-        /* 协议弹窗 - 必须 Accept All */
-        .consent-modal {
-            background-color: #2d2e32;
-            border-radius: 28px;
-            max-width: 480px;
-            width: 90%;
-            padding: 32px 28px;
-            text-align: center;
-            border: 1px solid #5f6368;
-        }
-
-        .consent-modal h2 {
-            font-size: 24px;
-            font-weight: 500;
-            margin-bottom: 16px;
-            color: #e8eaed;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-        }
-
-        .consent-content {
-            text-align: left;
-            background: #202124;
-            border-radius: 20px;
-            padding: 20px;
-            margin: 20px 0;
-            max-height: 300px;
-            overflow-y: auto;
-            font-size: 13px;
-            color: #e8eaed;
-            line-height: 1.5;
-        }
-
-        .consent-content p {
-            margin-bottom: 12px;
-        }
-
-        .consent-buttons {
-            display: flex;
-            gap: 16px;
-            justify-content: center;
-            margin-top: 8px;
-        }
-
-        .consent-accept {
-            background-color: #8ab4f8;
-            border: none;
-            border-radius: 28px;
-            padding: 12px 28px;
-            font-weight: 600;
-            cursor: pointer;
-            color: #202124;
-            font-size: 14px;
-        }
-
-        .consent-reject {
-            background-color: #303134;
-            border: 1px solid #5f6368;
-            border-radius: 28px;
-            padding: 12px 28px;
-            font-weight: 500;
-            cursor: pointer;
-            color: #e8eaed;
-            font-size: 14px;
-        }
-
-        .consent-reject:hover {
-            background-color: #3c4043;
-        }
-
-        /* 响应式 */
         @media (max-width: 600px) {
-            .google-logo {
-                width: 180px;
-            }
-            .home-container {
-                padding: 16px;
-            }
-            .search-box {
-                width: 100%;
-            }
-            .user-name {
-                display: none;
-            }
-            .top-bar {
-                padding: 8px 16px;
-            }
+            .google-logo { width: 180px; margin-top: 15%; }
+            .home-container { padding: 16px; }
+            .search-box { width: 90%; padding: 4px 12px; }
+            .md-button { padding: 8px 16px; font-size: 13px; }
+            .site-chip { padding: 6px 14px; font-size: 13px; }
+            .music-toggle-btn { top: 12px; right: 12px; width: 42px; height: 42px; }
+            .music-toggle-btn .material-symbols-outlined { font-size: 24px; }
+            .site-custom-icon { width: 18px; height: 18px; }
+        }
+
+        @media (max-height: 700px) {
+            .google-logo { margin-top: 8%; }
         }
     </style>
 </head>
 <body>
 
-<!-- 顶部右侧 Google 风格登录/退出按钮 -->
-<div class="top-bar">
-    <div id="userMenuContainer"></div>
-</div>
+<!-- 右上角圆形音乐播放按钮 -->
+<button id="musicToggleBtn" class="music-toggle-btn" aria-label="播放/暂停背景音乐">
+    <span class="material-symbols-outlined">play_circle</span>
+</button>
 
 <div class="main-wrapper">
     <div class="home-container">
-        <!-- Google Logo -->
         <div class="logo-area">
             <img class="google-logo" 
                  src="https://raw.githubusercontent.com/lobehub/lobe-icons/refs/heads/master/packages/static-png/dark/google-brand.png" 
@@ -552,7 +322,6 @@
                  onerror="this.onerror=null; this.src='https://www.google.com/images/branding/googlelogo/2x/googlelogo_dark_color_272x92dp.png';">
         </div>
 
-        <!-- 搜索表单: 代理地址 -->
         <form id="searchForm" method="GET" action="https://fan21.933695.xyz/Alvin9999/https/www.startpage.com/sp/search">
             <div class="search-box">
                 <span class="material-symbols-outlined search-icon">search</span>
@@ -570,7 +339,7 @@
             </div>
         </form>
 
-        <!-- 网站链接区块 -->
+        <!-- 网站链接区块 - 全部使用自定义图片图标 -->
         <div class="sites-section">
             <div class="section-label">
                 <span class="material-symbols-outlined">public</span>
@@ -578,26 +347,47 @@
                 <span class="material-symbols-outlined">link</span>
             </div>
             <div class="chip-container">
-                <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" class="site-chip">
-                    <span class="material-symbols-outlined">alternate_email</span> X
+                <!-- X (Twitter) -->
+                <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" class="site-chip" data-name="X">
+                    <img class="site-custom-icon" src="https://is1-ssl.mzstatic.com/image/thumb/PurpleSource211/v4/e2/c6/f2/e2c6f2d0-8051-f062-baff-3340b85e5b17/Placeholder.mill/200x200bb-75.webp" alt="X icon" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-flex';">
+                    <span class="material-symbols-outlined fallback-icon">alternate_email</span>
+                    X
                 </a>
-                <a href="https://www.voanews.com" target="_blank" rel="noopener noreferrer" class="site-chip">
-                    <span class="material-symbols-outlined">record_voice_over</span> VOA
+                <!-- VOA 美国之音 -->
+                <a href="https://www.voanews.com" target="_blank" rel="noopener noreferrer" class="site-chip" data-name="VOA">
+                    <img class="site-custom-icon" src="https://ts3.tc.mm.bing.net/th/id/OIP-C.EyuSlIkZcpnhIYl3-glugQEsCd?w=108&h=108&c=1&bgcl=f07b63&r=0&o=7&pid=ImgRC&rm=3" alt="VOA icon" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-flex';">
+                    <span class="material-symbols-outlined fallback-icon">record_voice_over</span>
+                    VOA
                 </a>
-                <a href="https://www.bbc.com" target="_blank" rel="noopener noreferrer" class="site-chip">
-                    <span class="material-symbols-outlined">language</span> BBC
+                <!-- BBC -->
+                <a href="https://www.bbc.com" target="_blank" rel="noopener noreferrer" class="site-chip" data-name="BBC">
+                    <img class="site-custom-icon" src="https://bbcnews.bbcstudios.com/media/6203/bbc_news_logo.png" alt="BBC icon" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-flex';">
+                    <span class="material-symbols-outlined fallback-icon">language</span>
+                    BBC
                 </a>
-                <a href="https://www.rfa.org" target="_blank" rel="noopener noreferrer" class="site-chip">
-                    <span class="material-symbols-outlined">radio</span> RFA
+                <!-- RFA 自由亚洲电台 -->
+                <a href="https://www.rfa.org" target="_blank" rel="noopener noreferrer" class="site-chip" data-name="RFA">
+                    <img class="site-custom-icon" src="https://is1-ssl.mzstatic.com/image/thumb/Purple123/v4/28/d2/ba/28d2ba03-0db6-db38-e121-60074db7ed27/AppIcon-0-0-1x_U007emarketing-0-0-0-7-0-0-sRGB-0-0-0-GLES2_U002c0-512MB-85-220-0-0.png/200x200ia-75.webp" alt="RFA icon" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-flex';">
+                    <span class="material-symbols-outlined fallback-icon">radio</span>
+                    RFA
                 </a>
-                <a href="https://www.facebook.com" target="_blank" rel="noopener noreferrer" class="site-chip">
-                    <span class="material-symbols-outlined">forum</span> Facebook
+                <!-- Facebook -->
+                <a href="https://www.facebook.com" target="_blank" rel="noopener noreferrer" class="site-chip" data-name="Facebook">
+                    <img class="site-custom-icon" src="https://is1-ssl.mzstatic.com/image/thumb/PurpleSource211/v4/39/53/a2/3953a27e-ae50-2242-d17e-9a872344fe8c/Placeholder.mill/200x200bb-75.webp" alt="Facebook icon" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-flex';">
+                    <span class="material-symbols-outlined fallback-icon">forum</span>
+                    Facebook
                 </a>
-                <a href="https://www.youtube.com" target="_blank" rel="noopener noreferrer" class="site-chip">
-                    <span class="material-symbols-outlined">smart_display</span> YouTube
+                <!-- YouTube -->
+                <a href="https://www.youtube.com" target="_blank" rel="noopener noreferrer" class="site-chip" data-name="YouTube">
+                    <img class="site-custom-icon" src="https://is1-ssl.mzstatic.com/image/thumb/PurpleSource221/v4/1d/3b/db/1d3bdb19-555c-7a77-01f0-49f5abff1ba8/Placeholder.mill/200x200bb-75.webp" alt="YouTube icon" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-flex';">
+                    <span class="material-symbols-outlined fallback-icon">smart_display</span>
+                    YouTube
                 </a>
-                <a href="https://www.bilibili.com" target="_blank" rel="noopener noreferrer" class="site-chip">
-                    <span class="material-symbols-outlined">movie</span> Bilibili
+                <!-- Bilibili -->
+                <a href="https://www.bilibili.com" target="_blank" rel="noopener noreferrer" class="site-chip" data-name="Bilibili">
+                    <img class="site-custom-icon" src="https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/fb/22/ee/fb22ee85-9814-5b32-4541-991b36e4db68/AppIcon-0-0-1x_U007epad-0-1-0-85-220.png/200x200ia-75.webp" alt="Bilibili icon" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-flex';">
+                    <span class="material-symbols-outlined fallback-icon">movie</span>
+                    Bilibili
                 </a>
             </div>
         </div>
@@ -615,320 +405,174 @@
     </div>
 </footer>
 
+<audio id="bgAudio" loop preload="auto" style="display: none;">
+    <source src="https://qins.ccccocccc.cc/view.php/3f45b9378bd4e5733940f2ac2f89182e.mp3" type="audio/mpeg">
+    您的浏览器不支持音频播放。
+</audio>
+
 <script>
-    // ======================= 配置常量 =======================
-    const VALID_CREDENTIALS = {
-        "admin123": "666666",
-        "dzpdhpn666": "1j3k8e"
-    };
-    const STORAGE_KEY_AUTH = "google_dark_auth";
-    const STORAGE_KEY_CONSENT = "google_consent_accepted";
-    const JIANGSU_ANTI_FRAUD_URL = "http://www.js96110.com.cn/"; 
+    // 获取元素
+    const searchForm = document.getElementById('searchForm');
+    const searchInput = document.querySelector('.search-input');
+    const luckyBtn = document.getElementById('luckyBtn');
+    const audioElement = document.getElementById('bgAudio');
+    const musicBtn = document.getElementById('musicToggleBtn');
+    const musicIconSpan = musicBtn.querySelector('.material-symbols-outlined');
     
-    // 辅助函数
-    function escapeHtml(str) {
-        if (!str) return '';
-        return str.replace(/[&<>]/g, function(m) {
-            if (m === '&') return '&amp;';
-            if (m === '<') return '&lt;';
-            if (m === '>') return '&gt;';
-            return m;
-        });
-    }
+    let isPlaying = false;
     
-    // 获取登录用户
-    function getLoggedInUser() {
-        const data = localStorage.getItem(STORAGE_KEY_AUTH);
-        if (data) {
-            try {
-                const parsed = JSON.parse(data);
-                if (parsed && parsed.username) return parsed.username;
-            } catch(e) {}
-        }
-        return null;
-    }
-    
-    // 设置登录状态
-    function setLoggedInUser(username) {
-        localStorage.setItem(STORAGE_KEY_AUTH, JSON.stringify({ username: username, timestamp: Date.now() }));
-    }
-    
-    // 清除登录
-    function clearLoggedInUser() {
-        localStorage.removeItem(STORAGE_KEY_AUTH);
-    }
-    
-    // 获取协议同意状态
-    function hasAcceptedConsent() {
-        return localStorage.getItem(STORAGE_KEY_CONSENT) === "true";
-    }
-    
-    // 设置同意协议
-    function setConsentAccepted() {
-        localStorage.setItem(STORAGE_KEY_CONSENT, "true");
-    }
-    
-    // 跳转江苏反诈网（清除页面内容并跳转）
-    function redirectToAntiFraud() {
-        // 清除页面所有内容并强制跳转
-        document.body.innerHTML = '<div style="background:#202124; height:100vh; display:flex; align-items:center; justify-content:center; color:white;">正在跳转...</div>';
-        window.location.href = JIANGSU_ANTI_FRAUD_URL;
-    }
-    
-    // 显示协议弹窗（必须 Accept All）
-    function showConsentModal() {
-        return new Promise((resolve) => {
-            const overlay = document.createElement('div');
-            overlay.className = 'modal-overlay';
-            overlay.style.zIndex = '2000';
-            
-            const modal = document.createElement('div');
-            modal.className = 'consent-modal';
-            modal.innerHTML = `
-                <h2>
-                    <span class="material-symbols-outlined" style="font-size:32px;">policy</span>
-                    用户协议与隐私条款
-                </h2>
-                <div class="consent-content">
-                    <p><strong>欢迎使用 Google 深色搜索服务</strong></p>
-                    <p>请您仔细阅读以下协议内容：</p>
-                    <p>1. 本服务遵守当地法律法规，所有搜索请求通过隐私代理转发，保护您的个人信息。</p>
-                    <p>2. 您确认已年满18周岁，并对使用本平台的所有行为负责。</p>
-                    <p>3. 禁止利用本服务进行任何违法、侵权或危害国家安全的行为。</p>
-                    <p>4. 本服务使用本地存储记录登录状态和偏好设置，不会收集您的隐私数据。</p>
-                    <p>5. 若不同意本协议，您将无法使用本网站并会被重定向至官方合规页面。</p>
-                    <p style="margin-top:16px; color:#8ab4f8;"><strong>⚠️ 重要提示：必须点击“Accept All”接受所有条款方可继续使用。</strong></p>
-                </div>
-                <div class="consent-buttons">
-                    <button id="consentAcceptBtn" class="consent-accept">✓ Accept All</button>
-                    <button id="consentRejectBtn" class="consent-reject">✗ Reject</button>
-                </div>
-            `;
-            
-            overlay.appendChild(modal);
-            document.body.appendChild(overlay);
-            
-            const acceptBtn = document.getElementById('consentAcceptBtn');
-            const rejectBtn = document.getElementById('consentRejectBtn');
-            
-            const cleanup = () => {
-                if (overlay && overlay.parentNode) overlay.remove();
-            };
-            
-            acceptBtn.addEventListener('click', () => {
-                setConsentAccepted();
-                cleanup();
-                resolve(true);
-            });
-            
-            rejectBtn.addEventListener('click', () => {
-                cleanup();
-                redirectToAntiFraud();
-                resolve(false);
-            });
-        });
-    }
-    
-    // 显示登录弹窗
-    function showLoginModal(onSuccess) {
-        if (document.querySelector('.modal-overlay')) return;
-        
-        const overlay = document.createElement('div');
-        overlay.className = 'modal-overlay';
-        
-        const modal = document.createElement('div');
-        modal.className = 'login-modal';
-        modal.innerHTML = `
-            <h2>
-                <span class="material-symbols-outlined" style="font-size:28px;">account_circle</span>
-                登录账号
-            </h2>
-            <div class="sub">使用 Google 风格凭据登录</div>
-            <div class="input-group">
-                <label>用户名</label>
-                <input type="text" id="loginUsername" class="material-input" placeholder="请输入用户名" autocomplete="off">
-            </div>
-            <div class="input-group">
-                <label>密码</label>
-                <input type="password" id="loginPassword" class="material-input" placeholder="请输入密码" autocomplete="off">
-            </div>
-            <button id="submitLoginBtn" class="login-btn">
-                <span class="material-symbols-outlined">login</span> 登录
-            </button>
-            <div id="loginErrorMsg" class="error-msg"></div>
-        `;
-        
-        overlay.appendChild(modal);
-        document.body.appendChild(overlay);
-        
-        const usernameInput = document.getElementById('loginUsername');
-        const passwordInput = document.getElementById('loginPassword');
-        const submitBtn = document.getElementById('submitLoginBtn');
-        const errorDiv = document.getElementById('loginErrorMsg');
-        
-        if (usernameInput) usernameInput.focus();
-        
-        function attemptLogin() {
-            const username = usernameInput ? usernameInput.value.trim() : '';
-            const password = passwordInput ? passwordInput.value : '';
-            
-            if (!username || !password) {
-                errorDiv.innerText = '请填写用户名和密码';
-                return;
-            }
-            
-            const expectedPassword = VALID_CREDENTIALS[username];
-            if (expectedPassword && expectedPassword === password) {
-                setLoggedInUser(username);
-                overlay.remove();
-                showWelcomeModal(username);
-                if (onSuccess) onSuccess(username);
-                updateUserMenu();
-            } else {
-                errorDiv.innerText = '用户名或密码错误，请重试';
-                if (passwordInput) passwordInput.value = '';
-                if (usernameInput) usernameInput.focus();
-            }
-        }
-        
-        submitBtn.addEventListener('click', attemptLogin);
-        const handleKeyPress = (e) => { if (e.key === 'Enter') attemptLogin(); };
-        if (usernameInput) usernameInput.addEventListener('keypress', handleKeyPress);
-        if (passwordInput) passwordInput.addEventListener('keypress', handleKeyPress);
-    }
-    
-    // 显示欢迎弹窗
-    function showWelcomeModal(username) {
-        const overlay = document.createElement('div');
-        overlay.className = 'modal-overlay';
-        overlay.style.zIndex = '1001';
-        
-        const welcomeCard = document.createElement('div');
-        welcomeCard.className = 'welcome-modal';
-        welcomeCard.innerHTML = `
-            <span class="material-symbols-outlined" style="font-size:52px; color:#8ab4f8;">celebration</span>
-            <h3>欢迎回来，${escapeHtml(username)}</h3>
-            <p>您已安全登录，享受 Google 深色搜索体验。</p>
-            <button id="closeWelcomeBtn" class="welcome-btn">继续探索</button>
-        `;
-        
-        overlay.appendChild(welcomeCard);
-        document.body.appendChild(overlay);
-        
-        const closeBtn = document.getElementById('closeWelcomeBtn');
-        const closeModal = () => { if (overlay && overlay.parentNode) overlay.remove(); };
-        if (closeBtn) closeBtn.addEventListener('click', closeModal);
-        overlay.addEventListener('click', (e) => { if (e.target === overlay) closeModal(); });
-        
-        setTimeout(() => { if (overlay && overlay.parentNode) closeModal(); }, 4000);
-    }
-    
-    // 更新右上角菜单 (登录/退出按钮)
-    function updateUserMenu() {
-        const container = document.getElementById('userMenuContainer');
-        if (!container) return;
-        const loggedUser = getLoggedInUser();
-        
-        if (loggedUser) {
-            container.innerHTML = `
-                <div class="user-menu">
-                    <div class="user-avatar">${escapeHtml(loggedUser.charAt(0).toUpperCase())}</div>
-                    <span class="user-name">${escapeHtml(loggedUser)}</span>
-                    <button id="logoutHeaderBtn" class="auth-btn logout-btn">
-                        <span class="material-symbols-outlined" style="font-size:18px;">logout</span>
-                        退出
-                    </button>
-                </div>
-            `;
-            const logoutBtn = document.getElementById('logoutHeaderBtn');
-            if (logoutBtn) {
-                logoutBtn.addEventListener('click', () => {
-                    clearLoggedInUser();
-                    updateUserMenu();
-                    // 可选刷新页面或保持，用户退出后不再自动弹登录，保留界面但搜索会被拦截重新登录
-                });
-            }
+    // 更新按钮UI
+    function updateButtonUI() {
+        if (isPlaying) {
+            musicIconSpan.textContent = 'pause_circle';
+            musicBtn.classList.add('playing');
+            musicBtn.setAttribute('aria-label', '暂停背景音乐');
         } else {
-            container.innerHTML = `
-                <button id="loginHeaderBtn" class="auth-btn">
-                    <span class="material-symbols-outlined" style="font-size:18px;">login</span>
-                    登录
-                </button>
-            `;
-            const loginBtn = document.getElementById('loginHeaderBtn');
-            if (loginBtn) {
-                loginBtn.addEventListener('click', () => {
-                    showLoginModal(() => updateUserMenu());
-                });
+            musicIconSpan.textContent = 'play_circle';
+            musicBtn.classList.remove('playing');
+            musicBtn.setAttribute('aria-label', '播放背景音乐');
+        }
+    }
+    
+    // 播放音乐
+    function playMusic() {
+        if (!audioElement) return;
+        const playPromise = audioElement.play();
+        if (playPromise !== undefined) {
+            playPromise.then(() => {
+                isPlaying = true;
+                updateButtonUI();
+            }).catch((error) => {
+                console.log("播放失败:", error);
+                isPlaying = false;
+                updateButtonUI();
+            });
+        }
+    }
+    
+    // 暂停音乐
+    function pauseMusic() {
+        if (!audioElement) return;
+        audioElement.pause();
+        isPlaying = false;
+        updateButtonUI();
+    }
+    
+    // 切换播放/暂停
+    function toggleMusic() {
+        if (!audioElement) return;
+        if (isPlaying) {
+            pauseMusic();
+        } else {
+            if (audioElement.readyState >= 2) {
+                playMusic();
+            } else {
+                audioElement.load();
+                audioElement.addEventListener('canplay', function onCanPlay() {
+                    playMusic();
+                    audioElement.removeEventListener('canplay', onCanPlay);
+                }, { once: true });
+                setTimeout(() => {
+                    if (!isPlaying && audioElement.readyState < 2) {
+                        playMusic();
+                    }
+                }, 500);
             }
         }
     }
     
-    // 拦截搜索与手气不错，要求登录
-    function initInteractions() {
-        const searchForm = document.getElementById('searchForm');
-        const searchInput = document.querySelector('.search-input');
-        const luckyBtn = document.getElementById('luckyBtn');
-        
-        if (searchForm) {
-            searchForm.addEventListener('submit', (e) => {
-                const loggedUser = getLoggedInUser();
-                if (!loggedUser) {
-                    e.preventDefault();
-                    if (!document.querySelector('.modal-overlay')) showLoginModal(() => updateUserMenu());
-                    return false;
-                }
-                let query = searchInput.value.trim();
-                if (query === "") {
-                    e.preventDefault();
-                    searchInput.style.borderBottom = "1px solid #f28b82";
-                    searchInput.placeholder = "请输入搜索内容";
-                    setTimeout(() => {
-                        searchInput.style.borderBottom = "";
-                        searchInput.placeholder = "在 Google 中搜索";
-                    }, 1500);
-                    return false;
-                }
-                return true;
-            });
-        }
-        
-        if (luckyBtn) {
-            luckyBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                const loggedUser = getLoggedInUser();
-                if (!loggedUser) {
-                    if (!document.querySelector('.modal-overlay')) showLoginModal(() => updateUserMenu());
-                    return;
-                }
-                const luckyKeywords = [
-                    "Google Material Design", "Open source intelligence", "Web development trends",
-                    "Internet privacy", "Google fonts", "Startpage privacy",
-                    "Artificial Intelligence", "Space exploration news"
-                ];
-                const randomKeyword = luckyKeywords[Math.floor(Math.random() * luckyKeywords.length)];
-                if (searchInput) searchInput.value = randomKeyword;
-                searchForm.submit();
-            });
-        }
+    // 绑定音乐按钮事件
+    musicBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        toggleMusic();
+    });
+    
+    // 初始化音频状态: 停止状态
+    if (audioElement) {
+        audioElement.pause();
+        audioElement.currentTime = 0;
+        isPlaying = false;
+        updateButtonUI();
     }
     
-    // 初始化: 协议检查 -> 然后加载页面功能
-    async function init() {
-        // 1. 检查是否已同意协议
-        if (!hasAcceptedConsent()) {
-            await showConsentModal();
-            // 如果 reject 会跳转，不会继续执行；若 accept 则继续
+    // 监听音频事件保持状态同步
+    audioElement.addEventListener('play', () => { isPlaying = true; updateButtonUI(); });
+    audioElement.addEventListener('pause', () => { isPlaying = false; updateButtonUI(); });
+    audioElement.addEventListener('ended', () => { if (audioElement.loop === false && isPlaying) { audioElement.play().catch(() => {}); } });
+    
+    // 手气不错逻辑
+    luckyBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        const luckyKeywords = [
+            "Google Material Design", "Open source intelligence", "Web development trends",
+            "Internet privacy", "Google fonts", "Startpage privacy", "Artificial Intelligence",
+            "Space exploration news", "Deep learning", "Quantum computing", "Sustainable energy"
+        ];
+        const randomKeyword = luckyKeywords[Math.floor(Math.random() * luckyKeywords.length)];
+        if (searchInput) searchInput.value = randomKeyword;
+        searchForm.submit();
+    });
+    
+    // 表单空值检查
+    searchForm.addEventListener('submit', (event) => {
+        let query = searchInput.value.trim();
+        if (query === "") {
+            event.preventDefault();
+            searchInput.style.borderBottom = "1px solid #f28b82";
+            searchInput.placeholder = "请输入搜索内容";
+            setTimeout(() => {
+                searchInput.style.borderBottom = "";
+                searchInput.placeholder = "在 Google 中搜索，隐私送达";
+            }, 1500);
+            return false;
         }
-        // 2. 渲染顶部菜单
-        updateUserMenu();
-        // 3. 绑定搜索交互
-        initInteractions();
-        // 4. 若已登录，不再弹窗，若未登录，也不自动弹登录框，由用户主动点击登录按钮
-        // 完全符合: 进网站先有协议，必须 accept all，否则跳转反诈网。
+        return true;
+    });
+    
+    // 响应式调整logo间距
+    function adjustLayout() {
+        const logo = document.querySelector('.google-logo');
+        if (window.innerWidth <= 600) {
+            if (logo) logo.style.marginTop = '10%';
+        } else {
+            if (logo) logo.style.marginTop = '20%';
+        }
+    }
+    window.addEventListener('resize', adjustLayout);
+    adjustLayout();
+    
+    // logo 容错
+    const googleLogoImg = document.querySelector('.google-logo');
+    if (googleLogoImg) {
+        googleLogoImg.addEventListener('error', () => {
+            if (!googleLogoImg.src.includes('googlelogo_dark_color')) {
+                googleLogoImg.src = 'https://www.google.com/images/branding/googlelogo/2x/googlelogo_dark_color_272x92dp.png';
+            }
+        });
     }
     
-    init();
+    // 为所有网站链接添加额外的图片加载失败处理（确保降级图标显示）
+    document.querySelectorAll('.site-chip img').forEach(img => {
+        img.addEventListener('error', function() {
+            this.style.display = 'none';
+            const fallbackSpan = this.nextElementSibling;
+            if (fallbackSpan && fallbackSpan.classList.contains('fallback-icon')) {
+                fallbackSpan.style.display = 'inline-flex';
+            }
+        });
+        // 如果图片已经加载失败（缓存情况），手动触发一次
+        if (img.complete && img.naturalWidth === 0) {
+            img.dispatchEvent(new Event('error'));
+        }
+    });
+    
+    // 移动端触摸优化
+    musicBtn.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        toggleMusic();
+    }, { passive: false });
+    
+    console.log("页面加载完成 | 所有网站图标已替换为指定图片，右上角音乐按钮控制播放/停止");
 </script>
 </body>
 </html>
