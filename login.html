@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Login</title>
+    <!-- 引入 Google Material Symbols 图标库 (最新稳定) -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0,1" />
+    <!-- 引入 Roboto 字体，Material Design 标准字体 -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #f0f2f5;  /* 柔和背景色，类似谷歌服务背景 */
+            font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+border-radius:22px;
+            display: flex;
+	width:100%;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 2rem;
+            /* 扩宽整个屏幕：让卡片宽度更大，背景撑满全屏，且卡片更宽 */
+        }
+
+        /* 卡片容器 - 扩宽版本，最大宽度增加至 640px，适配宽屏视觉 */
+        .login-card {
+max-width:70%;
+max-height:50%;
+            width: 100%;
+            background: #ffffff;
+border-radius:32px;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12), 0 4px 12px rgba(0, 0, 0, 0.04);
+            padding: 2.5rem 2rem 2rem 2rem;
+            transition: box-shadow 0.2s ease;
+        }
+
+        /* YouTube 品牌区头部 */
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 2rem;
+        }
+        .youtube-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .youtube-logo-svg {
+            height: 32px;
+            width: auto;
+        }
+        .brand-text {
+            font-size: 1.75rem;
+            font-weight: 500;
+            letter-spacing: -0.3px;
+            color: #1f1f1f;
+        }
+
+        /* 主标题 */
+        h1 {
+            font-size: 2rem;
+            font-weight: 500;
+            color: #202124;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.25px;
+        }
+
+        /* 辅助说明文字 */
+        .subtitle {
+            font-size: 1rem;
+            color: #5f6368;
+            margin-bottom: 2rem;
+            line-height: 1.4;
+        }
+
+        /* 表单字段通用样式 - Material 风格文本输入，加大内边距更适合宽屏幕 */
+        .input-group {
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        .material-input {
+            width: 100%;
+            padding: 1.125rem 1rem 0.625rem 1rem;
+            font-size: 1rem;
+            font-family: 'Roboto', sans-serif;
+            border: 1px solid #dadce0;
+            border-radius: 12px;
+            outline: none;
+            background-color: #fff;
+            transition: all 0.2s ease;
+            color: #202124;
+            line-height: 1.25;
+        }
+
+        .material-input:focus {
+            border-color: #1a73e8;
+            border-width: 2px;
+            padding-top: calc(1.125rem - 1px);
+            padding-bottom: calc(0.625rem - 1px);
+            box-shadow: none;
+        }
+
+        /* 输入框浮动标签效果 (Material 感) */
+        .input-wrapper {
+            position: relative;
+            width: 100%;
+        }
+
+        .input-wrapper label {
+            position: absolute;
+            left: 1rem;
+            top: 1rem;
+            font-size: 1rem;
+            color: #5f6368;
+            pointer-events: none;
+            transition: 0.2s ease all;
+            background-color: transparent;
+            padding: 0 2px;
+            font-weight: 400;
+        }
+
+        .material-input:focus ~ label,
+        .material-input:not(:placeholder-shown) ~ label {
+            top: -0.5rem;
+            left: 0.875rem;
+            font-size: 0.75rem;
+            background-color: #fff;
+            color: #1a73e8;
+            padding: 0 4px;
+        }
+
+        .material-input:not(:placeholder-shown):not(:focus) ~ label {
+            color: #5f6368;
+        }
+
+        /* 忘记邮箱链接 */
+        .forgot-email {
+            display: inline-block;
+            margin-top: 0.25rem;
+            font-size: 0.9rem;
+            color: #1a73e8;
+            text-decoration: none;
+            font-weight: 500;
+            margin-bottom: 1.75rem;
+        }
+        .forgot-email:hover {
+            text-decoration: underline;
+            background-color: transparent;
+        }
+
+        /* 访客模式区域 (无痕登录) 扩宽后更舒适 */
+        .guest-mode {
+            background-color: #f8f9fa;
+            border-radius: 16px;
+            padding: 1.25rem;
+            margin-bottom: 2rem;
+            border: 1px solid #ecedef;
+        }
+        .guest-title {
+            font-size: 1rem;
+            font-weight: 500;
+            color: #202124;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 0.6rem;
+        }
+        .guest-title .material-symbols-outlined {
+            font-size: 1.35rem;
+            color: #5f6368;
+        }
+        .guest-desc {
+            font-size: 0.9rem;
+            color: #5f6368;
+            line-height: 1.45;
+            margin-bottom: 0.85rem;
+        }
+        .guest-link {
+            font-size: 0.9rem;
+            color: #1a73e8;
+            text-decoration: none;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .guest-link:hover {
+            text-decoration: underline;
+        }
+
+        /* 操作按钮区域: 创建账号 + 下一步，增大间距，按钮更大气 */
+        .actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1.25rem;
+            margin-bottom: 2.25rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        .btn-create {
+            background: none;
+            border: none;
+            font-size: 1rem;
+            font-weight: 500;
+            color: #1a73e8;
+            padding: 0.6rem 1.25rem;
+            border-radius: 28px;
+            cursor: pointer;
+            font-family: 'Roboto', sans-serif;
+            transition: background-color 0.2s;
+            text-decoration: none;
+        }
+        .btn-create:hover {
+            background-color: rgba(26, 115, 232, 0.08);
+        }
+        .btn-next {
+            background-color: #1a73e8;
+            border: none;
+            color: white;
+            font-size: 1rem;
+            font-weight: 500;
+            padding: 0.75rem 2rem;
+            border-radius: 28px;
+            cursor: pointer;
+            font-family: 'Roboto', sans-serif;
+            transition: background-color 0.2s, box-shadow 0.2s, transform 0.05s;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+        .btn-next:hover {
+            background-color: #1b66c9;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+        }
+        .btn-next:active {
+            transform: scale(0.98);
+        }
+
+        /* 页脚链接: 简体中文 帮助 隐私权 条款 */
+        .footer-links {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1rem;
+            padding-top: 1.25rem;
+            border-top: 1px solid #ecedef;
+            font-size: 0.8rem;
+            color: #5f6368;
+        }
+        .lang-select {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        .lang-select .material-symbols-outlined {
+            font-size: 1.1rem;
+        }
+        .legal-links {
+            display: flex;
+            gap: 1.5rem;
+        }
+        .legal-links a {
+            text-decoration: none;
+            color: #5f6368;
+            font-size: 0.8rem;
+        }
+        .legal-links a:hover {
+            text-decoration: underline;
+            color: #1a73e8;
+        }
+
+        /* 辅助隐藏占位符用于浮动标签 (需要placeholder但显示占位符不可见) */
+        .material-input::placeholder {
+            color: transparent;
+        }
+
+        /* 针对较窄屏幕响应，依然保持宽感但最小边距调整 */
+        @media (max-width: 680px) {
+            body {
+                padding: 1rem;
+            }
+            .login-card {
+                padding: 1.75rem;
+                max-width: 100%;
+            }
+            .actions {
+                flex-direction: row;
+                justify-content: space-between;
+            }
+            .footer-links {
+                flex-direction: column;
+                gap: 0.8rem;
+                align-items: flex-start;
+            }
+            .brand-text {
+                font-size: 1.5rem;
+            }
+            h1 {
+                font-size: 1.75rem;
+            }
+        }
+
+        /* 访客模式详细介绍链接样式 */
+        .inline-link {
+            color: #1a73e8;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        .inline-link:hover {
+            text-decoration: underline;
+        }
+        
+        /* 简单toast轻提示，优雅过渡 */
+        .material-toast {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #323232;
+            color: #fff;
+            padding: 10px 24px;
+            border-radius: 28px;
+            font-size: 0.875rem;
+            font-family: 'Roboto', sans-serif;
+            font-weight: 500;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            pointer-events: none;
+            white-space: nowrap;
+        }
+        @media (max-width: 480px) {
+            .material-toast {
+                white-space: normal;
+                text-align: center;
+                max-width: 85vw;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-card">
+        <!-- YouTube 品牌区，融合 Google Material 图标风格 -->
+        <div class="brand">
+            <div class="youtube-icon">
+               <svg class="google-logo-svg" viewBox="0 0 24 24" width="32" height="32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+  <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+  <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+  <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+</svg>
+                </svg>
+            </div>
+            <span class="brand-text">Google</span>
+        </div>
+
+        <h1>登录</h1>
+        <div class="subtitle">继续使用 Google并享受更多功能</div>
+
+        <!-- 邮箱/电话号码输入框，符合material design -->
+        <div class="input-group">
+            <div class="input-wrapper">
+                <input type="email" id="emailInput" class="material-input" placeholder=" " value="" autocomplete="email">
+                <label for="emailInput">邮箱或电话号码</label>
+            </div>
+        </div>
+
+        <!-- 忘记邮箱链接 -->
+        <a href="#" class="forgot-email">忘记了邮箱？</a>
+
+        <!-- 访客模式无痕登录模块 (详细介绍如何操作) -->
+        <div class="guest-mode">
+            <div class="guest-title">
+                <span class="material-symbols-outlined">visibility_off</span>
+                <span>您用的不是自己的电脑？</span>
+            </div>
+            <div class="guest-desc">
+                请使用访客模式无痕登录。详细了解如何
+                <a href="#" class="inline-link">使用访客模式</a>
+            </div>
+            <!-- 显式突出链接指向 "使用访客模式" 细节，与截图一致 -->
+            <a href="#" class="guest-link">
+                使用访客模式
+                <span class="material-symbols-outlined" style="font-size: 1rem;">arrow_forward</span>
+            </a>
+        </div>
+
+        <!-- 创建账号 + 下一步按钮区 -->
+        <div class="actions">
+            <button class="btn-create" id="createAccountBtn">创建账号</button>
+            <button class="btn-next" id="nextBtn">下一步</button>
+        </div>
+
+        <!-- 页脚：简体中文 帮助 隐私权 条款 -->
+        <div class="footer-links">
+            <div class="lang-select" id="langSelector">
+                <span class="material-symbols-outlined">language</span>
+                <span>简体中文</span>
+            </div>
+            <div class="legal-links">
+                <a href="#" id="helpLink">帮助</a>
+                <a href="#" id="privacyLink">隐私权</a>
+                <a href="#" id="termsLink">条款</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            const emailInput = document.getElementById('emailInput');
+            const nextBtn = document.getElementById('nextBtn');
+            const createBtn = document.getElementById('createAccountBtn');
+            const forgotLink = document.querySelector('.forgot-email');
+            const guestLink = document.querySelector('.guest-link');
+            const inlineGuestLink = document.querySelector('.inline-link');
+
+            // ---------- 核心功能：点击下一步跳转到 dszx2026.github.io ----------
+            // 要求：点击“下一步”时跳转至 dszx2026.github.io
+            // 根据需求: 无论邮箱是否填写，点击下一步直接跳转（保持跳转逻辑符合“下一步”操作）
+            // 但为了更好的体验，如果邮箱为空，依然跳转，同时也可以给出轻提示后跳转，遵循原意：点击下一步跳转指定网址。
+            // 为了符合直觉：点击下一步直接跳转到 https://dszx2026.github.io
+            function redirectToNext() {
+                // 直接跳转到目标地址 (保留 https 协议)
+                window.location.href = "https://dszx2026.github.io";
+            }
+
+            // 为了增加一点友好提醒，但确保跳转发生。不过按照精准需求，点击下一步必须跳转。
+            // 但有些用户可能误触，无伤大雅，直接跳转。
+            // 也可以先验证邮箱格式，但还是跳转，完全遵循需求。
+            // 注意：为了演示安全和避免阻止默认行为，直接绑定跳转。
+            if (nextBtn) {
+                nextBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    // 可选：如果需求希望展示一个简单的日志，但主要跳转
+                    // 也可以提示“正在跳转...”，但是立即跳转。
+                    redirectToNext();
+                });
+            }
+
+            // 创建账号模拟: 也可以跳转到账号创建页面(仍保持风格，但为了体验展示toast)
+            function handleCreate() {
+                showToast("创建新账号 (演示功能)");
+                // 如果需要也可跳转，但未指定所以保持toast
+            }
+
+            // 忘记邮箱提示
+            function handleForgot() {
+                showToast("找回邮箱地址 (演示链接)");
+            }
+
+            // 访客模式提示
+            function handleGuestMode() {
+                showToast("开启访客模式无痕浏览 (演示)");
+            }
+
+            // 简单toast通知 (Material 风格轻提示)
+            function showToast(message) {
+                const existingToast = document.querySelector('.material-toast');
+                if(existingToast) existingToast.remove();
+
+                const toast = document.createElement('div');
+                toast.className = 'material-toast';
+                toast.innerText = message;
+                document.body.appendChild(toast);
+                // 强制重绘
+                setTimeout(() => { toast.style.opacity = '1'; }, 10);
+                setTimeout(() => {
+                    toast.style.opacity = '0';
+                    setTimeout(() => toast.remove(), 250);
+                }, 2500);
+            }
+
+            // 绑定其他辅助事件（不影响主跳转）
+            if(createBtn) createBtn.addEventListener('click', handleCreate);
+            if(forgotLink) forgotLink.addEventListener('click', (e) => { e.preventDefault(); handleForgot(); });
+            if(guestLink) guestLink.addEventListener('click', (e) => { e.preventDefault(); handleGuestMode(); });
+            if(inlineGuestLink) inlineGuestLink.addEventListener('click', (e) => { e.preventDefault(); handleGuestMode(); });
+
+            // 回车在输入框也触发生成下一步跳转 (提升用户体验)
+            if(emailInput) {
+                emailInput.addEventListener('keypress', function(event) {
+                    if (event.key === 'Enter') {
+                        event.preventDefault();
+                        redirectToNext();
+                    }
+                });
+            }
+
+            // 调整浮动标签初始状态
+            function adjustLabelPosition() {
+                if(emailInput && emailInput.value.trim() !== "") {
+                    emailInput.dispatchEvent(new Event('input'));
+                }
+            }
+            adjustLabelPosition();
+
+            // 语言选择演示交互 (保持友好)
+            const langSelector = document.getElementById('langSelector');
+            if(langSelector) {
+                langSelector.addEventListener('click', () => {
+                    showToast('简体中文 (演示)');
+                });
+            }
+            const helpLink = document.getElementById('helpLink');
+            const privacyLink = document.getElementById('privacyLink');
+            const termsLink = document.getElementById('termsLink');
+            if(helpLink) helpLink.addEventListener('click', (e) => { e.preventDefault(); showToast('帮助中心 (演示)'); });
+            if(privacyLink) privacyLink.addEventListener('click', (e) => { e.preventDefault(); showToast('隐私权说明 (演示)'); });
+            if(termsLink) termsLink.addEventListener('click', (e) => { e.preventDefault(); showToast('服务条款 (演示)'); });
+        })();
+    </script>
+</body>
+</html>
