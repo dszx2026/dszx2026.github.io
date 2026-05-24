@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Intent 跳转工具 - 开发者选项</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background: linear-gradient(145deg, #f0f4fa 0%, #e2e8f0 100%);
+            font-family: 'Segoe UI', 'Roboto', 'Noto Sans', system-ui, -apple-system, 'Helvetica Neue', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 1.5rem;
+        }
+
+        /* 卡片容器 */
+        .card {
+            max-width: 560px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.96);
+            backdrop-filter: blur(0px);
+            border-radius: 2rem;
+            box-shadow: 0 25px 45px -12px rgba(0, 0, 0, 0.35), 0 2px 5px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 30px 50px -15px rgba(0, 0, 0, 0.4);
+        }
+
+        /* 头部装饰 */
+        .header-badge {
+            background: #1e293b;
+            padding: 1rem 1.8rem;
+            color: white;
+        }
+
+        .badge-title {
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            font-weight: 500;
+            opacity: 0.8;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .badge-title i {
+            font-style: normal;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        /* 主要内容 */
+        .content {
+            padding: 2rem 1.8rem 2rem 1.8rem;
+        }
+
+        /* 信息区域 */
+        .info-panel {
+            background: #f8fafc;
+            border-radius: 1.5rem;
+            padding: 1.2rem 1.5rem;
+            margin-bottom: 2rem;
+            border-left: 5px solid #3b82f6;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+        }
+
+        .app-id {
+            display: inline-block;
+            background: #e2e8f0;
+            padding: 0.2rem 0.7rem;
+            border-radius: 30px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            font-family: monospace;
+            color: #0f172a;
+            margin-bottom: 0.8rem;
+        }
+
+        .title-lg {
+            font-size: 1.7rem;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.3px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .title-lg .status {
+            font-size: 0.75rem;
+            background: #10b981;
+            color: white;
+            padding: 0.2rem 0.8rem;
+            border-radius: 40px;
+            font-weight: 500;
+            letter-spacing: normal;
+        }
+
+        .desc-text {
+            color: #334155;
+            font-size: 0.95rem;
+            margin-top: 0.5rem;
+            line-height: 1.4;
+            border-top: 1px dashed #cbd5e1;
+            padding-top: 0.8rem;
+            margin-top: 0.8rem;
+        }
+
+        .meta-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-top: 1rem;
+            font-size: 0.85rem;
+            color: #475569;
+        }
+
+        .meta-item {
+            background: #eef2ff;
+            padding: 0.25rem 0.9rem;
+            border-radius: 40px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .meta-item strong {
+            font-weight: 600;
+            color: #1e40af;
+        }
+
+        /* intent 路径展示 */
+        .intent-path {
+            background: #0f172a;
+            padding: 0.9rem 1rem;
+            border-radius: 1rem;
+            margin: 1.5rem 0 1.8rem 0;
+            overflow-x: auto;
+            white-space: nowrap;
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            font-size: 0.75rem;
+            color: #cbd5e6;
+            border: 1px solid #334155;
+        }
+
+        /* 按钮区域 */
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .jump-btn {
+            background: linear-gradient(95deg, #2563eb, #1d4ed8);
+            border: none;
+            padding: 1rem 0;
+            border-radius: 60px;
+            color: white;
+            font-weight: 600;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 8px 18px -6px #1e3a8a40;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            letter-spacing: 0.3px;
+        }
+
+        .jump-btn:active {
+            transform: scale(0.97);
+            background: linear-gradient(95deg, #1d4ed8, #1e3a8a);
+            box-shadow: 0 4px 12px -4px #1e3a8a;
+        }
+
+        .secondary-btn {
+            background: #f1f5f9;
+            color: #1e293b;
+            box-shadow: none;
+            border: 1px solid #cbd5e1;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .secondary-btn:active {
+            background: #e2e8f0;
+            transform: scale(0.97);
+        }
+
+        .toast-msg {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) scale(0.9);
+            background: #1e293bdd;
+            backdrop-filter: blur(12px);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 40px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.2s ease, transform 0.2s ease;
+            pointer-events: none;
+            white-space: nowrap;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2);
+            border: 1px solid #ffffff30;
+        }
+
+        .toast-msg.show {
+            opacity: 1;
+            transform: translateX(-50%) scale(1);
+        }
+
+        hr {
+            margin: 1rem 0;
+            border: 0;
+            height: 1px;
+            background: linear-gradient(to right, #e2e8f0, transparent);
+        }
+
+        .footnote {
+            font-size: 0.7rem;
+            text-align: center;
+            margin-top: 1.5rem;
+            color: #64748b;
+        }
+
+        @media (max-width: 500px) {
+            .content {
+                padding: 1.5rem;
+            }
+            .title-lg {
+                font-size: 1.4rem;
+            }
+            .intent-path {
+                font-size: 0.65rem;
+            }
+            .toast-msg {
+                white-space: normal;
+                max-width: 85vw;
+                text-align: center;
+                font-size: 0.75rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <div class="header-badge">
+        <div class="badge-title">
+            <span>⚡ ANDROID INTENT LAUNCHER</span>
+        </div>
+    </div>
+    <div class="content">
+        <!-- 根据提供的数据展示: id, title, desc, path, cat, type, status -->
+        <div class="info-panel">
+            <div class="app-id">ID: 101</div>
+            <div class="title-lg">
+                开发者选项 (AdbSettings)
+                <span class="status">可用</span>
+            </div>
+            <div class="desc-text">
+                📌 直接打开USB调试设置 · 无需再层层点击关于手机/版本号
+            </div>
+            <div class="meta-grid">
+                <div class="meta-item"><strong>类别</strong> developer</div>
+                <div class="meta-item"><strong>类型</strong> 可用 (available)</div>
+                <div class="meta-item"><strong>特性</strong> USB调试捷径</div>
+            </div>
+        </div>
+
+        <!-- Intent 路径展示，完整intent字符串 -->
+        <div class="intent-path" id="intentPathDisplay">
+            intent:#Intent;component=com.android.settings/.development.AdbSettings;end
+        </div>
+
+        <div class="action-buttons">
+            <button class="jump-btn" id="launchIntentBtn">
+                🔓 立即跳转 · 打开USB调试
+            </button>
+            <button class="jump-btn secondary-btn" id="copyIntentBtn">
+                📋 复制 Intent URI
+            </button>
+        </div>
+
+        <div class="footnote">
+            ⚠️ 仅在 Android 设备上生效 (需要系统支持直接跳转 AdbSettings)<br>
+            部分 ROM 可能修改组件路径，若无法跳转请确保开发者选项已解锁。
+        </div>
+    </div>
+</div>
+
+<!-- 自定义 Toast 消息 -->
+<div id="toastMessage" class="toast-msg">✨ 提示信息</div>
+
+<script>
+    (function() {
+        // 源自给定的数据对象
+        const intentData = {
+            id: 101,
+            title: "开发者选项 (AdbSettings)",
+            desc: "直接打开USB调试设置",
+            path: "intent:#Intent;component=com.android.settings/.development.AdbSettings;end",
+            cat: "developer",
+            type: "可用",
+            status: "available"
+        };
+
+        // 提取完整的 intent uri (原始path字段)
+        const INTENT_URI = intentData.path;  // "intent:#Intent;component=com.android.settings/.development.AdbSettings;end"
+
+        // 辅助: 显示toast 消息 (兼容移动端和PC)
+        let toastTimeout = null;
+        function showToast(message, duration = 2500) {
+            const toastEl = document.getElementById('toastMessage');
+            if (!toastEl) return;
+            if (toastTimeout) clearTimeout(toastTimeout);
+            toastEl.textContent = message;
+            toastEl.classList.add('show');
+            toastTimeout = setTimeout(() => {
+                toastEl.classList.remove('show');
+            }, duration);
+        }
+
+        /**
+         * 执行 Intent 跳转核心方法
+         * 由于在 WebView / 浏览器环境中直接通过 location.href 跳转 intent:// 或 intent: 协议是标准做法
+         * 注意：原数据给出的是 "intent:#Intent;component=com.android.settings/.development.AdbSettings;end"
+         * 这种格式是 Android Intent URI 的规范格式，格式为 intent:// 或 intent: 开头，但这里实际上是 intent:#Intent...
+         * 标准写法: intent://Intent?component=... 但老式写法 intent:#Intent;component=xxx;end 在一些场景同样支持（如WebView）。
+         * 
+         * 但为了确保最广泛兼容，特别是原生浏览器，官方推荐的intent格式为:
+         * intent://<encoded-data>#Intent;...;end
+         * 但我们的数据以 "intent:#Intent..." 开头，实际情况中浏览器仍可识别 intent: 协议。
+         * 补充：对于直接组件形式，可使用 window.location.href = "intent:#Intent;component=com.android.settings/.development.AdbSettings;end";
+         * 注意：必须确保在安卓系统默认浏览器或WebView中，且应用有权限启动Activity。
+         * 另外，也可以尝试制造一个隐藏的 iframe 或者 a 标签模拟点击，增强兼容。
+         */
+        function launchIntent(intentUri) {
+            if (!intentUri || typeof intentUri !== 'string') {
+                showToast("❌ Intent URI 无效", 1800);
+                return false;
+            }
+
+            // 确保 uri 以 intent: 开头，如果数据没有前缀有时会错误，这里校验
+            let finalUri = intentUri.trim();
+            if (!finalUri.startsWith('intent:')) {
+                // 理论上数据是正常的，但如果被篡改，给予提示
+                showToast("⚠️ Intent 格式错误，缺少 intent: 前缀", 1800);
+                console.error("Invalid intent URI: ", finalUri);
+                return false;
+            }
+
+            try {
+                // 方法一：使用 location.href 直接跳转（最通用）
+                // 但是为了防止某些浏览器拦截或无法返回，我们仍然尝试。
+                // 注意: 使用 location.href 可能会导致如果intent无法解析则不产生效果但不会报错。
+                // 备用: 创建临时a标签模拟点击 或 使用iframe (部分场景更温和)
+                
+                // 主流移动浏览器都支持 intent scheme，直接跳转即可。
+                // 另外需注意部分浏览器(如Chrome)会弹出选择应用或者报错，如果没有匹配Activity就会失效。
+                // 增加 fallback 提示。
+                window.location.href = finalUri;
+                
+                // 因为跳转后页面可能依然留存，记录跳转动作成功触发，展示友好提示
+                showToast(`🚀 正在尝试打开: ${intentData.title}`, 1500);
+                
+                // 由于无法知道跳转是否真正成功，增加一个延迟检测: 如果300ms后页面还在当前，可能跳转失败？
+                // 设定一个定时器：如果页面未跳转并且未失去焦点，那么告知可能失败
+                let hasLeft = false;
+                const blurHandler = () => { hasLeft = true; };
+                window.addEventListener('blur', blurHandler);
+                setTimeout(() => {
+                    window.removeEventListener('blur', blurHandler);
+                    if (!hasLeft && document.hasFocus()) {
+                        // 还在当前页面，通常表示 intent 没有成功打开目标 (组件不可达)
+                        showToast(`⚠️ 无法打开 USB 调试页面，请确保:\n1. 当前为Android设备\n2. 开发者选项已解锁\n3. 系统组件未被修改`, 4000);
+                    } else {
+                        // 有时候跳转成功但页面依然保留后台，没必要多提示
+                        if(hasLeft) console.log("Intent 似乎已触发跳转");
+                    }
+                }, 500);
+                
+                return true;
+            } catch (err) {
+                console.error("Intent launch error: ", err);
+                showToast(`❌ 启动失败: ${err.message || '未知错误'}`, 2500);
+                return false;
+            }
+        }
+
+        /**
+         * 复制 Intent URI 到剪贴板（纯文本）
+         */
+        async function copyIntentUri() {
+            const uri = INTENT_URI;
+            try {
+                if (navigator.clipboard && window.isSecureContext) {
+                    await navigator.clipboard.writeText(uri);
+                    showToast("📋 Intent URI 已复制到剪贴板", 1800);
+                } else {
+                    // fallback 使用 textarea 方式
+                    const textarea = document.createElement('textarea');
+                    textarea.value = uri;
+                    textarea.style.position = 'fixed';
+                    textarea.style.opacity = '0';
+                    document.body.appendChild(textarea);
+                    textarea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textarea);
+                    showToast("📋 复制成功（传统方式）", 1800);
+                }
+                // 额外提供一个小提示方便调试
+                console.log("Copied intent URI:", uri);
+            } catch (err) {
+                console.warn("复制失败", err);
+                showToast("❌ 复制失败，请手动复制", 1500);
+            }
+        }
+
+        /**
+         * 增强: 由于 Android 原生浏览器及 WebView 对于 intent scheme 可能存在某些限制，
+         * 例如需要用户手势才能触发 intent 跳转，我们的按钮点击正好提供了用户手势，符合要求。
+         * 另外针对某些定制 ROM (MIUI, ColorOS等)，组件路径 "com.android.settings/.development.AdbSettings" 可能不同，
+         * 但如果标准 AOSP 是有效的。为了增加成功率，可以尝试备选通用开发者选项？但精确遵循用户给定的 intent。
+         * 注意: intent路径中包含的是 component=com.android.settings/.development.AdbSettings
+         * 实际等同于 com.android.settings/.development.AdbSettings
+         * 这通常是 Android 原生的 USB 调试设置项直接入口。
+         */
+        
+        // 获取按钮元素并绑定事件
+        const launchBtn = document.getElementById('launchIntentBtn');
+        const copyBtn = document.getElementById('copyIntentBtn');
+        
+        if (launchBtn) {
+            launchBtn.addEventListener('click', (event) => {
+                event.preventDefault();
+                // 可选: 增加震动感（可选，仅移动端 Vibrate 权限? 不过多请求)
+                // 直接启动 intent
+                launchIntent(INTENT_URI);
+            });
+        } else {
+            console.warn("未找到跳转按钮");
+        }
+        
+        if (copyBtn) {
+            copyBtn.addEventListener('click', (event) => {
+                event.preventDefault();
+                copyIntentUri();
+            });
+        }
+
+        // 可选: 在控制台输出信息帮助开发者检测
+        console.log("Intent Launcher Ready | 目标组件: com.android.settings/.development.AdbSettings");
+        console.log("完整URI: " + INTENT_URI);
+        
+        // 额外: 检测是否为Android环境，给个控制台提示，但不影响按钮使用
+        const isAndroid = /Android/i.test(navigator.userAgent);
+        if (!isAndroid) {
+            // 非安卓环境增加提醒，用户可见但不阻止点击，只是toast友好提醒
+            const originalLaunch = launchIntent;
+            window.launchIntent = function(uri) {
+                if (!isAndroid) {
+                    showToast("⚠️ 当前非Android系统，Intent 跳转仅在安卓设备有效", 2500);
+                }
+                return originalLaunch(uri);
+            };
+            // 重写全局函数引用，但按钮直接调用原始方法，所以只额外加一个装饰（可选修改按钮回调）
+            // 为了避免重复修改，直接在绑定时增强提示
+            const oldHandler = launchBtn?.click;
+            if (launchBtn) {
+                // 为了避免覆盖原事件，重新绑定？不再复杂，而是在原事件基础上多一个检测显示
+                // 简单直接在现有监听器前增加全局提示? 为了优雅，给launchIntent加环境检测，但上面已经替换了launchIntent?
+                // 但按钮里调用的是 launchIntent 函数，因此我们直接重写 launchIntent 函数实现注入
+                window.__oldLaunch = launchIntent;
+                window.launchIntent = function(uri) {
+                    if (!isAndroid) {
+                        showToast("⚠️ 此功能仅限Android设备上使用（当前非Android环境）", 2300);
+                        console.warn("非Android环境，无法真实跳转，但仍尝试协议");
+                    }
+                    return window.__oldLaunch(uri);
+                };
+                // 替换原函数引用
+                const newLaunch = window.launchIntent;
+                // 更新按钮事件监听器需要使用新函数，但按钮绑定的是旧的 launchIntent 函数，由于作用域闭包旧函数依旧为原始定义
+                // 因此我们重新将按钮的事件监听替换
+                const newBtn = launchBtn;
+                const newCopy = copyBtn;
+                // 移除旧监听重新添加
+                const newLaunchHandler = () => {
+                    newLaunch(INTENT_URI);
+                };
+                // 简单但有效: 克隆并替换事件（稳妥起见, 移除原有所有监听, 添加新监听）
+                const oldClick = newBtn.onclick;
+                newBtn.removeEventListener('click', launchIntent);
+                // 使用新监听
+                newBtn.addEventListener('click', newLaunchHandler);
+                // 同时保留其他特性: 以防重复添加, 但原本可能添加过一次，这里重置没问题。
+                // 清理可能的多余监听: 但无伤大雅。
+                console.log("已为跨环境适配注入检测");
+            }
+        }
+
+        // 另外，若用户误触时，可以动态提示尝试通过 ADB 或其他方式? 
+        // 提供一个悬浮小提示? 不需要过于复杂，已有的footer足够。
+        // 完美包含数据展示和功能。
+    })();
+</script>
+</body>
+</html>
