@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>🎂 小熬 · 生日快乐</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            min-height: 100vh;
+            background: #0b0e1a;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Segoe UI', 'PingFang SC', Roboto, 'Helvetica Neue', sans-serif;
+            padding: 16px;
+        }
+
+        .card {
+            position: relative;
+            width: 100%;
+            max-width: 640px;
+            aspect-ratio: 3 / 4;
+            background: linear-gradient(145deg, #1a1f2f, #0f1320);
+            border-radius: 56px 56px 40px 40px;
+            box-shadow: 0 30px 50px rgba(0, 0, 0, 0.7), inset 0 1px 3px rgba(255, 215, 0, 0.2);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 32px 24px;
+            transition: all 0.2s ease;
+            border: 1px solid rgba(255, 215, 0, 0.15);
+            overflow: hidden;
+        }
+
+        /* 星光装饰 */
+        .card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at 30% 40%, rgba(255, 215, 0, 0.03) 0%, transparent 60%),
+                        radial-gradient(circle at 70% 80%, rgba(255, 200, 100, 0.04) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* 主内容区域 */
+        .content {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+        }
+
+        /* 锁定遮罩 (7.9之前) */
+        .lock-overlay {
+            position: absolute;
+            inset: 0;
+            z-index: 10;
+            background: rgba(8, 10, 20, 0.85);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border-radius: inherit;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            transition: opacity 0.8s ease, visibility 0.8s ease;
+        }
+
+        .lock-overlay.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .lock-icon {
+            font-size: 72px;
+            margin-bottom: 20px;
+            filter: drop-shadow(0 0 20px rgba(255, 200, 50, 0.3));
+            animation: pulse-lock 2.5s infinite ease-in-out;
+        }
+
+        @keyframes pulse-lock {
+            0%, 100% { transform: scale(1); opacity: 0.8; }
+            50% { transform: scale(1.08); opacity: 1; }
+        }
+
+        .lock-title {
+            font-size: 32px;
+            font-weight: 700;
+            color: #f5e7b0;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+            letter-spacing: 4px;
+            margin-bottom: 8px;
+        }
+
+        .lock-sub {
+            font-size: 18px;
+            color: #b9ad8a;
+            background: rgba(255, 215, 0, 0.06);
+            padding: 8px 24px;
+            border-radius: 60px;
+            border: 1px solid rgba(255, 215, 0, 0.15);
+            backdrop-filter: blur(4px);
+            margin-top: 8px;
+        }
+
+        .lock-date {
+            font-size: 15px;
+            color: #887e64;
+            margin-top: 20px;
+            letter-spacing: 2px;
+        }
+
+        /* 生日主视觉 (7.9后可见) */
+        .birthday-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            opacity: 0;
+            transform: scale(0.95);
+            transition: opacity 1s ease, transform 0.9s cubic-bezier(0.34, 1.56, 0.64, 1);
+            width: 100%;
+        }
+
+        .birthday-content.show {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .cake-emoji {
+            font-size: 88px;
+            line-height: 1.2;
+            filter: drop-shadow(0 10px 30px rgba(255, 180, 50, 0.3));
+            margin-bottom: 4px;
+        }
+
+        .name-title {
+            font-size: clamp(48px, 14vw, 72px);
+            font-weight: 800;
+            background: linear-gradient(135deg, #ffd966, #ffb347, #ff8c5a);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 0 40px rgba(255, 180, 50, 0.2);
+            letter-spacing: 6px;
+            line-height: 1.2;
+        }
+
+        .sub-greeting {
+            font-size: clamp(18px, 4vw, 28px);
+            color: #efdbb0;
+            background: rgba(255, 215, 0, 0.08);
+            padding: 10px 28px;
+            border-radius: 80px;
+            border: 1px solid rgba(255, 215, 0, 0.2);
+            backdrop-filter: blur(4px);
+            margin-top: 6px;
+            font-weight: 400;
+            letter-spacing: 3px;
+            box-shadow: 0 0 30px rgba(255, 200, 50, 0.05);
+        }
+
+        .fireworks-tag {
+            margin-top: 16px;
+            font-size: 20px;
+            color: #ffc857;
+            background: rgba(255, 50, 50, 0.08);
+            padding: 6px 22px;
+            border-radius: 60px;
+            border: 1px solid rgba(255, 200, 80, 0.25);
+            backdrop-filter: blur(2px);
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            letter-spacing: 2px;
+        }
+
+        .fireworks-tag span {
+            display: inline-block;
+            animation: sparkle 1.8s infinite alternate;
+        }
+
+        @keyframes sparkle {
+            0% { opacity: 0.4; transform: scale(0.9); }
+            100% { opacity: 1; transform: scale(1.2); }
+        }
+
+        /* 烟花画布 (覆盖全卡) */
+        #fireworks-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: inherit;
+            pointer-events: none;
+            z-index: 5;
+            opacity: 0;
+            transition: opacity 1.2s ease;
+        }
+
+        #fireworks-canvas.active {
+            opacity: 1;
+        }
+
+        /* 底部签名 */
+        .footer-note {
+            position: absolute;
+            bottom: 18px;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            color: #5f5a4a;
+            font-size: 13px;
+            letter-spacing: 2px;
+            opacity: 0.5;
+            z-index: 1;
+            font-weight: 300;
+        }
+
+        /* 响应式 */
+        @media (max-width: 480px) {
+            .card {
+                border-radius: 40px 40px 32px 32px;
+                padding: 24px 16px;
+            }
+            .lock-title {
+                font-size: 26px;
+            }
+            .cake-emoji {
+                font-size: 68px;
+            }
+            .fireworks-tag {
+                font-size: 16px;
+                padding: 4px 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="card" id="birthdayCard">
+        <!-- 烟花 Canvas -->
+        <canvas id="fireworks-canvas"></canvas>
+
+        <!-- 锁定遮罩 (7.9之前) -->
+        <div class="lock-overlay" id="lockOverlay">
+            <div class="lock-icon">🔒</div>
+            <div class="lock-title">啊欧</div>
+            <div class="lock-sub">你来早了</div>
+            <div class="lock-date">没到时间哦</div>
+        </div>
+
+        <!-- 生日主内容 (7.9后可见) -->
+        <div class="content">
+            <div class="birthday-content" id="birthdayContent">
+                <div class="cake-emoji">🎂</div>
+                <div class="name-title">小熬</div>
+                <div class="sub-greeting">✨ 生日快乐 ✨</div>
+                <div class="fireworks-tag">
+                    <span>🎆</span> 烟花绽放 · 7.9 <span>🎆</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-note">16岁快乐</div>
+    </div>
+
+    <script>
+        (function() {
+            // ---------- 日期判断 ----------
+            const today = new Date();
+            const year = today.getFullYear();
+            // 设定 2026年7月9日 00:00:00 （若当前年份已过7.9，则使用明年）
+            let targetDate = new Date(year, 6, 9, 0, 0, 0); // 月份 6 = 7月
+            // 如果今天已经过了7月9日，则自动推迟到明年 (但依然保留同一年7.9之后的逻辑)
+            // 但为了演示，我们保留逻辑：如果当前日期 >= 7.9 则解锁。
+            // 为了测试方便，可手动调整，但这里严格按真实日期
+            const isAfterOrOnJuly9 = (today.getMonth() > 6) || (today.getMonth() === 6 && today.getDate() >= 9);
+
+            // 元素
+            const lockOverlay = document.getElementById('lockOverlay');
+            const birthdayContent = document.getElementById('birthdayContent');
+            const canvas = document.getElementById('fireworks-canvas');
+            const ctx = canvas.getContext('2d');
+
+            // ---------- Canvas 尺寸适配 ----------
+            function resizeCanvas() {
+                const rect = document.getElementById('birthdayCard').getBoundingClientRect();
+                canvas.width = rect.width * window.devicePixelRatio;
+                canvas.height = rect.height * window.devicePixelRatio;
+                canvas.style.width = rect.width + 'px';
+                canvas.style.height = rect.height + 'px';
+                ctx.scale(1, 1); // 重置缩放，我们用CSS控制大小，绘制时按实际像素
+                // 重新设置缩放比例以适应高清屏
+                const dpr = window.devicePixelRatio || 1;
+                ctx.scale(dpr, dpr);
+                // 保存逻辑宽高供烟花使用
+                canvas._logicalWidth = rect.width;
+                canvas._logicalHeight = rect.height;
+            }
+
+            // ---------- 烟花粒子系统 ----------
+            let particles = [];
+            let animationId = null;
+            let isFireworksActive = false;
+
+            class Particle {
+                constructor(x, y, color, velocity, life, size) {
+                    this.x = x;
+                    this.y = y;
+                    this.color = color;
+                    this.velocity = velocity;
+                    this.life = life;
+                    this.maxLife = life;
+                    this.size = size || 3 + Math.random() * 4;
+                    this.gravity = 0.04;
+                    this.drag = 0.99;
+                    this.trail = [];
+                }
+
+                update() {
+                    this.trail.push({ x: this.x, y: this.y });
+                    if (this.trail.length > 5) this.trail.shift();
+
+                    this.velocity.x *= this.drag;
+                    this.velocity.y *= this.drag;
+                    this.velocity.y += this.gravity;
+                    this.x += this.velocity.x;
+                    this.y += this.velocity.y;
+                    this.life -= 1;
+                }
+
+                draw(ctx, width, height) {
+                    // 拖尾
+                    for (let i = 0; i < this.trail.length; i++) {
+                        const alpha = (i / this.trail.length) * 0.5 * (this.life / this.maxLife);
+                        ctx.beginPath();
+                        ctx.arc(this.trail[i].x, this.trail[i].y, this.size * (i / this.trail.length) * 0.6, 0, Math.PI * 2);
+                        ctx.fillStyle = this.color.replace('1)', alpha + ')');
+                        ctx.fill();
+                    }
+
+                    // 主粒子
+                    const alpha = Math.min(1, (this.life / this.maxLife) * 1.2);
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.size * (0.6 + 0.4 * (this.life / this.maxLife)), 0, Math.PI * 2);
+                    ctx.fillStyle = this.color.replace('1)', alpha + ')');
+                    ctx.shadowColor = this.color;
+                    ctx.shadowBlur = 20;
+                    ctx.fill();
+                    ctx.shadowBlur = 0;
+                }
+
+                isDead() {
+                    return this.life <= 0 || this.x < -50 || this.x > canvas._logicalWidth + 50 || this.y > canvas._logicalHeight + 50;
+                }
+            }
+
+            function createExplosion(x, y) {
+                const colors = [
+                    'rgba(255, 200, 50, 1)', 'rgba(255, 100, 50, 1)', 'rgba(50, 200, 255, 1)',
+                    'rgba(255, 80, 180, 1)', 'rgba(180, 255, 80, 1)', 'rgba(255, 215, 0, 1)',
+                    'rgba(255, 150, 50, 1)', 'rgba(200, 100, 255, 1)'
+                ];
+                const count = 70 + Math.floor(Math.random() * 80);
+                const color = colors[Math.floor(Math.random() * colors.length)];
+
+                for (let i = 0; i < count; i++) {
+                    const angle = Math.random() * 2 * Math.PI;
+                    const speed = 1.5 + Math.random() * 6;
+                    const vx = Math.cos(angle) * speed * (0.6 + Math.random() * 0.8);
+                    const vy = Math.sin(angle) * speed * (0.6 + Math.random() * 0.8);
+                    const life = 40 + Math.floor(Math.random() * 40);
+                    const size = 2 + Math.random() * 5;
+                    const p = new Particle(x, y, color, { x: vx, y: vy }, life, size);
+                    particles.push(p);
+                }
+            }
+
+            function launchFirework() {
+                if (!isFireworksActive) return;
+                const width = canvas._logicalWidth || 600;
+                const height = canvas._logicalHeight || 800;
+                const x = 50 + Math.random() * (width - 100);
+                const y = 50 + Math.random() * (height * 0.6);
+                createExplosion(x, y);
+            }
+
+            function animateFireworks() {
+                if (!isFireworksActive) {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    return;
+                }
+
+                const width = canvas._logicalWidth || 600;
+                const height = canvas._logicalHeight || 800;
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                // 更新 & 绘制
+                for (let i = particles.length - 1; i >= 0; i--) {
+                    const p = particles[i];
+                    p.update();
+                    if (p.isDead()) {
+                        particles.splice(i, 1);
+                    } else {
+                        p.draw(ctx, width, height);
+                    }
+                }
+
+                // 随机生成新烟花 (保持活跃)
+                if (Math.random() < 0.08 && particles.length < 120) {
+                    launchFirework();
+                }
+
+                // 如果粒子太少，补充
+                if (particles.length < 20 && Math.random() < 0.3) {
+                    launchFirework();
+                }
+
+                animationId = requestAnimationFrame(animateFireworks);
+            }
+
+            function startFireworks() {
+                if (isFireworksActive) return;
+                isFireworksActive = true;
+                canvas.classList.add('active');
+                // 清空旧粒子
+                particles = [];
+                // 初始几发
+                for (let i = 0; i < 6; i++) {
+                    setTimeout(() => {
+                        if (isFireworksActive) launchFirework();
+                    }, i * 200);
+                }
+                if (animationId) cancelAnimationFrame(animationId);
+                animateFireworks();
+            }
+
+            function stopFireworks() {
+                isFireworksActive = false;
+                canvas.classList.remove('active');
+                if (animationId) {
+                    cancelAnimationFrame(animationId);
+                    animationId = null;
+                }
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                particles = [];
+            }
+
+            // ---------- 核心逻辑：日期触发 ----------
+            function updateUI() {
+                if (isAfterOrOnJuly9) {
+                    // 7.9 之后：解锁 + 烟花
+                    lockOverlay.classList.add('hidden');
+                    birthdayContent.classList.add('show');
+                    // 启动烟花 (延迟一点让过渡平滑)
+                    setTimeout(() => {
+                        startFireworks();
+                    }, 400);
+                } else {
+                    // 7.9 之前：锁定，无烟花
+                    lockOverlay.classList.remove('hidden');
+                    birthdayContent.classList.remove('show');
+                    stopFireworks();
+                }
+            }
+
+            // ---------- 窗口变化处理 ----------
+            function handleResize() {
+                resizeCanvas();
+                // 如果烟花处于激活状态，重绘时保持
+                if (isFireworksActive) {
+                    // 无需额外操作，动画循环会处理
+                }
+            }
+
+            // ---------- 初始化 ----------
+            function init() {
+                resizeCanvas();
+                updateUI();
+                window.addEventListener('resize', handleResize);
+                // 额外监听屏幕方向变化
+                window.addEventListener('orientationchange', () => {
+                    setTimeout(handleResize, 300);
+                });
+            }
+
+            // 启动一切
+            init();
+
+            // 小彩蛋：手动强制显示（调试用，但保留，方便预览）
+            // 如果想在7.9之前预览烟花，可以取消注释下面一行 (但会破坏锁定逻辑，仅用于演示)
+            // 正式使用时请注释掉
+            // setTimeout(() => { if (!isAfterOrOnJuly9) { lockOverlay.classList.add('hidden'); birthdayContent.classList.add('show'); startFireworks(); } }, 1000);
+        })();
+    </script>
+</body>
+</html>
