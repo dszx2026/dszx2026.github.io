@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>影视情结</title>
+    <!-- 使用 Material Symbols 和 Google Sans 字体，增强 Material You 风格 -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0,1" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Google Sans', 'Segoe UI', Roboto, system-ui, sans-serif;
+            background: #f5f7fa;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            background-image: radial-gradient(circle at 10% 30%, rgba(26, 115, 232, 0.05) 0%, transparent 30%),
+                              radial-gradient(circle at 90% 70%, rgba(234, 67, 53, 0.05) 0%, transparent 40%);
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 1px;
+            padding: 40px 32px;
+            max-width: 980px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.08), 0 8px 24px rgba(0, 0, 0, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 28px 80px rgba(0, 0, 0, 0.12);
+        }
+
+        /* 头部图标与标题 */
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 28px;
+        }
+
+        .icon-wrapper {
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, #1a73e8, #0d47a1);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            box-shadow: 0 8px 16px rgba(26, 115, 232, 0.3);
+            flex-shrink: 0;
+        }
+
+        .icon-wrapper span {
+            font-size: 36px;
+        }
+
+        .title-group h1 {
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+            color: #1e1e1e;
+            line-height: 1.2;
+        }
+
+        .title-group .subtitle {
+            font-size: 15px;
+            font-weight: 400;
+            color: #5f6368;
+            margin-top: 4px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .subtitle .badge {
+            background: #e8f0fe;
+            color: #1a73e8;
+            font-size: 12px;
+            font-weight: 500;
+            padding: 2px 12px;
+            border-radius: 20px;
+            letter-spacing: 0.3px;
+        }
+
+        /* 文件信息卡片 */
+        .file-info {
+            background: #f1f3f4;
+            border-radius: 28px;
+            padding: 18px 24px;
+            margin-bottom: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+            border: 1px solid rgba(0,0,0,0.02);
+        }
+
+        .file-info .left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .file-info .left span {
+            font-size: 28px;
+            color: #3c4043;
+        }
+
+        .file-info .details .name {
+            font-weight: 500;
+            color: #1e1e1e;
+            font-size: 16px;
+        }
+
+        .file-info .details .size {
+            font-size: 13px;
+            color: #5f6368;
+        }
+
+        .file-info .status {
+            background: #e6f4ea;
+            color: #1e8e3e;
+            padding: 4px 16px;
+            border-radius: 30px;
+            font-size: 13px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* 密码区域 */
+        .password-section {
+            margin-bottom: 28px;
+        }
+
+        .password-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+            font-weight: 500;
+            color: #3c4043;
+            margin-bottom: 8px;
+        }
+
+        .password-label .hint {
+            font-weight: 400;
+            color: #5f6368;
+            font-size: 13px;
+        }
+
+        .input-group {
+            display: flex;
+            align-items: center;
+            background: #f1f3f4;
+            border-radius: 60px;
+            padding: 4px 4px 4px 24px;
+            border: 2px solid transparent;
+            transition: all 0.25s ease;
+        }
+
+        .input-group:focus-within {
+            background: #ffffff;
+            border-color: #1a73e8;
+            box-shadow: 0 0 0 4px rgba(26, 115, 232, 0.15);
+        }
+
+        .input-group input {
+            flex: 1;
+            border: none;
+            background: transparent;
+            padding: 14px 0;
+            font-size: 16px;
+            font-family: 'Google Sans', 'Segoe UI', sans-serif;
+            outline: none;
+            color: #1e1e1e;
+            min-width: 0;
+        }
+
+        .input-group input::placeholder {
+            color: #9aa0a6;
+            font-weight: 400;
+        }
+
+        .input-group .toggle-pwd {
+            background: none;
+            border: none;
+            color: #5f6368;
+            padding: 8px 12px;
+            cursor: pointer;
+            border-radius: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+        }
+
+        .input-group .toggle-pwd:hover {
+            background: rgba(0,0,0,0.04);
+        }
+
+        .input-group .toggle-pwd span {
+            font-size: 24px;
+        }
+
+        /* 下载按钮 */
+        .download-btn {
+            width: 100%;
+            padding: 18px 24px;
+            background: #1a73e8;
+            color: white;
+            border: none;
+            border-radius: 60px;
+            font-size: 18px;
+            font-weight: 500;
+            font-family: 'Google Sans', 'Segoe UI', sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 8px 20px rgba(26, 115, 232, 0.3);
+            letter-spacing: 0.3px;
+            margin-top: 8px;
+        }
+
+        .download-btn:hover {
+            background: #1557b0;
+            transform: scale(1.01);
+            box-shadow: 0 12px 28px rgba(26, 115, 232, 0.4);
+        }
+
+        .download-btn:active {
+            transform: scale(0.97);
+        }
+
+        .download-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .download-btn .btn-icon {
+            font-size: 24px;
+        }
+
+        /* 状态反馈 */
+        .message-area {
+            margin-top: 20px;
+            min-height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            border-radius: 40px;
+            padding: 4px 16px;
+            transition: all 0.3s ease;
+        }
+
+        .message-area.success {
+            color: #1e8e3e;
+            background: #e6f4ea;
+        }
+
+        .message-area.error {
+            color: #d93025;
+            background: #fce8e6;
+        }
+
+        .message-area.info {
+            color: #1a73e8;
+            background: #e8f0fe;
+        }
+
+        .message-area .msg-icon {
+            font-size: 20px;
+        }
+
+        /* 页脚 */
+        .footer-note {
+            margin-top: 28px;
+            text-align: center;
+            font-size: 13px;
+            color: #9aa0a6;
+            border-top: 1px solid rgba(0,0,0,0.04);
+            padding-top: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .footer-note span {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .footer-note .material-symbols-outlined {
+            font-size: 16px;
+        }
+
+        /* 下载进度模拟（视觉反馈） */
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: #e8eaed;
+            border-radius: 4px;
+            margin-top: 12px;
+            overflow: hidden;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .progress-bar.active {
+            opacity: 1;
+        }
+
+        .progress-bar .fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #1a73e8, #0d47a1);
+            border-radius: 4px;
+            transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* 响应式 */
+        @media (max-width: 480px) {
+            .card {
+                padding: 28px 20px;
+                border-radius: 32px;
+            }
+            .header {
+                gap: 12px;
+            }
+            .icon-wrapper {
+                width: 52px;
+                height: 52px;
+            }
+            .icon-wrapper span {
+                font-size: 28px;
+            }
+            .title-group h1 {
+                font-size: 20px;
+            }
+            .file-info {
+                padding: 14px 18px;
+                flex-direction: column;
+                align-items: stretch;
+                gap: 6px;
+            }
+            .file-info .status {
+                align-self: flex-start;
+            }
+            .download-btn {
+                font-size: 16px;
+                padding: 16px;
+            }
+        }
+
+        /* 针对 touch 优化 */
+        @media (hover: none) {
+            .download-btn:hover {
+                transform: none;
+                background: #1a73e8;
+            }
+            .card:hover {
+                transform: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="card" role="main" aria-label="文件下载卡片">
+        <!-- 头部 -->
+        <div class="header">
+            <div class="icon-wrapper" aria-hidden="true">
+                <span class="material-symbols-outlined">font_download</span>
+            </div>
+            <div class="title-group">
+                <h1>结.pptx</h1>
+                <div class="subtitle">
+                    <span>ppt资源</span>
+                    <span class="badge">v1.0</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 文件信息 -->
+        <div class="file-info">
+            <div class="left">
+                <span class="material-symbols-outlined" aria-hidden="true">description</span>
+                <div class="details">
+                    <div class="name">当代影视文化中的英雄情结</div>
+                    <div class="size">0.917 MB · 包含 20 个页面</div>
+                </div>
+            </div>
+            <div class="status">
+                <span class="material-symbols-outlined" style="font-size:16px;">check_circle</span>
+                安全
+            </div>
+        </div>
+
+        <!-- 密码输入 -->
+        <div class="password-section">
+            <div class="password-label">
+                <label for="pwdInput">输入下载密码</label>
+                <span class="hint">密码由资源方提供</span>
+            </div>
+            <div class="input-group">
+                <input type="password" id="pwdInput" placeholder="请输入密码" autocomplete="off" aria-label="下载密码">
+                <button class="toggle-pwd" id="togglePwdBtn" type="button" aria-label="显示或隐藏密码" tabindex="-1">
+                    <span class="material-symbols-outlined">visibility</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- 下载按钮 -->
+        <button class="download-btn" id="downloadBtn">
+            <span class="material-symbols-outlined btn-icon">download</span>
+            下载资源
+        </button>
+
+        <!-- 消息反馈区域 -->
+        <div id="messageArea" class="message-area" role="status" aria-live="polite">
+            <!-- 动态显示消息 -->
+        </div>
+
+        <!-- 模拟进度条 -->
+        <div class="progress-bar" id="progressBar">
+            <div class="fill" id="progressFill"></div>
+        </div>
+
+        <!-- 页脚信息 -->
+        <div class="footer-note">
+            <span><span class="material-symbols-outlined">lock</span> 密码保护</span>
+            <span><span class="material-symbols-outlined">shield</span> 安全连接</span>
+            <span>© 2026 东山中学资源站</span>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            'use strict';
+
+            // --- DOM 引用 ---
+            const pwdInput = document.getElementById('pwdInput');
+            const downloadBtn = document.getElementById('downloadBtn');
+            const messageArea = document.getElementById('messageArea');
+            const progressBar = document.getElementById('progressBar');
+            const progressFill = document.getElementById('progressFill');
+            const togglePwdBtn = document.getElementById('togglePwdBtn');
+
+            // --- 常量 ---
+            const CORRECT_PASSWORD = 'c988';
+            // 模拟下载文件的 URL (实际上无法直接使用蓝奏云的真实直链，这里使用一个占位)
+            // 注意: 因为跨域和安全性，浏览器无法直接通过前端触发蓝奏云的真实下载。
+            // 此演示在密码正确后会模拟下载过程，并打开一个提示。
+            // 您可以将下面链接替换为真实的文件下载地址（如果可以获取到直链）。
+            const FILE_DOWNLOAD_URL = 'https://developer3.lanrar.com/file/?UDYCPF5vBDUJAAU9Cz5TP1plAzsCuFfoUcVQslO0WvgH4le9COQCvgf2V4cCsAGWA94C4laFV8NVtlPtBvdVs1DKAtFe6wTbCe4FugvEU9Za5gOFAthXvVHcUNRTIVorB3dXdAgtAnAHN1doAjoBZQMGAm5WbVdoVWBTbAZoVWxQZgJmXjIEZQlsBXULOVMhWj0DNwJvV21Rb1BkUz1abgcxVyYIJQImB2xXMwJmATIDbwIoVjlXY1V9U2cGYlV7UGQCYF47BGUJagUxC2xTM1owAzMCaVc0UWdQYFM8WmMHMlczCGUCNAc1VzECZQE4A2oCYlY+V2BVM1NjBmtVYFB+AiVecwQkCScFdQsqUyFaZQN0AjRXMVFrUGRTNlpoBzRXMghnAmcHd1d1Aj8BbQM8AmFWNFdkVWVTbQZoVWJQYQJkXjMEYglpBX0LcVN0WmYDagIqV2hRZlBwU3paKwdwVz0IZAJhB2lXMwJgATADYAI1VjtXZ1V0UyAGM1UkUG0CZF47BGMJcQVhC29TalouAzMCbVd7UWdQZVM9WnUHIVdkCDoCIQc/V14CNQFrA2QCN1YnV3NVJlMsBipVMVAPAiBeYgRtCW8=';  // 替换为实际可下载的URL，或者保持为#仅作演示
+
+            // --- 状态 ---
+            let isDownloading = false;
+            let progressTimer = null;
+
+            // --- 辅助函数 ---
+            function setMessage(text, type = 'info', icon = 'info') {
+                messageArea.innerHTML = `
+                    <span class="material-symbols-outlined msg-icon">${icon}</span>
+                    <span>${text}</span>
+                `;
+                messageArea.className = `message-area ${type}`;
+                // 自动隐藏成功/错误消息（保留几秒），但信息类保留
+                if (type === 'success' || type === 'error') {
+                    setTimeout(() => {
+                        if (messageArea.dataset.autoHide !== 'false') {
+                            // 但不要清除正在进行的下载进度消息
+                            if (!isDownloading) {
+                                messageArea.className = 'message-area';
+                                messageArea.innerHTML = '';
+                            }
+                        }
+                    }, 5000);
+                }
+            }
+
+            function clearMessage() {
+                messageArea.className = 'message-area';
+                messageArea.innerHTML = '';
+            }
+
+            function resetProgress() {
+                progressBar.classList.remove('active');
+                progressFill.style.width = '0%';
+                if (progressTimer) {
+                    clearTimeout(progressTimer);
+                    progressTimer = null;
+                }
+            }
+
+            // 模拟下载进度 (视觉反馈)
+            function simulateDownloadProgress(callback) {
+                resetProgress();
+                progressBar.classList.add('active');
+                let progress = 0;
+                const step = () => {
+                    if (progress >= 100) {
+                        progressFill.style.width = '100%';
+                        setTimeout(() => {
+                            resetProgress();
+                            if (callback) callback();
+                        }, 400);
+                        return;
+                    }
+                    // 随机增量，模拟真实感
+                    const increment = Math.random() * 12 + 4;
+                    progress = Math.min(progress + increment, 100);
+                    progressFill.style.width = `${progress}%`;
+                    progressTimer = setTimeout(step, 120 + Math.random() * 150);
+                };
+                step();
+            }
+
+            // 核心下载逻辑
+            function performDownload() {
+                if (isDownloading) return;
+
+                const password = pwdInput.value.trim();
+
+                // 1. 验证密码
+                if (password !== CORRECT_PASSWORD) {
+                    setMessage('密码错误，请重新输入', 'error', 'error');
+                    pwdInput.value = '';
+                    pwdInput.focus();
+                    // 抖动效果 (简单)
+                    const inputGroup = pwdInput.closest('.input-group');
+                    inputGroup.style.borderColor = '#d93025';
+                    setTimeout(() => {
+                        inputGroup.style.borderColor = '';
+                    }, 600);
+                    return;
+                }
+
+                // 2. 密码正确，开始下载流程
+                clearMessage();
+                isDownloading = true;
+                downloadBtn.disabled = true;
+                downloadBtn.innerHTML = `
+                    <span class="material-symbols-outlined btn-icon" style="animation: spin 1s linear infinite;">progress_activity</span>
+                    正在准备下载...
+                `;
+                // 添加一个简单旋转动画 (通过style)
+                const styleSheet = document.createElement("style");
+                styleSheet.textContent = `@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`;
+                document.head.appendChild(styleSheet);
+
+                // 显示“验证通过”信息
+                setMessage('密码验证通过，开始下载...', 'success', 'check_circle');
+
+                // 模拟进度 (同时模拟网络延迟)
+                simulateDownloadProgress(() => {
+                    // 进度完成，触发实际下载或跳转
+                    // 由于我们无法直接触发蓝奏云的真实下载（需要cookie/session等），这里做两种处理：
+                    // 如果 FILE_DOWNLOAD_URL 是有效的直链，则触发下载；否则展示一个成功提示。
+                    if (FILE_DOWNLOAD_URL && FILE_DOWNLOAD_URL !== '#') {
+                        // 方法1: 创建隐藏a标签下载 (适用于同源或允许跨域的链接)
+                        const link = document.createElement('a');
+                        link.href = FILE_DOWNLOAD_URL;
+                        link.download = 'material-you-fonts.zip'; // 提示下载文件名
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                        setMessage('下载已开始！', 'success', 'download');
+                    } else {
+                        // 方法2: 演示模式 - 显示下载成功（实际无文件）
+                        setMessage('✅ 下载成功！(演示模式，请替换 FILE_DOWNLOAD_URL 为真实链接)', 'success', 'done');
+                    }
+
+                    // 重置按钮状态
+                    isDownloading = false;
+                    downloadBtn.disabled = false;
+                    downloadBtn.innerHTML = `
+                        <span class="material-symbols-outlined btn-icon">download</span>
+                        下载资源
+                    `;
+                    // 清除进度
+                    resetProgress();
+                    // 移除样式
+                    document.head.removeChild(styleSheet);
+                });
+            }
+
+            // --- 事件绑定 ---
+
+            // 下载按钮点击
+            downloadBtn.addEventListener('click', performDownload);
+
+            // 回车键触发下载
+            pwdInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    performDownload();
+                }
+            });
+
+            // 密码显示/隐藏切换
+            togglePwdBtn.addEventListener('click', () => {
+                const type = pwdInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                pwdInput.setAttribute('type', type);
+                togglePwdBtn.querySelector('span').textContent = type === 'password' ? 'visibility' : 'visibility_off';
+            });
+
+            // 输入时清除错误状态
+            pwdInput.addEventListener('input', () => {
+                const inputGroup = pwdInput.closest('.input-group');
+                inputGroup.style.borderColor = '';
+                if (messageArea.classList.contains('error')) {
+                    clearMessage();
+                }
+            });
+
+            // 初始提示信息 (友好的引导)
+            setTimeout(() => {
+                setMessage('请输入密码后点击下载', 'info', 'lock');
+            }, 100);
+
+            // 清理定时器 (好习惯)
+            window.addEventListener('beforeunload', () => {
+                if (progressTimer) clearTimeout(progressTimer);
+            });
+
+        })();
+    </script>
+
+</body>
+</html>
