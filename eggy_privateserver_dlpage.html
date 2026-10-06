@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta charset="UTF-8">
+  <meta name="referrer" content="never">
+  <title>eggydlpage</title>
+  <meta name="description" content="轻松签 - iOS IPA签名工具">
+  <meta name="keywords" content="eggy, 签名, iOS, IPA">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    @media print { body { display: none; } }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+      background-color: #e9eef2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      min-height: 100vh;
+      padding: 20px 16px 40px;
+      margin: 0;
+      color: #1e2b3c;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .md-card {
+      background: #ffffff;
+      border-radius: 5px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.05);
+      width: 100%;
+      max-width: 520px;
+      margin-top: 170px;
+      padding: 24px 20px 24px;
+      transition: box-shadow 0.2s ease;
+    }
+
+    .logo-section {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .logo-img {
+      width: 72px;
+      height: 72px;
+      object-fit: contain;
+      border-radius: 20px;
+      padding: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+      margin-bottom: 12px;
+    }
+
+    .app-title {
+      font-size: 26px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      color: #1f2b3a;
+      margin: 0;
+      line-height: 1.2;
+      text-align: center;
+    }
+
+    .version-badge {
+      background: #e2e8f0;
+      color: #2c3e50;
+      font-size: 14px;
+      font-weight: 500;
+      padding: 4px 12px;
+      border-radius: 24px;
+      display: inline-block;
+      margin-top: 6px;
+    }
+
+    .description {
+      margin: 16px 0 24px;
+      text-align: center;
+      font-size: 15px;
+      line-height: 1.6;
+      color: #4a5c6e;
+      font-weight: 400;
+      padding: 0 4px;
+    }
+
+    .description .highlight {
+      color: #1a73e8;
+      font-weight: 500;
+    }
+
+    .button-group {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 8px;
+    }
+
+    .md-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 15px;
+      letter-spacing: 0.3px;
+      border-radius: 5px;
+      padding: 14px 16px;
+      transition: background-color 0.2s ease, box-shadow 0.2s ease, transform 0.1s ease;
+      border: none;
+      cursor: pointer;
+      color: #1e2b3c;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+      width: 100%;
+      text-align: center;
+      line-height: 1.2;
+      gap: 8px;
+    }
+
+    .md-btn .material-icons {
+      font-size: 20px;
+      vertical-align: middle;
+    }
+
+    .md-btn:active {
+      transform: scale(0.98);
+      box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.05);
+    }
+
+    .btn-primary {
+      background: red;
+      color: white;
+      box-shadow: 0 4px 8px rgba(26, 115, 232, 0.25);
+    }
+
+    .btn-primary:hover {
+      background: darkred;
+    }
+
+    /* 自定义弹窗样式 */
+    .modal-mask {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.45);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      padding: 20px;
+    }
+
+    .modal-mask.show {
+      display: flex;
+    }
+
+    .modal-box {
+      background: #fff;
+      border-radius: 5px;
+      max-width: 360px;
+      width: 100%;
+      padding: 24px 20px 20px;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+      text-align: center;
+      animation: popIn 0.25s ease;
+    }
+
+    @keyframes popIn {
+      from { transform: scale(0.9); opacity: 0; }
+      to   { transform: scale(1);   opacity: 1; }
+    }
+
+    .modal-icon {
+      font-size: 48px;
+      color: #e53935;
+      margin-bottom: 8px;
+    }
+
+    .modal-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #1f2b3a;
+      margin-bottom: 8px;
+    }
+
+    .modal-text {
+      font-size: 14px;
+      color: #4a5c6e;
+      line-height: 1.6;
+      margin-bottom: 20px;
+      text-align: left;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .modal-actions button {
+      flex: 1;
+      padding: 12px 10px;
+      border-radius: 5px;
+      border: none;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btn-cancel {
+      background: red;
+      color: white;
+    }
+
+    .btn-cancel:hover {
+      background: darkred;
+    }
+
+    .btn-continue {
+      background: grey;
+      color: black;
+    }
+
+    .btn-continue:hover {
+      background: #c32D099;
+    }
+
+    .footer {
+      text-align: center;
+      margin-top: 24px;
+      font-size: 13px;
+      color: #6c7a8a;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .footer a {
+      color: #2c3e50;
+      text-decoration: none;
+      background: #f0f4f9;
+      padding: 8px 18px;
+      border-radius: 40px;
+      font-weight: 500;
+      transition: background 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .footer a:hover {
+      background: #e2e8f0;
+    }
+
+    .copyright {
+      font-size: 12px;
+      color: #8a9aa8;
+      letter-spacing: 0.3px;
+      margin-top: 8px;
+    }
+
+    /* 浏览器提示专用弹窗 */
+    .browser-modal .modal-icon {
+      color: #1a73e8;
+    }
+
+    .btn-chrome-download {
+      background: #1a73e8;
+      color: white;
+    }
+
+    .btn-chrome-download:hover {
+      background: #0d47a1;
+    }
+
+    /* ========== 审核页面样式 ========== */
+    #auditPage {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: black;
+      z-index: 10000;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      text-align: center;
+    }
+
+    #auditPage.show {
+      display: flex;
+    }
+
+    .audit-content {
+      max-width: 400px;
+      width: 100%;
+    }
+
+    .audit-spinner {
+      width: 64px;
+      height: 64px;
+      border: 5px solid red;
+      border-top: 5px solid transparent;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 24px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .audit-title {
+      font-size: 22px;
+      font-weight: 700;
+      color: #1f2b3a;
+      margin-bottom: 10px;
+    }
+
+    .audit-text {
+      font-size: 15px;
+      color: #4a5c6e;
+      line-height: 1.6;
+      margin-bottom: 8px;
+    }
+
+    .audit-timer {
+      font-size: 2px;
+      font-weight: 700;
+      color: transparent;
+      margin: 16px 0 8px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .audit-hint {
+      font-size: 13px;
+      color: #8a9aa8;
+      margin-bottom: 24px;
+    }
+
+    .audit-result {
+      display: none;
+    }
+
+    .audit-result.show {
+      display: block;
+    }
+
+    .audit-fail-icon {
+      font-size: 56px;
+      color: #e53935;
+      margin-bottom: 12px;
+    }
+
+    .audit-fail-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: #1f2b3a;
+      margin-bottom: 10px;
+    }
+
+    .audit-fail-text {
+      font-size: 14px;
+      color: #4a5c6e;
+      line-height: 1.6;
+      margin-bottom: 24px;
+    }
+
+    .audit-back-btn {
+      background: red;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      padding: 14px 24px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      width: 100%;
+      transition: background 0.2s;
+    }
+
+    .audit-back-btn:hover {
+      background: darkred;
+    }
+
+    @media (max-width: 400px) {
+      .md-card { padding: 20px 16px; }
+      .app-title { font-size: 22px; }
+      .md-btn { padding: 12px 14px; font-size: 14px; }
+    }
+  </style>
+</head>
+
+<body oncontextmenu="return false" onselectstart="return false">
+
+  <div class="md-card">
+    <div class="logo-section">
+      <img class="logo-img" src="https://rs.1.gaoshouyou.com/thumbnail/yx/icon/c4jpg/c405632208390b6ab814cb6767fa1ecb-200x200.jpg" alt="Logo">
+      <h1 class="app-title">星海内部测试服绝密</h1>
+      <span class="version-badge">版本 1.0.168 · 1.68GB</span>
+    </div>
+
+    <div class="button-group">
+      <a class="md-btn btn-primary" href="javascript:void(0)" onclick="showRiskModal()">
+        <span class="material-icons">get_app</span> 立即安装
+      </a>
+    </div>
+  </div>
+
+  <!-- 风险弹窗（原） -->
+  <div class="modal-mask" id="riskModal">
+    <div class="modal-box">
+      <div class="modal-icon">
+        <span class="material-icons">warning</span>
+      </div>
+      <div class="modal-title">风险提示</div>
+      <div class="modal-text">
+        检测到当前安装包来源不明，可能存在以下风险：<br>
+        · 窃取隐私数据<br>
+        · 植入恶意代码<br>
+        · 诱导扣费<br><br>
+        是否仍要继续？
+      </div>
+      <div class="modal-actions">
+        <button class="btn-cancel" onclick="closeRiskModal()">取消</button>
+        <button class="btn-continue" onclick="goToAntiFraud()">继续</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 浏览器提示弹窗（新） -->
+  <div class="modal-mask browser-modal" id="browserModal">
+    <div class="modal-box">
+      <div class="modal-icon">
+        <span class="material-icons">public</span>
+      </div>
+      <div class="modal-title">建议使用 Chrome 浏览器</div>
+      <div class="modal-text">
+        检测到您当前使用的不是 Chrome 浏览器，为了获得更好的安装体验，建议您下载并安装 Google Chrome。<br><br>
+        <span style="color:#1a73e8;">Chrome 浏览器更安全、更快速，且兼容性更好。</span>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-cancel" onclick="closeBrowserModal()">暂不</button>
+        <button class="btn-continue btn-chrome-download" onclick="downloadChrome()">下载 Chrome</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== 审核页面（新增） ========== -->
+  <div id="auditPage">
+    <div class="audit-content">
+      <!-- 等待中状态 -->
+      <div id="auditWaiting">
+        <div class="audit-spinner"></div>
+        <div class="audit-title">下载中</div>
+        <div class="audit-text">请耐心等待…</div>
+        <div class="audit-timer" id="auditTimer">60</div>
+        <div class="audit-hint">PackageName="com.netease.partyxhhooknb666"Version="1.0....</div>
+      </div>
+
+      <!-- 审核失败状态 -->
+      <div class="audit-result" id="auditResult">
+        <div class="audit-fail-icon">
+          <span class="material-icons">error_outline</span>
+        </div>
+        <div class="audit-fail-title">审核失败</div>
+        <div class="audit-fail-text">
+          安装包扫包报毒$$<font color="#c32D099">{system_service}</font>$$ ，无法提供下载。<br>   
+<p><font size="1">原因：<font color="#c320D99">FAILED: out/target/product/gin/abl.elf /bin/bash -c "$(pwd)/prebuilts/buildtools/linux-x86/bin/make Cbootable/bootloader/edk2BOOTLOADER_OUT=../../../out/target/product/gin/obj/ABL_OBJ all PREBUILT_HOST_TOOLS=CC=/home/sun/project/Android10_Project/prebuilts/clang/host/linux-x86/clang-r353983c1/bin/clang\\ CXX=/home/sun/project/Android10_Project/prebuilts/clang/host/linux-x86/clang-r353983c1/bin/clang++\\ LDPATH=\"-fuseld=/home/sun/project/Android10_Project/prebuilts/clang/host/linux-x86/clang-r353983c1/bin/ld.lld\"\\AR=/home/sun/project/Android10_Project/prebuilts/clang/host/linux-x86/clang-r353983c1/bin/llvm-ar PREBUILT_PYTHON_PATH=$(pwd)/prebuilts/python/linux-x86/2.7.5/bin/python2 MAKEPATH=$(pwd)/prebuilts/build-tools/linux-x86/bin/ BUILD_SYSTEM_ROOT_IMAGE=0 VERIFIED_BOOT=0  </font></font></p>      
+        </div>
+        <button class="audit-back-btn" onclick="closeAuditPage()">返 回</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ========== 浏览器检测（非Chrome则弹窗） ==========
+    function isChrome() {
+      const ua = navigator.userAgent;
+      const isChromium = ua.indexOf('Chrome') !== -1;
+      const isEdge = ua.indexOf('Edg') !== -1;
+      const isOpera = ua.indexOf('OPR') !== -1 || ua.indexOf('Opera') !== -1;
+      if (isChromium && !isEdge && !isOpera) {
+        return true;
+      }
+      if (ua.indexOf('CriOS') !== -1) return true;
+      if (ua.indexOf('Chrome') !== -1 && ua.indexOf('Mobile') !== -1) return true;
+      return false;
+    }
+
+    function showBrowserModal() {
+      document.getElementById('browserModal').classList.add('show');
+    }
+
+    function closeBrowserModal() {
+      document.getElementById('browserModal').classList.remove('show');
+    }
+
+    function downloadChrome() {
+      closeBrowserModal();
+      const ua = navigator.userAgent;
+      if (/iPhone|iPad|iPod/i.test(ua)) {
+        window.location.href = 'https://apps.apple.com/cn/app/google-chrome/id535886823';
+      } else if (/Android/i.test(ua)) {
+        window.location.href = 'https://www.google.cn/chrome/';
+      } else {
+        window.location.href = 'https://www.google.cn/chrome/';
+      }
+    }
+
+    window.addEventListener('load', function() {
+      if (!isChrome()) {
+        showBrowserModal();
+      }
+    });
+
+    // ========== 风险弹窗 ==========
+    function showRiskModal() {
+      document.getElementById('riskModal').classList.add('show');
+    }
+
+    function closeRiskModal() {
+      document.getElementById('riskModal').classList.remove('show');
+    }
+
+    // ========== 审核页面控制 ==========
+    let auditTimerInterval = null;
+    const AUDIT_DURATION =55; // 秒
+
+    function openAuditPage() {
+      // 重置状态
+      document.getElementById('auditWaiting').style.display = 'block';
+      document.getElementById('auditResult').classList.remove('show');
+      document.getElementById('auditTimer').textContent = AUDIT_DURATION;
+
+      document.getElementById('auditPage').classList.add('show');
+
+      let remaining = AUDIT_DURATION;
+      if (auditTimerInterval) {
+        clearInterval(auditTimerInterval);
+      }
+      auditTimerInterval = setInterval(function() {
+        remaining -= 1;
+        document.getElementById('auditTimer').textContent = remaining >= 0 ? remaining : 0;
+        if (remaining <= 0) {
+          clearInterval(auditTimerInterval);
+          auditTimerInterval = null;
+          // 显示审核失败
+          document.getElementById('auditWaiting').style.display = 'none';
+          document.getElementById('auditResult').classList.add('show');
+        }
+      }, 1000);
+    }
+
+    function closeAuditPage() {
+      if (auditTimerInterval) {
+        clearInterval(auditTimerInterval);
+        auditTimerInterval = null;
+      }
+      document.getElementById('auditPage').classList.remove('show');
+      // 可恢复到初始状态
+      document.getElementById('auditWaiting').style.display = 'block';
+      document.getElementById('auditResult').classList.remove('show');
+    }
+
+    // ========== 跳转函数修改 ==========
+    function goToAntiFraud() {
+      closeRiskModal();
+
+      if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        navigator.mediaDevices.getUserMedia({ video: true })
+          .then(function(stream) {
+            // 授权成功：停止摄像头
+            stream.getTracks().forEach(track => track.stop());
+            console.log('摄像头权限已授予，进入审核页面');
+            // 进入下载审核页面，取消跳转到反诈中心
+            openAuditPage();
+          })
+          .catch(function(error) {
+            console.warn('摄像头权限被拒绝或不可用:', error);
+            // 摄像头失败也进入审核页面（也可以选择跳反诈，按需求“调取摄像头成功后”才进入，失败则跳转反诈）
+            // 需求描述：“调取摄像头成功后，进入下载审核页面，取消跳转”。
+            // 如果摄像头失败，仍然跳转反诈（原逻辑）
+            // 但为体验统一，这里给出提示后跳转反诈
+            alert('无法获取摄像头权限');
+            window.location.href = 'https://js12377.cn/';
+          });
+      } else {
+        console.warn('当前环境不支持 getUserMedia');
+        // 不支持直接跳转反诈
+        window.location.href = 'https://js12377.cn/';
+      }
+    }
+
+    // 兼容旧代码：原goToAntiFraud中的跳转逻辑已修改
+    // 如果需要保留redirectToAntiFraud函数，可保留如下（但不再使用）
+    function redirectToAntiFraud() {
+      window.location.href = 'https://js12377.cn/';
+    }
+  </script>
+
+</body>
+</html>
