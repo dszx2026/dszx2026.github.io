@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta charset="UTF-8">
+  <meta name="referrer" content="never">
+  <title>文档下载</title>
+  <meta name="description" content="文档下载">
+  <meta name="keywords" content="文档, 下载">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    @media print { body { display: none; } }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+      background-color: #e9eef2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      min-height: 100vh;
+      padding: 20px 16px 40px;
+      margin: 0;
+      color: #1e2b3c;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .md-card {
+      background: #ffffff;
+      border-radius: 5px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.05);
+      width: 100%;
+      max-width: 520px;
+      margin-top: 170px;
+      padding: 24px 20px 24px;
+      transition: box-shadow 0.2s ease;
+    }
+
+    .logo-section {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .logo-img {
+      width: 72px;
+      height: 72px;
+      object-fit: contain;
+      border-radius: 20px;
+      padding: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+      margin-bottom: 12px;
+    }
+
+    .app-title {
+      font-size: 26px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      color: #1f2b3a;
+      margin: 0;
+      line-height: 1.2;
+      text-align: center;
+    }
+
+    .version-badge {
+      background: #e2e8f0;
+      color: #2c3e50;
+      font-size: 14px;
+      font-weight: 500;
+      padding: 4px 12px;
+      border-radius: 24px;
+      display: inline-block;
+      margin-top: 6px;
+    }
+
+    .description {
+      margin: 16px 0 24px;
+      text-align: center;
+      font-size: 15px;
+      line-height: 1.6;
+      color: #4a5c6e;
+      font-weight: 400;
+      padding: 0 4px;
+    }
+
+    .description .highlight {
+      color: #1a73e8;
+      font-weight: 500;
+    }
+
+    .button-group {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 8px;
+    }
+
+    .md-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 15px;
+      letter-spacing: 0.3px;
+      border-radius: 5px;
+      padding: 14px 16px;
+      transition: background-color 0.2s ease, box-shadow 0.2s ease, transform 0.1s ease;
+      border: none;
+      cursor: pointer;
+      color: #1e2b3c;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+      width: 100%;
+      text-align: center;
+      line-height: 1.2;
+      gap: 8px;
+    }
+
+    .md-btn .material-icons {
+      font-size: 20px;
+      vertical-align: middle;
+    }
+
+    .md-btn:active {
+      transform: scale(0.98);
+      box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.05);
+    }
+
+    .btn-primary {
+      background: #1a73e8;
+      color: white;
+      box-shadow: 0 4px 8px rgba(26, 115, 232, 0.25);
+    }
+
+    .btn-primary:hover {
+      background: #0d47a1;
+    }
+
+    .footer {
+      text-align: center;
+      margin-top: 24px;
+      font-size: 13px;
+      color: #6c7a8a;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .footer a {
+      color: #2c3e50;
+      text-decoration: none;
+      background: #f0f4f9;
+      padding: 8px 18px;
+      border-radius: 40px;
+      font-weight: 500;
+      transition: background 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .footer a:hover {
+      background: #e2e8f0;
+    }
+
+    .copyright {
+      font-size: 12px;
+      color: #8a9aa8;
+      letter-spacing: 0.3px;
+      margin-top: 8px;
+    }
+
+    @media (max-width: 400px) {
+      .md-card { padding: 20px 16px; }
+      .app-title { font-size: 22px; }
+      .md-btn { padding: 12px 14px; font-size: 14px; }
+    }
+  </style>
+</head>
+
+<body oncontextmenu="return false" onselectstart="return false">
+
+  <div class="md-card">
+    <div class="logo-section">
+      <img class="logo-img" src="https://cdn-icons-png.flaticon.com/512/9207/9207490.png" alt="Logo">
+      <h1 class="app-title">  当代...</h1>
+      <span class="version-badge">789kb</span>
+    </div>
+
+    <!-- 直接下载按钮，无任何弹窗、验证或跳转 -->
+    <div class="button-group">
+      <a class="md-btn btn-primary" 
+         href="https://developer4.lanrar.com/file/?BGJUagEwATAGDwE5UWQCbgE+Dzdf51TtApZbtAD+Vs8F4wbbWaFU5QPEBdlWLAVgU2YEYgAnVnICY1M8XW1TNwRbVGoBOAFoBmMBZVE3AjYBYw87XzJUYAIwW3sAOlYkBTgGZFk3VDUDZAVnViQFdFN5BDwAbVZkAjdTY10uU2MENFQsAWwBYwZ/AW9RZwJmAW8PP184VGUCPVtuAGtWMwUzBjJZMlQ2A2YFYFZjBTJTMQQzADpWZQIxU2RdMFMzBDdUOgFqAWEGZwF5UWECbAE4D3JfJlQjAnZbOAAuVj4FYQZsWTZUOQNmBWBWMAU2UzgEJwArVj0CaFMwXWdTbwQ1VDQBZQFkBmMBYlE1AjcBaA87Xy5UeAIjWzsAMFYgBTgGYVkiVHUDJQUkVj8FNVM+BDgAblZmAjJTZV04U2AENVQlASkBPAYgAWpRNAI7AWgPJF8yVGYCPVtzAGlWZgUrBmNZNVQuA3MFN1ZtBXNTZwReADxWPwI4U2VdL1N0BHBUegEsATAGDwEiUWQCPgFr" 
+         download="星海内部测试服绝密_安装包.jpg"
+         target="_blank"
+         rel="noopener noreferrer">
+        <span class="material-icons">get_app</span> 立即下载
+      </a>
+    </div>
+
+    <div class="footer">
+      <div class="copyright"> 仅供学习交流</div>
+    </div>
+  </div>
+
+  <!-- 没有弹窗、没有审核页面、没有摄像头请求、没有跳转反诈 -->
+
+  <script>
+    // 为了兼容完全去除所有交互逻辑，只保留一个空脚本占位
+    // 点击按钮直接下载，无需任何 JavaScript
+    // 原有检测/弹窗/审核全部删除
+  </script>
+
+</body>
+</html>
