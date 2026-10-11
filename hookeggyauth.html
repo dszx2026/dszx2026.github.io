@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>注入 · 居中按钮 · 底部文字</title>
+    <style>
+        /* 全局重置，确保全屏无滚动 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+            width: 100%;
+        }
+
+        body {
+            background: #2b2b2b;
+            font-family: sans-serif;
+            /* 用flex取代 -webkit-box 更稳定，且完全居中 */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;    /* 垂直居中内容（按钮） */
+            align-items: center;        /* 水平居中 */
+            position: relative;         /* 为底部文字绝对定位提供参照 */
+            min-height: 100vh;
+            padding: 0 16px;            /* 防止小屏按钮贴边 */
+        }
+
+        /* ===== 主按钮样式（保持不变） ===== */
+        button.main-btn {
+            padding: 14px 40px;
+            font-size: 18px;
+            font-family: sans-serif;
+            color: #ddd;
+            background: red;
+            background: -webkit-gradient(linear, left top, left bottom, from(green), to(darkgreen));
+            background: linear-gradient(to bottom, green, darkgreen); /* 标准语法 */
+            border: 1px solid #222;
+            border-top-color: #888;
+            border-left-color: #777;
+            border-radius: 1px;
+            -webkit-border-radius: 6px;
+            -webkit-appearance: none;
+            text-shadow: 0 -1px 1px #000;
+            -webkit-box-shadow: inset 0 1px 1px rgba(255,255,255,0.3), 0 2px 3px rgba(0,0,0,0.6);
+            box-shadow: inset 0 1px 1px rgba(255,255,255,0.3), 0 2px 3px rgba(0,0,0,0.6);
+            cursor: pointer;
+            /* 保证按钮在居中容器内不被拉伸 */
+            flex-shrink: 0;
+            z-index: 10;
+        }
+
+        button.main-btn:active {
+            background: #3a3a3a;
+            background: -webkit-gradient(linear, left top, left bottom, from(#3a3a3a), to(#5a5a5a));
+            background: linear-gradient(to bottom, #3a3a3a, #5a5a5a);
+            -webkit-box-shadow: inset 0 2px 4px rgba(0,0,0,0.7);
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.7);
+            border-top-color: #555;
+        }
+
+        /* ===== 安卓风格弹窗遮罩 ===== */
+        #mask {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            z-index: 1000;
+        }
+
+        /* ===== 安卓风格弹窗 ===== */
+        #dialog {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            width: 280px;
+            margin: -90px 0 0 -140px;   /* 保持原定位方式，简单可靠 */
+            background: white;
+            border-radius: 20px;
+            -webkit-border-radius: 2px;  /* 保留原文档习惯，不影响功能 */
+            border-radius: 2px;          /* 以标准为准，去掉webkit不一致 */
+            -webkit-box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+            font-family: sans-serif;
+            overflow: hidden;
+            display: none;
+            z-index: 1001;
+        }
+        #dialog .title {
+            padding: 14px 16px 8px;
+            font-size: 18px;
+            font-weight: bold;
+            color: black;
+        }
+        #dialog .content {
+            padding: 0 16px 18px;
+            font-size: 14px;
+            color: black;
+            line-height: 1.5;
+        }
+        #dialog .buttons {
+            border-top: 1px solid transparent;
+            display: -webkit-box;
+            display: flex;
+            -webkit-box-pack: end;
+            justify-content: flex-end;
+        }
+        #dialog .buttons button {
+            -webkit-box-flex: 0;
+            flex: 0 0 auto;
+            padding: 10px 20px;
+            margin: 0;
+            font-size: 14px;
+            background: none;
+            border: none;
+            border-radius: 0;
+            -webkit-border-radius: 0;
+            -webkit-box-shadow: none;
+            box-shadow: none;
+            text-shadow: none;
+            color: green;
+            font-weight: bold;
+            cursor: pointer;
+            font-family: sans-serif;
+        }
+        #dialog .buttons button:active {
+            background: #d0d0d0;
+            -webkit-box-shadow: none;
+            box-shadow: none;
+        }
+
+        /* ===== 底部状态文字 ===== */
+        #result {
+            position: fixed;
+            bottom: 20px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            color: #ccc;
+            font-family: monospace, sans-serif;
+            font-size: 15px;
+            background: rgba(0,0,0,0.4);
+            padding: 10px 12px;
+            width: fit-content;
+            margin: 0 auto;
+            border-radius: 1px;
+            letter-spacing: 0.5px;
+            backdrop-filter: blur(2px);
+            -webkit-backdrop-filter: blur(2px);
+            z-index: 500;
+            pointer-events: none;    /* 让点击穿透，不影响按钮 */
+            box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+        }
+
+        /* 小屏幕适配：底部文字稍微调近 */
+        @media (max-width: 480px) {
+            #result {
+                bottom: 12px;
+                font-size: 14px;
+                padding: 6px 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 主按钮：居中显示，调用弹窗 -->
+    <button class="main-btn" onclick="showDialog()">hook</button>
+
+    <!-- 遮罩：点击关闭弹窗 -->
+    <div id="mask" onclick="hideDialog()"></div>
+
+    <!-- 安卓风格弹窗 -->
+    <div id="dialog">
+        <div class="title">提示</div>
+        <div class="content">注入成功，挥手改机甲动作</div>
+        <div class="buttons">
+            <button onclick="hideDialog()">确定</button>
+        </div>
+    </div>
+
+    <!-- 底部状态文字：root状态 -->
+    <pre id="result">root状态：null</pre>
+
+    <script>
+        (function() {
+            // Root状态：null=未检测, true=已Root, false=未Root
+            var root = null;
+
+            var resultEl = document.getElementById('result');
+
+            // 需要探测的常见Root文件路径
+            var pathsToCheck = [
+                '/system/app/Superuser.apk',
+                '/sbin/su',
+                '/system/bin/su',
+                '/system/xbin/su',
+                '/data/local/xbin/su',
+                '/data/local/bin/su',
+                '/system/sd/xbin/su',
+                '/system/bin/failsafe/su',
+                '/data/local/su'
+            ];
+
+            // 探测单个路径
+            function probePath(path) {
+                return new Promise(function(resolve) {
+                    var controller = new AbortController();
+                    var timeoutId = setTimeout(function() {
+                        controller.abort();
+                    }, 800);
+
+                    fetch(path, {
+                        method: 'HEAD',
+                        signal: controller.signal,
+                        cache: 'no-store'
+                    })
+                    .then(function(response) {
+                        clearTimeout(timeoutId);
+                        // 200/301/302/403 视为路径可能存在
+                        var exists = (response.status === 200 || 
+                                      response.status === 301 || 
+                                      response.status === 302 || 
+                                      response.status === 403);
+                        resolve(exists);
+                    })
+                    .catch(function() {
+                        clearTimeout(timeoutId);
+                        resolve(false);
+                    });
+                });
+            }
+
+            // 主检测流程（静默执行）
+            async function runDetection() {
+                // 并行探测所有路径
+                var results = await Promise.all(
+                    pathsToCheck.map(function(p) { return probePath(p); })
+                );
+
+                // 只要有一个路径可达，就认为可能Root
+                var anyExists = results.some(function(v) { return v === true; });
+
+                if (anyExists) {
+                    root = true;
+                } else {
+                    root = false;
+                }
+
+                // 根据root状态输出到底部文字
+                if (root === null) {
+                    resultEl.textContent = 'root状态：null';
+                } else if (root) {
+                    resultEl.textContent = 'root状态：true';
+                } else {
+                    resultEl.textContent = 'root状态：false';
+                }
+            }
+
+            // 页面加载后自动静默检测
+            window.addEventListener('load', function() {
+                // 延迟一点点，避免阻塞页面渲染
+                setTimeout(function() {
+                    runDetection();
+                }, 50);
+            });
+
+        })();
+    </script>
+
+    <script>
+        function showDialog() {
+            document.getElementById('mask').style.display = 'block';
+            document.getElementById('dialog').style.display = 'block';
+        }
+        function hideDialog() {
+            document.getElementById('mask').style.display = 'none';
+            document.getElementById('dialog').style.display = 'none';
+        }
+    </script>
+</body>
+</html>
