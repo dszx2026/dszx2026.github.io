@@ -1,0 +1,1249 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>私服资源站 ·</title>
+  <link rel="icon" type="image/png" href="https://images.icon-icons.com/272/PNG/96/Downloads_29996.png">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
+  <style>
+    :root {
+      --md-sys-color-primary: #1a56db;
+      --md-sys-color-on-primary: #ffffff;
+      --md-sys-color-primary-container: #dbe7ff;
+      --md-sys-color-on-primary-container: #0a1e4a;
+      --md-sys-color-surface: #ffffff;
+      --md-sys-color-surface-variant: #f2f6ff;
+      --md-sys-color-on-surface: #1a1c1e;
+      --md-sys-color-on-surface-variant: #3f4a5c;
+      --md-sys-color-outline: #b8c4dd;
+      --md-sys-color-outline-variant: #dce3f2;
+      --md-sys-color-secondary-container: #fff3d6;
+      --md-sys-color-on-secondary-container: #3d2e00;
+      --md-sys-color-error: #b3261e;
+      --md-sys-shape-corner-extra-small: 4px;
+      --md-sys-shape-corner-small: 8px;
+      --md-sys-shape-corner-medium: 12px;
+      --md-sys-shape-corner-large: 16px;
+      --md-sys-shape-corner-full: 9999px;
+      --md-sys-font: 'Roboto', system-ui, -apple-system, sans-serif;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: var(--md-sys-font);
+      background-color: #f0f5ff;
+      color: var(--md-sys-color-on-surface);
+      display: flex;
+      min-height: 100vh;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .nav-drawer {
+      width: 280px;
+      background-color: #ffffff;
+      border-right: 1px solid var(--md-sys-color-outline-variant);
+      display: flex;
+      flex-direction: column;
+      padding: 20px 12px;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+      flex-shrink: 0;
+      transition: transform 0.25s ease, width 0.25s ease;
+      z-index: 20;
+      box-shadow: 1px 0 6px rgba(26, 86, 219, 0.04);
+    }
+    .drawer-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px 20px 16px;
+    }
+    .drawer-logo {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(145deg, #1a56db, #3f7af0);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      flex-shrink: 0;
+      box-shadow: 0 4px 8px rgba(26, 86, 219, 0.2);
+    }
+    .drawer-logo img {
+      width: 53px;
+      height: 53px;
+      object-fit: contain;
+      border-radius: 12px;
+    }
+    .drawer-title {
+      font-size: 20px;
+      font-weight: 600;
+      letter-spacing: -0.2px;
+      color: #0a1e4a;
+    }
+    .drawer-nav {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      flex: 1;
+    }
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 13px 16px;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 500;
+      color: #3f4a5c;
+      text-decoration: none;
+      transition: background 0.15s ease, color 0.15s ease;
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      width: 100%;
+      text-align: left;
+      font-family: inherit;
+    }
+    .nav-item .material-icons-outlined {
+      font-size: 22px;
+      color: #5a6b8a;
+      flex-shrink: 0;
+    }
+    .nav-item.active {
+      background-color: #fff3d6;
+      color: #3d2e00;
+    }
+    .nav-item.active .material-icons-outlined {
+      color: #b88a00;
+    }
+    .nav-item:not(.active):hover {
+      background-color: #f2f6ff;
+      color: #1a56db;
+    }
+    .nav-item .count-badge {
+      margin-left: auto;
+      background: #1a56db;
+      color: white;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 12px;
+      min-width: 22px;
+      text-align: center;
+    }
+    .drawer-footer {
+      padding: 20px 16px 12px;
+      font-size: 12px;
+      color: #7a8ba8;
+      border-top: 1px solid var(--md-sys-color-outline-variant);
+      margin-top: 16px;
+    }
+
+    .main-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+    .top-app-bar {
+      background-color: #ffffff;
+      padding: 12px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 2px solid #ffd966;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      backdrop-filter: blur(10px);
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .top-bar-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex: 1;
+      min-width: 0;
+    }
+    .menu-toggle {
+      display: none;
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      color: #1a56db;
+      padding: 8px;
+      border-radius: 8px;
+      align-items: center;
+      justify-content: center;
+    }
+    .menu-toggle:hover { background: #eef3ff; }
+    .page-title {
+      font-size: 22px;
+      font-weight: 500;
+      letter-spacing: -0.3px;
+      color: #1a2a4a;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .search-wrapper {
+      display: flex;
+      align-items: center;
+      background: #f2f6ff;
+      border-radius: 28px;
+      padding: 4px 6px 4px 16px;
+      border: 1px solid #dce3f2;
+      transition: border 0.15s, background 0.15s;
+      max-width: 380px;
+      flex: 1;
+      min-width: 160px;
+    }
+    .search-wrapper:focus-within {
+      background: #ffffff;
+      border-color: #1a56db;
+    }
+    .search-wrapper .material-icons-outlined {
+      color: #5a6b8a;
+      font-size: 22px;
+      margin-right: 8px;
+    }
+    .search-input {
+      flex: 1;
+      border: none;
+      background: transparent;
+      font-size: 15px;
+      font-family: inherit;
+      color: var(--md-sys-color-on-surface);
+      outline: none;
+      padding: 10px 0;
+      min-width: 60px;
+    }
+    .search-input::placeholder { color: #7a8ba8; }
+    .search-clear {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #5a6b8a;
+      padding: 6px;
+      border-radius: 50%;
+      display: none;
+      align-items: center;
+      justify-content: center;
+    }
+    .search-clear.visible { display: flex; }
+    .search-clear:hover { background: #e0e8f5; }
+    .top-bar-actions {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .icon-btn {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      color: #1a56db;
+      position: relative;
+      transition: background 0.15s;
+    }
+    .icon-btn .material-icons-outlined { font-size: 24px; }
+    .icon-btn:hover { background: #eef3ff; }
+
+    .sort-menu-wrapper { position: relative; }
+    .sort-dropdown {
+      position: absolute;
+      top: 48px;
+      right: 0;
+      background: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.07), 0 2px 4px rgba(0,0,0,0.03);
+      border: 1px solid var(--md-sys-color-outline-variant);
+      min-width: 180px;
+      padding: 8px;
+      display: none;
+      flex-direction: column;
+      gap: 2px;
+      z-index: 30;
+    }
+    .sort-dropdown.open { display: flex; }
+    .sort-option {
+      padding: 11px 16px;
+      border-radius: 8px;
+      font-size: 14px;
+      cursor: pointer;
+      background: transparent;
+      border: none;
+      text-align: left;
+      font-family: inherit;
+      color: var(--md-sys-color-on-surface);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .sort-option:hover { background: #f2f6ff; }
+    .sort-option.active { background: #fff3d6; color: #3d2e00; }
+    .sort-option .material-icons-outlined { font-size: 20px; }
+
+    .content-area {
+      padding: 28px 28px 48px;
+      max-width: 1400px;
+      margin: 0 auto;
+      width: 100%;
+    }
+    .section-header {
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .section-header h2 {
+      font-size: 20px;
+      font-weight: 600;
+      color: #0a1e4a;
+      letter-spacing: -0.2px;
+    }
+    .section-header .badge {
+      background: #fff3d6;
+      color: #3d2e00;
+      padding: 4px 14px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 500;
+    }
+    .file-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 20px;
+    }
+    .file-card {
+      background: #ffffff;
+      border-radius: var(--md-sys-shape-corner-large);
+      box-shadow: 0 1px 2px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.03);
+      border: 1px solid var(--md-sys-color-outline-variant);
+      padding: 20px 18px 18px;
+      display: flex;
+      flex-direction: column;
+      transition: box-shadow 0.2s, border-color 0.2s;
+      position: relative;
+    }
+    .file-card:hover {
+      box-shadow: 0 4px 12px rgba(0,0,0,0.07), 0 2px 4px rgba(0,0,0,0.03);
+      border-color: #b8c4dd;
+    }
+    .card-top {
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+      margin-bottom: 14px;
+    }
+    .apk-icon {
+      width: 60px;
+      height: 60px;
+      background: linear-gradient(145deg, #dbe7ff, #eef3ff);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      color: var(--md-sys-color-primary);
+      box-shadow: inset 0 0 0 1px rgba(26, 86, 219, 0.08);
+      overflow: hidden;
+    }
+    .apk-icon img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      border-radius: 16px;
+    }
+    .apk-icon .material-icons-outlined { font-size: 32px; color: #1a56db; }
+    .file-info { flex: 1; min-width: 0; }
+    .file-name {
+      font-size: 17px;
+      font-weight: 600;
+      color: #1a2a4a;
+      margin-bottom: 4px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      padding-right: 32px;
+    }
+    .file-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 14px;
+      font-size: 13px;
+      color: #5a6b8a;
+      align-items: center;
+    }
+    .file-meta span { display: flex; align-items: center; gap: 4px; }
+    .file-meta .material-icons-outlined { font-size: 16px; color: #7a8ba8; }
+    .file-description {
+      font-size: 14px;
+      line-height: 1.55;
+      color: #3f4a5c;
+      margin-bottom: 18px;
+      flex: 1;
+    }
+    .download-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      background: #1a56db;
+      color: #ffffff;
+      border: none;
+      border-radius: 2px;
+      padding: 12px 20px;
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s, box-shadow 0.15s;
+      text-decoration: none;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      width: 100%;
+      letter-spacing: 0.2px;
+      font-family: inherit;
+    }
+    .download-btn .material-icons-outlined { font-size: 20px; }
+    .download-btn:hover {
+      background: #0f3fa8;
+      box-shadow: 0 4px 10px rgba(26, 86, 219, 0.3);
+    }
+    .download-btn:active { transform: scale(0.98); }
+    .fav-btn {
+      position: absolute;
+      top: 16px;
+      right: 14px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 6px;
+      border-radius: 50%;
+      color: #9aa8c0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s, color 0.15s;
+      z-index: 2;
+    }
+    .fav-btn:hover { background: #f2f6ff; }
+    .fav-btn .material-icons-outlined { font-size: 22px; }
+    .fav-btn.active { color: #e6a800; }
+    .fav-btn.active .material-icons-outlined { font-variation-settings: 'FILL' 1; }
+    .empty-state {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 60px 20px;
+      color: #5a6b8a;
+    }
+    .empty-state .material-icons-outlined {
+      font-size: 64px;
+      color: #c0cce0;
+      margin-bottom: 16px;
+    }
+    .empty-state h3 {
+      font-size: 18px;
+      font-weight: 500;
+      color: #3f4a5c;
+      margin-bottom: 8px;
+    }
+    .empty-state p { font-size: 14px; }
+
+    @media (max-width: 960px) {
+      .nav-drawer {
+        position: fixed;
+        left: 0;
+        top: 0;
+        height: 100vh;
+        transform: translateX(-100%);
+        box-shadow: 4px 0 20px rgba(0,0,0,0.1);
+        width: 280px;
+      }
+      .nav-drawer.open { transform: translateX(0); }
+      .menu-toggle { display: flex; }
+    }
+    @media (max-width: 720px) {
+      .content-area { padding: 20px 16px 32px; }
+      .file-grid { grid-template-columns: 1fr; }
+      .top-app-bar { padding: 10px 14px; }
+      .page-title { font-size: 19px; }
+      .search-wrapper { max-width: 200px; }
+      .search-wrapper .search-input { font-size: 14px; }
+    }
+    @media (max-width: 480px) {
+      .search-wrapper { max-width: 140px; }
+      .top-bar-actions .icon-btn:not(.essential) { display: none; }
+      .file-card { padding: 16px 14px; }
+      .apk-icon { width: 52px; height: 52px; }
+      .apk-icon .material-icons-outlined { font-size: 28px; }
+      .file-name { font-size: 16px; }
+      .download-btn { padding: 10px 16px; font-size: 14px; }
+    }
+    .drawer-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.3);
+      z-index: 15;
+      display: none;
+    }
+    .drawer-backdrop.open { display: block; }
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: #1a2a4a;
+      color: white;
+      padding: 12px 24px;
+      border-radius: 28px;
+      font-size: 14px;
+      font-weight: 500;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+      z-index: 100;
+      opacity: 0;
+      transition: transform 0.3s ease, opacity 0.3s ease;
+      pointer-events: none;
+      max-width: 90vw;
+      text-align: center;
+    }
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+
+    .auth-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(10, 30, 74, 0.6);
+      backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      padding: 16px;
+      transition: opacity 0.3s ease;
+    }
+    .auth-overlay.hidden {
+      opacity: 0;
+      pointer-events: none;
+      visibility: hidden;
+      transition: opacity 0.3s ease, visibility 0s 0.3s;
+    }
+    .auth-card {
+      background: #ffffff;
+      border-radius: 24px;
+      padding: 36px 28px 32px;
+      max-width: 420px;
+      width: 100%;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2), 0 8px 20px rgba(26, 86, 219, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      text-align: center;
+      transform: translateY(0);
+      animation: authAppear 0.4s ease;
+    }
+    @keyframes authAppear {
+      from { opacity: 0; transform: scale(0.96) translateY(10px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    .auth-icon {
+      width: 64px;
+      height: 64px;
+      background: linear-gradient(145deg, #1a56db, #3f7af0);
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 18px;
+      color: white;
+      box-shadow: 0 8px 16px rgba(26, 86, 219, 0.25);
+    }
+    .auth-icon .material-icons-outlined {
+      font-size: 36px;
+    }
+    .auth-title {
+      font-size: 24px;
+      font-weight: 700;
+      color: #0a1e4a;
+      margin-bottom: 6px;
+      letter-spacing: -0.3px;
+    }
+    .auth-subtitle {
+      font-size: 14px;
+      color: #5a6b8a;
+      margin-bottom: 24px;
+      line-height: 1.5;
+    }
+    .auth-hint {
+      background: #fff3d6;
+      padding: 10px 14px;
+      border-radius: 12px;
+      font-size: 13px;
+      color: #3d2e00;
+      margin-bottom: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      border: 1px solid rgba(184, 138, 0, 0.15);
+    }
+    .auth-hint .material-icons-outlined {
+      font-size: 18px;
+      color: #b88a00;
+    }
+    .auth-input-wrapper {
+      position: relative;
+      margin-bottom: 16px;
+    }
+    .auth-input {
+      width: 100%;
+      padding: 15px 18px 15px 48px;
+      border-radius: 14px;
+      border: 2px solid #dce3f2;
+      font-size: 17px;
+      font-family: inherit;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      outline: none;
+      background: #f8faff;
+      letter-spacing: 1px;
+      font-weight: 500;
+      color: #0a1e4a;
+    }
+    .auth-input:focus {
+      border-color: #1a56db;
+      background: #ffffff;
+      box-shadow: 0 0 0 4px rgba(26, 86, 219, 0.1);
+    }
+    .auth-input.error {
+      border-color: #b3261e;
+      background: #fff5f4;
+      animation: shake 0.4s ease;
+    }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-6px); }
+      75% { transform: translateX(6px); }
+    }
+    .auth-input-icon {
+      position: absolute;
+      left: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #7a8ba8;
+      font-size: 22px;
+      pointer-events: none;
+    }
+    .auth-submit {
+      width: 100%;
+      padding: 15px;
+      border-radius: 14px;
+      border: none;
+      background: #1a56db;
+      color: white;
+      font-size: 17px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      transition: background 0.15s, box-shadow 0.15s, transform 0.1s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      box-shadow: 0 4px 12px rgba(26, 86, 219, 0.3);
+      letter-spacing: 0.3px;
+    }
+    .auth-submit:hover {
+      background: #0f3fa8;
+      box-shadow: 0 6px 16px rgba(26, 86, 219, 0.4);
+    }
+    .auth-submit:active {
+      transform: scale(0.98);
+    }
+    .auth-error {
+      color: #b3261e;
+      font-size: 14px;
+      margin-top: 12px;
+      min-height: 22px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    .auth-error .material-icons-outlined {
+      font-size: 18px;
+    }
+    .main-content, .nav-drawer, .drawer-backdrop {
+      transition: filter 0.3s ease, opacity 0.3s ease;
+    }
+    body.auth-locked .main-content,
+    body.auth-locked .nav-drawer,
+    body.auth-locked .drawer-backdrop {
+      filter: blur(2px);
+      opacity: 0.6;
+      pointer-events: none;
+      user-select: none;
+    }
+    body.auth-locked {
+      overflow: hidden;
+    }
+  </style>
+</head>
+<body class="auth-locked">
+
+  <div class="auth-overlay" id="authOverlay">
+    <div class="auth-card">
+      <div class="auth-icon">
+        <span class="material-icons-outlined">lock</span>
+      </div>
+      <div class="auth-title">访问验证</div>
+      <div class="auth-subtitle">请输入访问动态密码以继续</div>
+      <div class="auth-hint">
+        <span class="material-icons-outlined">info</span>
+        密码找QQ：2775470946
+      </div>
+      <div class="auth-input-wrapper">
+        <span class="material-icons-outlined auth-input-icon">key</span>
+        <input type="text" class="auth-input" id="authInput" placeholder="输入动态密码" maxlength="6" autocomplete="off" spellcheck="false">
+      </div>
+      <button class="auth-submit" id="authSubmit">
+        <span class="material-icons-outlined">verified_user</span>
+        验证并进入
+      </button>
+      <div class="auth-error" id="authError"></div>
+    </div>
+  </div>
+
+  <div class="drawer-backdrop" id="drawerBackdrop"></div>
+  <aside class="nav-drawer" id="navDrawer">
+    <div class="drawer-header">
+      <div class="drawer-logo">
+        <img src="https://images.icon-icons.com/272/PNG/96/Downloads_29996.png" width="53" height="53" alt="logo"/>
+      </div>
+      <span class="drawer-title">蛋仔私服资源中心</span>
+    </div>
+    <nav class="drawer-nav">
+      <button class="nav-item active" data-view="all" type="button">
+        <span class="material-icons-outlined">apps</span>
+        全部文件
+        <span class="count-badge" id="allCount">8</span>
+      </button>
+      <button class="nav-item" data-view="favorites" type="button">
+        <span class="material-icons-outlined">star</span>
+        我的收藏
+        <span class="count-badge" id="favCount">0</span>
+      </button>
+      <button class="nav-item" data-view="recent" type="button">
+        <span class="material-icons-outlined">schedule</span>
+        最近下载
+      </button>
+      <button class="nav-item" data-view="about" type="button">
+        <span class="material-icons-outlined">info</span>
+        关于本站
+      </button>
+    </nav>
+    <div class="drawer-footer">
+      <span>你好呀
+由GitHub托管</span>
+    </div>
+  </aside>
+
+  <div class="main-content">
+    <header class="top-app-bar">
+      <div class="top-bar-left">
+        <button class="menu-toggle" id="menuToggle" aria-label="打开菜单" type="button">
+          <span class="material-icons-outlined">menu</span>
+        </button>
+        <span class="page-title" id="pageTitle">全部文件</span>
+        <div class="search-wrapper">
+          <span class="material-icons-outlined">search</span>
+          <input type="text" class="search-input" id="searchInput" placeholder="搜索文件名或描述…" autocomplete="off">
+          <button class="search-clear" id="searchClear" aria-label="清除搜索" type="button">
+            <span class="material-icons-outlined">close</span>
+          </button>
+        </div>
+      </div>
+      <div class="top-bar-actions">
+        <div class="sort-menu-wrapper">
+          <button class="icon-btn" id="sortBtn" aria-label="排序" type="button">
+            <span class="material-icons-outlined">sort</span>
+          </button>
+          <div class="sort-dropdown" id="sortDropdown">
+            <button class="sort-option active" data-sort="default" type="button">
+              <span class="material-icons-outlined">list</span> 默认排序
+            </button>
+            <button class="sort-option" data-sort="name" type="button">
+              <span class="material-icons-outlined">sort_by_alpha</span> 按名称
+            </button>
+            <button class="sort-option" data-sort="date" type="button">
+              <span class="material-icons-outlined">calendar_today</span> 按日期
+            </button>
+            <button class="sort-option" data-sort="size" type="button">
+              <span class="material-icons-outlined">data_usage</span> 按大小
+            </button>
+          </div>
+        </div>
+        <button class="icon-btn" id="refreshBtn" aria-label="刷新" type="button">
+          <span class="material-icons-outlined">refresh</span>
+        </button>
+      </div>
+    </header>
+
+    <main class="content-area">
+      <div class="section-header">
+        <h2 id="sectionTitle">全部文件</h2>
+        <span class="badge" id="fileCountBadge">8 个文件</span>
+      </div>
+      <div class="file-grid" id="fileGrid"></div>
+    </main>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+   
+    (function() {
+      const authOverlay = document.getElementById('authOverlay');
+      const authInput = document.getElementById('authInput');
+      const authSubmit = document.getElementById('authSubmit');
+      const authError = document.getElementById('authError');
+
+      
+      function validatePassword(pwd) {
+        
+        if (pwd.length !== 6) return false;
+        
+        if (!/^[A-Z]$/.test(pwd[0])) return false;
+        if (!/^[A-Z]$/.test(pwd[2])) return false;
+        if (!/^[A-Z]$/.test(pwd[4])) return false;
+        
+        if (!/^[0-9]$/.test(pwd[1])) return false;
+        if (!/^[0-9]$/.test(pwd[3])) return false;
+        
+        const specialChars = ['!', '@', '#', '￥', '%', '…', '…', '&', '*', '（', '）'];
+        
+        const allowedSpecial = [
+          '!', '@', '#', '￥', '%', '…', '&', '*', '（', '）',
+          '！', '＠', '＃', '％', '＆', '＊', '(', ')', '（', '）',
+          '…', '……' 
+        ];
+        
+        const ch = pwd[5];
+        
+        const specialRegex = /[!@#￥%…&*（）]/;
+        
+        const specialRegex2 = /[!@#%&*()]/;
+        if (!specialRegex.test(ch) && !specialRegex2.test(ch)) {
+        
+          if (ch !== '…') return false;
+        }
+        return true;
+      }
+
+      function attemptUnlock() {
+        const pwd = authInput.value.trim();
+        authError.innerHTML = '';
+
+        if (!pwd) {
+          authInput.classList.add('error');
+          authError.innerHTML = '<span class="material-icons-outlined">error</span> 请输入密码';
+          setTimeout(() => authInput.classList.remove('error'), 600);
+          return;
+        }
+
+        if (validatePassword(pwd)) {
+         
+          authOverlay.classList.add('hidden');
+          document.body.classList.remove('auth-locked');
+          
+          authInput.classList.remove('error');
+          authError.innerHTML = '';
+        
+          if (typeof window.__onAuthSuccess === 'function') {
+            window.__onAuthSuccess();
+          } else {
+           
+            window.addEventListener('load', function() {
+              if (typeof window.__onAuthSuccess === 'function') window.__onAuthSuccess();
+            });
+          }
+         
+        } else {
+          authInput.classList.add('error');
+          authError.innerHTML = '<span class="material-icons-outlined">error</span> 密码格式错误，请重试';
+          setTimeout(() => authInput.classList.remove('error'), 800);
+          authInput.focus();
+        }
+      }
+
+      authSubmit.addEventListener('click', attemptUnlock);
+      authInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          attemptUnlock();
+        }
+      });
+      window.addEventListener('load', () => {
+        authInput.focus();
+      });
+ 
+    })();
+
+    const APPS = [
+      {
+        id: 1,
+        name: 'ss_e.apk',
+        icon: 'android',
+        iconUrl: 'https://s1.aigei.com/prevfiles/fb011b3b50f14c4a9673390f319514fc.png?e=2051020800&token=P7S2Xpzfz11vAkASLTkfHN7Fw-oOZBecqeJaxypL:zdclZnmNg3vXX-9YSczoi_SBZe4=',
+        size: '287.49MB',
+        sizeBytes: 789 * 1024,
+        date: '2026-09-18',
+        dateTs: new Date('2025-02-18').getTime(),
+        description: '早期测试服',
+        downloadUrl: 'https://multimedia.qfile.qq.com/download?appid=14901&client_type=web&client_ver=8.9.25&fileid=EhReWkIMzeixOjeOUUp6JMjvr6TatBiG1N-PASC1dCj-97n2mrGXAzIEcHJvZFCA6klaEBNsp6nVWHjDGWGZeGgxuLh6Aw0w_4IBAmd6&fldc=ehVLDVsd9RrxKeBa6fYSQobNd_jM6-xFaq0vKo6B04nHlZ8PSrisjDBGyZkFRw1ZFK8_1LP3nh31V12rJQ6ionNN7AzhpyLrLgE_QdPJdyVwNwHEorJ6NK1pVa6PrQyxRlj7Eufo-NpXS70rpcnKLdM51rsxBekW99VwmdA_yiQsFjxsXktjNv53ZcQ&rkey=CAISqAFS5jjDNtMXhsCA1DHkVtlZDf9mKZ8EsTOkBDv7QbRWNeNE27vCYSv9qWZe54-v9341NScsW6uw6rJmOcsKGnKPK_irR54Z5SAACldFCyOUepPYxKb12HgXShw_cfRO2yTJkMtzuW9TGU_WndtATcmvRtOFiM0818eJPC1aa0ff0aFuf_9RjtXb1_BvK36RaLIfdXPq9yjtSxYk5_roLkdQg5xsdb4d37Y&filename=%5B%E6%98%9F%E6%B5%B7%E7%BB%9D%E5%AF%86%5D%E8%9B%8B%E4%BB%94%E6%B4%BE%E5%AF%B9.apk.1',
+        downloadName: 'pkg_1',
+      },
+      {
+        id: 2,
+        name: 'ss_e_2',
+        icon: 'auto_awesome',
+        iconUrl: 'https://s1.aigei.com/prevfiles/e2a63e1f0b134e659c65d3804b503ec9.png?e=2051020800&token=P7S2Xpzfz11vAkASLTkfHN7Fw-oOZBecqeJaxypL:H_xz4tuWTMNqhrcF51TXtibgrp4=',
+        size: '2291MB',
+        sizeBytes: 12.4 * 1024 * 1024,
+        date: '2026-10-10',
+        dateTs: new Date('2025-02-10').getTime(),
+        description: 'S7',
+        downloadUrl: 'https://multimedia.qfile.qq.com/download?appid=14901&client_type=web&client_ver=8.9.25&fileid=EhR94ZnzQqkVhJHEPMMeI8oV_K_8Ihi7iLvMByC1dCjone_OnbGXAzIEcHJvZFD_6UlaEKBtNAWim6S5cTNZfpBvAsV6AwSq_4IBAmd6&fldc=qgRINyF9oENmvQ2rC-0EuQfz5_cHMlCaX_co1pMXzyoEFBBbxFpNyOUmwXAYT5PsLQ-gzdQB5ffbSn4LbNS3SkHdKavjlPMDHXk46YrVwGnRbz8q8WD0Vfr3LoXMJRE4zCtAWQHBe6cjiIhE2mEnbTtdz_T83uB9o--mGKBtuf9rvsnqSZP002AwNKo&rkey=CAESqAHR3U1pdwYa7zDvZHRKWWm2LgPX9mNjcJjafvu6b7ipClkeuCk20qNbQUZ0gBmDFoVE5-QoD687o5ASvIIvu2NuSGdT6UqEmLywaxnY179I2UjftX97K5PM9-ovfkL-ZyGWHC4q0w1VlBd7HCbExojlRazFJIjEyXsnB9jajZ6W0vYPr2P_wjXG07NEGfjL9845kwPnOla0K2Gvb8PL5qjFJwrfrTgQ148&filename=base.apk.1',
+        downloadName: 'pkg_2.apk',
+      },
+    ];
+
+    const state = {
+      currentView: 'all',
+      favorites: JSON.parse(localStorage.getItem('fileStation_favorites') || '[]'),
+      recent: JSON.parse(localStorage.getItem('fileStation_recent') || '[]'),
+      searchQuery: '',
+      sortBy: 'default',
+    };
+
+    function persistFavorites() {
+      localStorage.setItem('fileStation_favorites', JSON.stringify(state.favorites));
+    }
+
+    function persistRecent() {
+      localStorage.setItem('fileStation_recent', JSON.stringify(state.recent));
+    }
+
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.classList.add('show');
+      clearTimeout(toast._timer);
+      toast._timer = setTimeout(() => {
+        toast.classList.remove('show');
+      }, 2200);
+    }
+
+    function formatDate(dateStr) {
+      return dateStr;
+    }
+
+    function getVisibleApps() {
+      let apps = [...APPS];
+
+      if (state.currentView === 'favorites') {
+        apps = apps.filter(app => state.favorites.includes(app.id));
+      } else if (state.currentView === 'recent') {
+        const recentIds = state.recent;
+        apps = recentIds
+          .map(id => APPS.find(a => a.id === id))
+          .filter(Boolean);
+        if (recentIds.length === 0) apps = [];
+      }
+
+      if (state.searchQuery.trim()) {
+        const q = state.searchQuery.trim().toLowerCase();
+        apps = apps.filter(app =>
+          app.name.toLowerCase().includes(q) ||
+          app.description.toLowerCase().includes(q)
+        );
+      }
+
+      if (state.sortBy === 'name') {
+        apps.sort((a, b) => a.name.localeCompare(b.name, 'zh-CN'));
+      } else if (state.sortBy === 'date') {
+        apps.sort((a, b) => b.dateTs - a.dateTs);
+      } else if (state.sortBy === 'size') {
+        apps.sort((a, b) => b.sizeBytes - a.sizeBytes);
+      }
+
+      return apps;
+    }
+
+    function renderFileGrid() {
+      const grid = document.getElementById('fileGrid');
+      const badge = document.getElementById('fileCountBadge');
+      const sectionTitle = document.getElementById('sectionTitle');
+
+      if (state.currentView === 'about') {
+        sectionTitle.textContent = '关于本站';
+        badge.textContent = '信息';
+        grid.innerHTML = `
+          <div class="empty-state" style="grid-column: 1 / -1;">
+            <span class="material-icons-outlined">info</span>
+            <h3>文件下载站</h3>
+            <p>本网站提供 APK 文件的下载服务，所有文件仅供学习交流使用。</p>
+            <p style="margin-top: 12px; font-size: 13px; color: #7a8ba8;">
+              版本 1.0 · 蓝白黄配色
+            </p>
+          </div>
+        `;
+        return;
+      }
+
+      const apps = getVisibleApps();
+
+      const viewTitles = {
+        all: '全部文件',
+        favorites: '我的收藏',
+        recent: '最近下载',
+      };
+      sectionTitle.textContent = viewTitles[state.currentView] || '全部文件';
+      badge.textContent = `${apps.length} 个文件`;
+
+      if (apps.length === 0) {
+        let emptyMsg = '暂无文件';
+        let emptyIcon = 'inbox';
+        if (state.currentView === 'favorites') {
+          emptyMsg = '还没有收藏任何文件';
+          emptyIcon = 'star_border';
+        } else if (state.currentView === 'recent') {
+          emptyMsg = '还没有下载记录';
+          emptyIcon = 'history';
+        } else if (state.searchQuery.trim()) {
+          emptyMsg = `没有找到与 "${state.searchQuery.trim()}" 相关的文件`;
+          emptyIcon = 'search_off';
+        }
+        grid.innerHTML = `
+          <div class="empty-state">
+            <span class="material-icons-outlined">${emptyIcon}</span>
+            <h3>${emptyMsg}</h3>
+            <p>${state.searchQuery.trim() ? '试试其他关键词' : '下载文件后会出现在这里'}</p>
+          </div>
+        `;
+        return;
+      }
+
+      grid.innerHTML = apps.map(app => {
+        const isFav = state.favorites.includes(app.id);
+        const iconHtml = app.iconUrl 
+          ? `<img src="${app.iconUrl}" alt="${app.name} 图标" loading="lazy" onerror="this.style.display='none'; this.parentNode.innerHTML='<span class=\\'material-icons-outlined\\'>${app.icon}</span>'">`
+          : `<span class="material-icons-outlined">${app.icon}</span>`;
+
+        return `
+          <div class="file-card" data-app-id="${app.id}">
+            <button class="fav-btn ${isFav ? 'active' : ''}" data-fav-id="${app.id}" aria-label="${isFav ? '取消收藏' : '收藏'}" type="button">
+              <span class="material-icons-outlined">${isFav ? 'star' : 'star_border'}</span>
+            </button>
+            <div class="card-top">
+              <div class="apk-icon">
+                ${iconHtml}
+              </div>
+              <div class="file-info">
+                <div class="file-name" title="${app.name}">${app.name}</div>
+                <div class="file-meta">
+                  <span><span class="material-icons-outlined">storage</span>${app.size}</span>
+                  <span><span class="material-icons-outlined">update</span>${formatDate(app.date)}</span>
+                </div>
+              </div>
+            </div>
+            <div class="file-description">${app.description}</div>
+            <a class="download-btn" 
+               href="${app.downloadUrl}" 
+               download="${app.downloadName}"
+               target="_blank"
+               rel="noopener noreferrer"
+               data-download-id="${app.id}">
+              <span class="material-icons-outlined">download</span> 下载
+            </a>
+          </div>
+        `;
+      }).join('');
+
+      grid.querySelectorAll('.fav-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const id = parseInt(btn.dataset.favId);
+          toggleFavorite(id);
+        });
+      });
+
+      grid.querySelectorAll('.download-btn').forEach(link => {
+        link.addEventListener('click', (e) => {
+          const id = parseInt(link.dataset.downloadId);
+          addToRecent(id);
+        });
+      });
+    }
+
+    function toggleFavorite(id) {
+      const idx = state.favorites.indexOf(id);
+      if (idx === -1) {
+        state.favorites.push(id);
+        showToast('已添加到收藏');
+      } else {
+        state.favorites.splice(idx, 1);
+        showToast('已从收藏中移除');
+      }
+      persistFavorites();
+      updateSidebarCounts();
+      renderFileGrid();
+    }
+
+    function addToRecent(id) {
+      state.recent = state.recent.filter(rid => rid !== id);
+      state.recent.unshift(id);
+      if (state.recent.length > 20) state.recent = state.recent.slice(0, 20);
+      persistRecent();
+    }
+
+    function updateSidebarCounts() {
+      document.getElementById('allCount').textContent = APPS.length;
+      document.getElementById('favCount').textContent = state.favorites.length;
+    }
+
+    function switchView(view) {
+      state.currentView = view;
+      document.querySelectorAll('.nav-item').forEach(item => {
+        item.classList.toggle('active', item.dataset.view === view);
+      });
+      state.searchQuery = '';
+      document.getElementById('searchInput').value = '';
+      document.getElementById('searchClear').classList.remove('visible');
+      renderFileGrid();
+      closeDrawer();
+    }
+
+    const drawer = document.getElementById('navDrawer');
+    const backdrop = document.getElementById('drawerBackdrop');
+
+    function openDrawer() {
+      drawer.classList.add('open');
+      backdrop.classList.add('open');
+    }
+
+    function closeDrawer() {
+      drawer.classList.remove('open');
+      backdrop.classList.remove('open');
+    }
+
+    document.getElementById('menuToggle').addEventListener('click', () => {
+      if (drawer.classList.contains('open')) {
+        closeDrawer();
+      } else {
+        openDrawer();
+      }
+    });
+
+    backdrop.addEventListener('click', closeDrawer);
+
+    const searchInput = document.getElementById('searchInput');
+    const searchClear = document.getElementById('searchClear');
+
+    searchInput.addEventListener('input', (e) => {
+      state.searchQuery = e.target.value;
+      searchClear.classList.toggle('visible', state.searchQuery.length > 0);
+      renderFileGrid();
+    });
+
+    searchClear.addEventListener('click', () => {
+      searchInput.value = '';
+      state.searchQuery = '';
+      searchClear.classList.remove('visible');
+      renderFileGrid();
+      searchInput.focus();
+    });
+
+    const sortBtn = document.getElementById('sortBtn');
+    const sortDropdown = document.getElementById('sortDropdown');
+
+    sortBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      sortDropdown.classList.toggle('open');
+    });
+
+    document.querySelectorAll('.sort-option').forEach(opt => {
+      opt.addEventListener('click', () => {
+        const sort = opt.dataset.sort;
+        state.sortBy = sort;
+        document.querySelectorAll('.sort-option').forEach(o => o.classList.remove('active'));
+        opt.classList.add('active');
+        sortDropdown.classList.remove('open');
+        renderFileGrid();
+        showToast(`已按${
+          sort === 'name' ? '名称' :
+          sort === 'date' ? '日期' :
+          sort === 'size' ? '大小' : '默认'
+        }排序`);
+      });
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!sortBtn.contains(e.target) && !sortDropdown.contains(e.target)) {
+        sortDropdown.classList.remove('open');
+      }
+    });
+
+    document.getElementById('refreshBtn').addEventListener('click', () => {
+      renderFileGrid();
+      updateSidebarCounts();
+      showToast('已刷新文件列表');
+    });
+
+    function init() {
+      updateSidebarCounts();
+      renderFileGrid();
+
+      document.querySelectorAll('.nav-item').forEach(item => {
+        item.addEventListener('click', () => {
+          switchView(item.dataset.view);
+        });
+      });
+
+      closeDrawer();
+    }
+
+    window.addEventListener('load', function() {
+      init();
+      window.__onAuthSuccess = function() {
+        renderFileGrid();
+        updateSidebarCounts();
+      };
+    });
+
+    if (document.readyState === 'complete') {
+      init();
+      window.__onAuthSuccess = function() {
+        renderFileGrid();
+        updateSidebarCounts();
+      };
+    } else {
+      window.addEventListener('load', init);
+    }
+  </script>
+</body>
+</html>
