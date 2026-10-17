@@ -1,0 +1,1326 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>INNER_PAGE</title>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: system-ui, 'Roboto', 'Segoe UI', -apple-system, 'Helvetica Neue', sans-serif;
+        user-select: none;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+        min-height: 100vh;
+        background: #ffffff;
+        overflow: hidden;
+    }
+
+    /* ---------- 全局圆角 2px（加载动画、开关、弹窗除外） ---------- */
+    .app-bar,
+    .menu-btn,
+    .drawer,
+    .drawer-head,
+    .drawer-head .drawer-sub,
+    .nav-item,
+    .nav-item .nav-icon,
+    .drawer-status,
+    .status-indicator,
+    .feature-toggle-row,
+    .feature-toggle-row .m-icon,
+    .main-status,
+    .loader-card,
+    .toast,
+    .ripple-effect,
+    .about-card,
+    .back-btn {
+        border-radius: 2px !important;
+    }
+
+    /* ---------- 顶部应用栏 ---------- */
+    .app-bar {
+        position: fixed;
+        top: 0; left: 0; right: 0;
+        height: 56px;
+        background: #3f51b5;
+        display: flex;
+        align-items: center;
+        padding: 0 8px;
+        z-index: 50;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+    }
+
+    .menu-btn {
+        width: 48px; height: 48px;
+        display: flex; align-items: center; justify-content: center;
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        color: #ffffff;
+        transition: background 0.2s;
+    }
+    .menu-btn:active { background: rgba(255, 255, 255, 0.15); }
+    .menu-btn .material-icons-round { font-size: 26px; }
+
+    .app-bar-title {
+        margin-left: 8px;
+        font-size: 19px;
+        font-weight: 500;
+        letter-spacing: 0.5px;
+        color: #ffffff;
+        flex: 1;
+    }
+
+    .bug-btn {
+        width: 48px; height: 48px;
+        display: flex; align-items: center; justify-content: center;
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        color: #ffffff;
+        transition: background 0.2s;
+    }
+    .bug-btn:active { background: rgba(255, 255, 255, 0.15); }
+    .bug-btn .material-icons-round { font-size: 24px; }
+
+    /* ---------- 侧边抽屉 ---------- */
+    .drawer {
+        position: fixed;
+        top: 0; left: 0; bottom: 0;
+        width: 280px;
+        max-width: 82vw;
+        background: #3f51b5;
+        z-index: 100;
+        transform: translateX(-100%);
+        transition: transform 0.28s cubic-bezier(0.2, 0.9, 0.4, 1);
+        border-right: 1px solid rgba(255, 255, 255, 0.2);
+        display: flex;
+        flex-direction: column;
+        padding: 20px 14px;
+        padding-top: calc(20px + env(safe-area-inset-top, 0px));
+    }
+    .drawer.open { transform: translateX(0); }
+
+    .drawer-head {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding-bottom: 16px;
+        margin-bottom: 18px;
+    }
+    .drawer-head .drawer-title {
+        font-size: 22px;
+        font-weight: 600;
+        letter-spacing: 1px;
+        color: #ffffff;
+        display: flex; align-items: center; gap: 6px;
+    }
+    .app-icon {
+        width: 48px;
+        height: 48px;
+        object-fit: contain;
+        border-radius: 50%;
+        background: transparent;
+        padding: 0;
+    }
+
+    .drawer-nav {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        margin-bottom: 20px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid transparent;
+    }
+
+    .nav-item {
+        display: flex;
+        align-items: center;
+        background: transparent;
+        border: 1px solid transparent;
+        padding: 12px 4px;
+        color: #e8eaf6;
+        cursor: pointer;
+        transition: background 0.2s, border-color 0.2s;
+        width: 100%;
+        text-align: left;
+        font-size: 15px;
+        font-weight: 500;
+    }
+    .nav-item:active { background: rgba(255, 255, 255, 0.15); }
+    .nav-item.active {
+        background: rgba(255, 255, 255, 0.2);
+        color: #ffffff;
+    }
+    .nav-item .nav-icon {
+        width: 36px; height: 36px;
+        display: flex; align-items: center; justify-content: center;
+        background: rgba(255, 255, 255, 0.15);
+        margin-right: 12px;
+        border: none;
+    }
+    .nav-item .nav-icon .material-icons-round {
+        font-size: 22px;
+        color: #ffffff;
+    }
+
+    .drawer-status {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: rgba(255, 255, 255, 0.12);
+        padding: 8px 14px;
+        margin-top: auto;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        min-height: 36px;
+    }
+    .drawer-status .status-left { display: flex; align-items: center; gap: 10px; }
+    .status-indicator {
+        width: 10px; height: 10px;
+        background: #9fa8da;
+        transition: background 0.2s;
+    }
+    .status-indicator.active {
+        background: #a5d6a7;
+        animation: pulse 1.4s infinite;
+    }
+    @keyframes pulse {
+        0%, 100% { opacity: 0.8; transform: scale(1); }
+        50% { opacity: 1; transform: scale(1.2); }
+    }
+    .drawer-status .status-text { font-size: 12px; color: #e8eaf6; }
+
+    /* ---------- 遮罩 ---------- */
+    .scrim {
+        position: fixed; inset: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 90;
+        opacity: 0; visibility: hidden;
+        transition: opacity 0.25s, visibility 0.25s;
+    }
+    .scrim.show { opacity: 1; visibility: visible; }
+
+    /* ---------- 主内容区 ---------- */
+    .main-content {
+        min-height: 100vh;
+        padding: 72px 16px 24px;
+        padding-top: calc(72px + env(safe-area-inset-top, 0px));
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+        max-width: 480px;
+        margin: 0 auto;
+        overflow-y: auto;
+        height: 100vh;
+    }
+
+    .page-view {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+        animation: fade-in 0.25s ease;
+    }
+    @keyframes fade-in {
+        0% { opacity: 0; transform: translateY(6px); }
+        100% { opacity: 1; transform: translateY(0); }
+    }
+
+    .main-title { text-align: center; margin-bottom: 4px; }
+
+    /* ---------- 功能开关行 ---------- */
+    .feature-toggle-row {
+        display: flex;
+        align-items: center;
+        padding: 16px 16px;
+        transition: background 0.2s, border-color 0.2s;
+    }
+    .feature-toggle-row:active { background: #eeeeee; }
+
+    .feature-toggle-row .m-icon {
+        width: 52px; height: 52px;
+        display: flex; align-items: center; justify-content: center;
+        margin-right: 16px;
+        flex-shrink: 0;
+        border: none;
+    }
+    .feature-toggle-row .m-icon .material-icons-round {
+        font-size: 30px;
+        color: #3f51b5;
+    }
+    .feature-toggle-row .m-text {
+        display: flex; flex-direction: column; flex: 1;
+        text-align: left;
+    }
+    .feature-toggle-row .m-label { font-size: 17px; font-weight: 600; color: #212121; }
+    .feature-toggle-row .m-desc { font-size: 12px; color: #757575; margin-top: 3px; }
+
+    /* ==========================================
+       安卓 SwitchCompat 风格（粉色） - 滑块大于胶囊
+       ========================================== */
+    .toggle {
+        position: relative;
+        width: 40px;
+        height: 16px;
+        flex-shrink: 0;
+        margin-left: 12px;
+        cursor: pointer;
+        border-radius: 8px;
+        background: transparent;
+        border: none;
+        -webkit-tap-highlight-color: transparent;
+    }
+    .toggle-track {
+        position: absolute;
+        inset: 0;
+        background: #e0e0e0;
+        border-radius: 8px;
+        transition: background 0.25s;
+    }
+    .toggle-thumb {
+        position: absolute;
+        top: 50%;
+        left: -10px;
+        transform: translateY(-50%);
+        width: 28px;
+        height: 28px;
+        background: #e0e0e0;
+        border-radius: 50%;
+        transition: left 0.25s cubic-bezier(0.2, 0.9, 0.4, 1.1), background 0.25s;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+        z-index: 2;
+    }
+    .toggle.on .toggle-thumb {
+        left: calc(100% - 18px);
+        background: skyblue;
+    }
+    .toggle.on .toggle-track {
+        background: grey;
+    }
+
+    /* 状态栏 */
+    .main-status {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: #f5f5f5;
+        padding: 12px 18px;
+        margin-top: 8px;
+        border: 1px solid rgba(0, 0, 0, 0.08);
+        min-height: 44px;
+    }
+    .main-status .status-left { display: flex; align-items: center; gap: 12px; }
+    .main-status .status-text { font-size: 14px; color: #212121; }
+    .main-status .status-ver {
+        font-size: 11px; color: #757575;
+        background: rgba(0, 0, 0, 0.05);
+        padding: 4px 10px;
+    }
+
+    /* 关于页 */
+    .about-view {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        animation: fade-in 0.25s ease;
+    }
+    .about-card {
+        background: #f5f5f5;
+        border: 1px solid rgba(0, 0, 0, 0.08);
+        padding: 20px;
+    }
+    .about-title {
+        font-size: 18px; font-weight: 600; color: #212121;
+        margin-bottom: 12px;
+        display: flex; align-items: center; gap: 8px;
+    }
+    .about-title .material-icons-round { font-size: 24px; color: #3f51b5; }
+    .about-text {
+        font-size: 13px; color: #424242;
+        line-height: 1.7; margin-bottom: 12px;
+    }
+    .about-divider { height: 1px; background: rgba(0, 0, 0, 0.08); margin: 14px 0; }
+
+    /* ---------- 联系方式样式 ---------- */
+    .contact-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 14px;
+        color: #212121;
+        padding: 6px 0;
+    }
+    .contact-row .material-icons-round {
+        font-size: 20px;
+        color: #3f51b5;
+    }
+    .contact-row .contact-label {
+        font-weight: 500;
+        color: #424242;
+        min-width: 50px;
+    }
+    .contact-row .contact-value {
+        font-weight: 600;
+        color: #3f51b5;
+        letter-spacing: 0.3px;
+        background: rgba(63, 81, 181, 0.08);
+        padding: 2px 10px;
+        border-radius: 4px;
+        user-select: text;
+    }
+
+    /* ---------- 快手链接样式 ---------- */
+    .kuaishou-link {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        text-decoration: none;
+        color: inherit;
+        padding: 8px 10px;
+        margin: 4px 0;
+        border-radius: 6px;
+        transition: background 0.2s;
+        cursor: pointer;
+        -webkit-tap-highlight-color: transparent;
+    }
+    .kuaishou-link:active {
+        background: rgba(63, 81, 181, 0.1);
+    }
+    .kuaishou-icon {
+        width: 32px;
+        height: 32px;
+        object-fit: contain;
+        border-radius: 6px;
+        flex-shrink: 0;
+    }
+    .kuaishou-info {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        text-align: left;
+    }
+    .kuaishou-name {
+        font-size: 15px;
+        font-weight: 600;
+        color: #3f51b5;
+        letter-spacing: 0.3px;
+    }
+    .kuaishou-label {
+        font-size: 11px;
+        color: #757575;
+        margin-top: 1px;
+    }
+
+    /* ---------- GG修改器风格加载遮罩 ---------- */
+    .overlay {
+        position: fixed; inset: 0;
+        background: rgba(0, 0, 0, 0.6);
+        display: flex; align-items: center; justify-content: center;
+        z-index: 9999;
+        opacity: 0; visibility: hidden;
+        transition: opacity 0.2s, visibility 0.2s;
+    }
+    .overlay.show { opacity: 1; visibility: visible; }
+
+    .gg-loader-card {
+        background: rgba(25, 25, 25, 0.95);
+        padding: 24px 20px;
+        width: 280px;
+        display: flex;
+        flex-direction: column;
+        border: 1px solid #444;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+        color: #eee;
+        font-family: 'Courier New', Courier, monospace;
+    }
+
+    .gg-loader-title {
+        font-size: 14px;
+        color: grey;
+        font-weight: bold;
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+    
+    .gg-loader-title .material-icons-round {
+        font-size: 18px;
+    }
+
+    .gg-search-text {
+        font-size: 13px;
+        color: white;
+        margin-bottom: 12px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .gg-search-text span {
+        color: white;
+        font-weight: bold;
+    }
+
+    .gg-progress-container {
+        width: 100%;
+        height: 8px;
+        background: #333;
+        border: 1px solid #111;
+        margin-bottom: 10px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .gg-progress-bar {
+        width: 0%;
+        height: 100%;
+        background: grey;
+        transition: width 0.1s linear;
+    }
+
+    .gg-loader-status {
+        font-size: 12px;
+        color: #888;
+        text-align: right;
+    }
+
+    /* ---------- Toast ---------- */
+    .toast {
+        position: fixed;
+        left: 50%; bottom: 30px;
+        transform: translateX(-50%) translateY(20px);
+        background: #3f51b5;
+        color: #ffffff;
+        font-weight: 500;
+        padding: 12px 22px;
+        font-size: 14px;
+        display: flex; align-items: center; gap: 8px;
+        opacity: 0;
+        transition: opacity 0.25s, transform 0.25s;
+        z-index: 10000;
+        pointer-events: none;
+        white-space: nowrap;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    .toast .material-icons-round { font-size: 20px; color: #e8eaf6; }
+
+    /* ---------- 涟漪 ---------- */
+    .ripple-effect {
+        position: absolute;
+        background: rgba(255, 64, 129, 0.25);
+        transform: scale(0);
+        animation: ripple 0.5s linear;
+        pointer-events: none;
+        border-radius: 50%;
+    }
+    @keyframes ripple {
+        to { transform: scale(4); opacity: 0; }
+    }
+
+    /* ---------- C语言风格日志窗口 ---------- */
+    .log-modal {
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(0, 0, 0, 0.7);
+        z-index: 10001;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.2s, visibility 0.2s;
+        padding: 16px;
+    }
+    .log-modal.show {
+        opacity: 1;
+        visibility: visible;
+    }
+    .log-content {
+        background: #0a0e17;
+        width: 100%;
+        max-width: 500px;
+        height: 60vh;
+        max-height: 500px;
+        border: 1px solid #333;
+        border-radius: 2px;
+        display: flex;
+        flex-direction: column;
+        box-shadow: 0 0 20px rgba(0, 255, 0, 0.1);
+    }
+    .log-header {
+        background: #1a1f2b;
+        padding: 8px 12px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid #333;
+        color: #ccc;
+        font-family: 'Courier New', Courier, monospace;
+        font-size: 13px;
+        flex-shrink: 0;
+    }
+    .log-close {
+        background: transparent;
+        border: none;
+        color: #aaa;
+        cursor: pointer;
+        font-size: 18px;
+        padding: 0 4px;
+    }
+    .log-close:hover { color: #fff; }
+    
+    .log-body {
+        padding: 12px;
+        overflow-y: auto;
+        flex: 1;
+        font-family: 'Courier New', Courier, monospace;
+        font-size: 12px;
+        line-height: 1.5;
+        color: #00ff00;
+        white-space: pre-wrap;
+        word-break: break-all;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+    }
+    .log-body::-webkit-scrollbar {
+        display: none;
+    }
+
+    .log-body .time { color: #888; }
+    .log-body .info { color: #00ff00; }
+    .log-body .warn { color: #ffcc00; }
+    .log-body .err { color: #ff5555; }
+
+    .hidden { display: none !important; }
+
+    /* ==========================================
+       原版安卓风格弹窗公告 (AlertDialog)
+       ========================================== */
+    .android-dialog-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.55);
+        z-index: 20000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.2s ease, visibility 0.2s ease;
+    }
+    .android-dialog-overlay.show {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    .android-dialog {
+        background: #ffffff;
+        width: 85%;
+        max-width: 320px;
+        border-radius: 4px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        display: flex;
+        flex-direction: column;
+        transform: scale(0.95);
+        transition: transform 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+        overflow: hidden;
+    }
+    .android-dialog-overlay.show .android-dialog {
+        transform: scale(1);
+    }
+
+    .android-dialog-title {
+        padding: 20px 24px 10px;
+        font-size: 20px;
+        font-weight: 500;
+        color: #212121;
+        letter-spacing: 0.15px;
+    }
+
+    .android-dialog-content {
+        padding: 0 24px 20px;
+        font-size: 15px;
+        color: #424242;
+        line-height: 1.5;
+    }
+
+    .android-dialog-actions {
+        display: flex;
+        justify-content: flex-end;
+        padding: 8px 16px 12px;
+    }
+
+    .android-dialog-btn {
+        background: transparent;
+        border: none;
+        color: #3f51b5;
+        font-size: 15px;
+        font-weight: 500;
+        padding: 10px 16px;
+        cursor: pointer;
+        border-radius: 4px;
+        letter-spacing: 0.5px;
+        transition: background 0.2s;
+    }
+    .android-dialog-btn:active {
+        background: rgba(63, 81, 181, 0.12);
+    }
+
+    .android-dialog-content .cmd-text {
+        font-family: 'Courier New', Courier, monospace;
+        background: #f5f5f5;
+        padding: 8px 10px;
+        border-radius: 2px;
+        font-size: 13px;
+        color: #212121;
+        word-break: break-all;
+        border: 1px solid #e0e0e0;
+        margin-top: 8px;
+    }
+
+    /* ==========================================
+       启动屏：白屏 + 圆形图标（无动画，3秒后自动进入）
+       ========================================== */
+    .app-launch-screen {
+        position: fixed;
+        inset: 0;
+        background: #ffffff;
+        z-index: 99999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 1;
+        visibility: visible;
+        transition: opacity 0.3s ease, visibility 0.3s ease;
+    }
+    .app-launch-screen.hide {
+        opacity: 0;
+        visibility: hidden;
+    }
+
+    .launch-icon {
+        width: 160px;
+        height: 160px;
+        object-fit: cover;
+        border-radius: 50%;
+        background: #ffffff;
+    }
+</style>
+</head>
+<body>
+
+<!-- 启动屏：白屏 + 圆形图标 -->
+<div class="app-launch-screen" id="appLaunchScreen">
+    <img class="launch-icon" src="https://ts4.tc.mm.bing.net/th/id/OIP-C.SDSHdSGWmSrxqPw5vKqSswAAAA?r=0&rs=1&pid=ImgDetMain&o=7&rm=3" alt="蛋仔派对">
+</div>
+
+<!-- 顶部应用栏 -->
+<header class="app-bar">
+    <button class="menu-btn" id="menuBtn" aria-label="打开侧边栏">
+        <span class="material-icons-round">menu</span>
+    </button>
+    <span class="app-bar-title" id="appBarTitle">壳</span>
+    <button class="bug-btn" id="bugBtn" aria-label="输出日志">
+        <span class="material-icons-round">bug_report</span>
+    </button>
+</header>
+
+<!-- 侧边抽屉 -->
+<aside class="drawer" id="drawer">
+    <div class="drawer-head">
+        <div class="drawer-title">
+            <img class="app-icon" src="https://ts4.tc.mm.bing.net/th/id/OIP-C.SDSHdSGWmSrxqPw5vKqSswAAAA?r=0&rs=1&pid=ImgDetMain&o=7&rm=3" alt="蛋仔图标">
+            壳辅助
+        </div>
+    </div>
+
+    <nav class="drawer-nav">
+        <button class="nav-item active" data-page="home">
+            <div class="nav-icon"><span class="material-icons-round">home</span></div>
+            <span>主页</span>
+        </button>
+        <button class="nav-item" data-page="about">
+            <div class="nav-icon"><span class="material-icons-round">info</span></div>
+            <span>关于</span>
+        </button>
+        <button class="nav-item" id="devNavBtn">
+            <div class="nav-icon"><span class="material-icons-round">code</span></div>
+            <span>开发者</span>
+        </button>
+    </nav>
+
+    <div class="drawer-status" id="drawerStatus">
+        <div class="status-left">
+            <div class="status-indicator" id="drawerStatusIndicator"></div>
+            <span class="status-text" id="drawerStatusText"></span>
+        </div>
+    </div>
+</aside>
+
+<!-- 遮罩 -->
+<div class="scrim" id="scrim"></div>
+
+<!-- 主内容 -->
+<main class="main-content">
+    <div id="homeView" class="page-view">
+        <div class="main-title"></div>
+
+        <div class="feature-toggle-row" data-feature="wave" data-name="挥手改狼王动作">
+            <div class="m-icon"><span class="material-icons-round">waving_hand</span></div>
+            <div class="m-text">
+                <span class="m-label">挥手改狼王动作</span>
+                <span class="m-desc">将挥手替换为狼王动作</span>
+            </div>
+            <div class="toggle" data-toggle="wave">
+                <div class="toggle-track"></div>
+                <div class="toggle-thumb"></div>
+            </div>
+        </div>
+
+        <div class="feature-toggle-row" data-feature="speed" data-name="加速">
+            <div class="m-icon"><span class="material-icons-round">bolt</span></div>
+            <div class="m-text">
+                <span class="m-label">加速</span>
+                <span class="m-desc">乐园模式全局加速</span>
+            </div>
+            <div class="toggle" data-toggle="speed">
+                <div class="toggle-track"></div>
+                <div class="toggle-thumb"></div>
+            </div>
+        </div>
+
+        <div class="feature-toggle-row" data-feature="fly" data-name="飞天（乐园）">
+            <div class="m-icon"><span class="material-icons-round">flight</span></div>
+            <div class="m-text">
+                <span class="m-label">飞天（乐园）</span>
+                <span class="m-desc">乐园内悬浮</span>
+            </div>
+            <div class="toggle" data-toggle="fly">
+                <div class="toggle-track"></div>
+                <div class="toggle-thumb"></div>
+            </div>
+        </div>
+
+        <div class="main-status">
+            <div class="status-left">
+                <div class="status-indicator" id="mainStatusIndicator"></div>
+                <span class="status-text" id="mainStatusText"></span>
+            </div>
+            <span class="status-ver">v3.2.1</span>
+        </div>
+    </div>
+
+    <div id="aboutView" class="page-view hidden">
+        <div class="about-view">
+            <div class="about-card">
+                <div class="about-title">
+                    <img class="app-icon" src="https://ts4.tc.mm.bing.net/th/id/OIP-C.SDSHdSGWmSrxqPw5vKqSswAAAA?r=0&rs=1&pid=ImgDetMain&o=7&rm=3" alt="蛋仔图标">
+                    蛋壳辅助
+                </div>
+                <div class="about-text">V2.0</div>
+                <div class="about-divider"></div>
+                <div class="about-text" style="font-size:13px; color:#424242;">封号自理</div>
+                <div class="about-divider"></div>
+                <div class="about-text" style="font-size:13px; color:#424242;">未来收费</div>
+                <div class="about-divider"></div>
+                <a class="kuaishou-link" id="kuaishouLink" href="kwai://profile/32343322">
+                    <img class="kuaishou-icon" src="https://p5-ec.eckwai.com/kos/nlav12333/web-assets/kwaishop-seller-login/favicon.ico?c9e186f596115f59" alt="快手图标">
+                    <div class="kuaishou-info">
+                        <span class="kuaishou-name">LocalPlayer</span>
+                        <span class="kuaishou-label">点击打开快手主页</span>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- GG修改器风格加载遮罩 -->
+<div class="overlay" id="overlay">
+    <div class="gg-loader-card">
+        <div class="gg-loader-title">
+            <span class="material-icons-round">search</span>
+            正在搜索内存...
+        </div>
+        <div class="gg-search-text" id="ggSearchText">
+            目标进程: <span>$$</span>
+        </div>
+        <div class="gg-progress-container">
+            <div class="gg-progress-bar" id="ggProgressBar"></div>
+        </div>
+        <div class="gg-loader-status" id="ggLoaderStatus">0%</div>
+    </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toastSuccess">
+    <span class="material-icons-round">check_circle</span>
+    <span id="toastMessage">操作成功</span>
+</div>
+
+<!-- C语言风格日志弹窗 -->
+<div class="log-modal" id="logModal">
+    <div class="log-content">
+        <div class="log-header">
+            <span>system_log.c - Console Output</span>
+            <button class="log-close" id="logCloseBtn">&times;</button>
+        </div>
+        <div class="log-body" id="logBody"></div>
+    </div>
+</div>
+
+<!-- 公告弹窗 -->
+<div class="android-dialog-overlay" id="androidDialog">
+    <div class="android-dialog">
+        <div class="android-dialog-title">使用须知</div>
+        <div class="android-dialog-content">
+            蛋壳辅助工具说明
+
+==================</br>
+本工具仅供内部测试与技术研究使用，</br> 请勿外传、转发或公开分享。禁止录制、截屏或制作任何形式的视频内容进行传播。使用本工具所产生的账号封禁、数据异常或其他一切后果，均由使用者自行承担，开发者不承担任何责任。</br>
+本工具通过网络抓包，对网易服务器与客户端之间的上行、下行网络流量进行实时捕获与分析，从而获取通信数据。随后，借助用户本机搭建的 LocalHost 本地服务环境，对捕获到的数据进行本地化定位、解析与修改，实现数据处理流程的闭环。工具内部已集成精简阉割版 GG 修改器。
+受网络环境、客户端版本及服务器策略等多方面因素影响，部分功能不一定能够稳定生效，实际效果请以运行情况为准
+        </div>
+        <div class="android-dialog-actions">
+            <button class="android-dialog-btn" id="dialogConfirmBtn">确认</button>
+        </div>
+    </div>
+</div>
+
+<!-- 命令授权弹窗 -->
+<div class="android-dialog-overlay" id="cmdDialog">
+    <div class="android-dialog">
+        <div class="android-dialog-title">允许壳辅助执行一条命令吗？</div>
+        <div class="android-dialog-content">
+            即将执行以下命令：
+            <div class="cmd-text">pm grant com.netease.party android.permission.WRITE_SECURE_SETTINGS</div>
+        </div>
+        <div class="android-dialog-actions">
+            <button class="android-dialog-btn" id="cmdCancelBtn">取消</button>
+            <button class="android-dialog-btn" id="cmdAllowBtn">允许</button>
+        </div>
+    </div>
+</div>
+
+<!-- 执行失败弹窗 -->
+<div class="android-dialog-overlay" id="failDialog">
+    <div class="android-dialog">
+        <div class="android-dialog-title">执行失败</div>
+        <div class="android-dialog-content">
+            命令执行失败：<br>
+            <span style="font-family: monospace; font-size:13px; color:#c62828;">Error: java.lang.SecurityException: Permission Denial: requires android.permission.WRITE_SECURE_SETTINGS</span>
+        </div>
+        <div class="android-dialog-actions">
+            <button class="android-dialog-btn" id="failConfirmBtn">确定</button>
+        </div>
+    </div>
+</div>
+
+<script>
+(function() {
+    const drawer = document.getElementById('drawer');
+    const scrim = document.getElementById('scrim');
+    const menuBtn = document.getElementById('menuBtn');
+    const bugBtn = document.getElementById('bugBtn');
+    const overlay = document.getElementById('overlay');
+    const toastSuccess = document.getElementById('toastSuccess');
+    const toastMessage = document.getElementById('toastMessage');
+
+    const ggProgressBar = document.getElementById('ggProgressBar');
+    const ggLoaderStatus = document.getElementById('ggLoaderStatus');
+    const ggSearchText = document.getElementById('ggSearchText');
+
+    const homeView = document.getElementById('homeView');
+    const aboutView = document.getElementById('aboutView');
+    const appBarTitle = document.getElementById('appBarTitle');
+
+    const mainStatusIndicator = document.getElementById('mainStatusIndicator');
+    const mainStatusText = document.getElementById('mainStatusText');
+    const drawerStatusIndicator = document.getElementById('drawerStatusIndicator');
+    const drawerStatusText = document.getElementById('drawerStatusText');
+
+    const navItems = document.querySelectorAll('.nav-item');
+    const toggleRows = document.querySelectorAll('.feature-toggle-row');
+
+    const logModal = document.getElementById('logModal');
+    const logBody = document.getElementById('logBody');
+    const logCloseBtn = document.getElementById('logCloseBtn');
+
+    const androidDialog = document.getElementById('androidDialog');
+    const dialogConfirmBtn = document.getElementById('dialogConfirmBtn');
+    const cmdDialog = document.getElementById('cmdDialog');
+    const cmdCancelBtn = document.getElementById('cmdCancelBtn');
+    const cmdAllowBtn = document.getElementById('cmdAllowBtn');
+    const failDialog = document.getElementById('failDialog');
+    const failConfirmBtn = document.getElementById('failConfirmBtn');
+
+    const devNavBtn = document.getElementById('devNavBtn');
+    const kuaishouLink = document.getElementById('kuaishouLink');
+
+    const appLaunchScreen = document.getElementById('appLaunchScreen');
+
+    let isProcessing = false;
+    let toastTimer = null;
+    let statusResetTimer = null;
+    let logTimer = null;
+    let ggProgressTimer = null;
+
+    // 启动屏：3秒后自动进入
+    setTimeout(() => {
+        appLaunchScreen.classList.add('hide');
+        setTimeout(() => {
+            androidDialog.classList.add('show');
+        }, 350);
+    }, 3000);
+
+    // 弹窗流程
+    dialogConfirmBtn.addEventListener('click', () => {
+        androidDialog.classList.remove('show');
+        setTimeout(() => {
+            cmdDialog.classList.add('show');
+        }, 200);
+    });
+
+    cmdCancelBtn.addEventListener('click', () => {
+        cmdDialog.classList.remove('show');
+    });
+
+    cmdAllowBtn.addEventListener('click', () => {
+        cmdDialog.classList.remove('show');
+        setTimeout(() => {
+            failDialog.classList.add('show');
+        }, 200);
+    });
+
+    failConfirmBtn.addEventListener('click', () => {
+        failDialog.classList.remove('show');
+    });
+
+    // 开发者按钮
+    devNavBtn.addEventListener('click', () => {
+        closeDrawer();
+        const intent = 'intent:#Intent;action=android.intent.action.MAIN;launchFlags=0x10810000;component=com.android.settings/.SettingsActivity;S.%3Asettings%3Ashow_fragment=com.android.settings.development.DevelopmentSettingsDashboardFragment;end';
+        showToast('正在打开开发者选项...');
+        console.log('[DEV] 执行 Intent:');
+        console.log(intent);
+    });
+
+    // 快手链接
+    kuaishouLink.addEventListener('click', (e) => {
+        showToast('正在打开快手主页...');
+    });
+
+    // 页面切换
+    function switchPage(page) {
+        navItems.forEach(item => {
+            if (item.dataset.page) {
+                item.classList.toggle('active', item.dataset.page === page);
+            } else {
+                item.classList.remove('active');
+            }
+        });
+
+        if (page === 'home') {
+            homeView.classList.remove('hidden');
+            aboutView.classList.add('hidden');
+            appBarTitle.textContent = '壳';
+        } else if (page === 'about') {
+            homeView.classList.add('hidden');
+            aboutView.classList.remove('hidden');
+            appBarTitle.textContent = '关于';
+        }
+        closeDrawer();
+    }
+
+    navItems.forEach(item => {
+        if (item.dataset.page) {
+            item.addEventListener('click', () => switchPage(item.dataset.page));
+        }
+    });
+
+    // 侧边栏
+    function openDrawer() {
+        drawer.classList.add('open');
+        scrim.classList.add('show');
+    }
+    function closeDrawer() {
+        drawer.classList.remove('open');
+        scrim.classList.remove('show');
+    }
+    menuBtn.addEventListener('click', openDrawer);
+    scrim.addEventListener('click', closeDrawer);
+
+    // Toast
+    function showToast(message) {
+        if (toastTimer) clearTimeout(toastTimer);
+        toastMessage.textContent = message;
+        toastSuccess.classList.add('show');
+        toastTimer = setTimeout(() => {
+            toastSuccess.classList.remove('show');
+            toastTimer = null;
+        }, 2200);
+    }
+
+    // 状态
+    function setStatusText(text, active) {
+        if (mainStatusText) mainStatusText.textContent = text;
+        if (drawerStatusText) drawerStatusText.textContent = text;
+        if (active) {
+            mainStatusIndicator.classList.add('active');
+            drawerStatusIndicator.classList.add('active');
+        } else {
+            mainStatusIndicator.classList.remove('active');
+            drawerStatusIndicator.classList.remove('active');
+        }
+    }
+
+    function setStatusActive(featureName, on) {
+        if (statusResetTimer) clearTimeout(statusResetTimer);
+        const action = on ? '已启用' : '已关闭';
+        setStatusText(`${action}: ${featureName}`, on);
+        statusResetTimer = setTimeout(() => {
+            setStatusText('', false);
+            statusResetTimer = null;
+        }, 3500);
+    }
+
+    // 涟漪
+    function createRipple(e, button) {
+        const rect = button.getBoundingClientRect();
+        const size = Math.max(rect.width, rect.height);
+        const x = e.clientX - rect.left - size / 2;
+        const y = e.clientY - rect.top - size / 2;
+
+        const ripple = document.createElement('span');
+        ripple.className = 'ripple-effect';
+        ripple.style.width = ripple.style.height = size + 'px';
+        ripple.style.left = x + 'px';
+        ripple.style.top = y + 'px';
+        button.appendChild(ripple);
+        setTimeout(() => ripple.remove(), 600);
+    }
+
+    // 开关
+    function handleToggle(row, toggle) {
+        if (isProcessing) return;
+
+        const featureName = row.dataset.name || '功能';
+        const isOn = !toggle.classList.contains('on');
+
+        toggle.classList.toggle('on', isOn);
+
+        isProcessing = true;
+        
+        ggProgressBar.style.width = '0%';
+        ggLoaderStatus.textContent = '0%';
+        ggSearchText.innerHTML = '目标进程: <span>com.netease.party.defaultActivity1</span>';
+        overlay.classList.add('show');
+
+        let progress = 0;
+        if (ggProgressTimer) clearInterval(ggProgressTimer);
+        
+        ggProgressTimer = setInterval(() => {
+            progress += Math.floor(Math.random() * 16) + 5;
+            if (progress > 100) progress = 100;
+            
+            ggProgressBar.style.width = progress + '%';
+            ggLoaderStatus.textContent = progress + '%';
+
+            if (progress > 40 && progress < 80) {
+                ggSearchText.innerHTML = '正在搜索com.netease.par...';
+            } else if (progress >= 80) {
+                ggSearchText.innerHTML = '正在锁定com.netease.p...';
+            }
+
+            if (progress >= 100) {
+                clearInterval(ggProgressTimer);
+                ggProgressTimer = null;
+                
+                setTimeout(() => {
+                    overlay.classList.remove('show');
+                    
+                    const action = isOn ? ' 已启用' : '已关闭';
+                    showToast(`${action} · ${featureName}`);
+                    setStatusActive(featureName, isOn);
+                    isProcessing = false;
+                }, 500);
+            }
+        }, 190);
+    }
+
+    toggleRows.forEach(row => {
+        const toggle = row.querySelector('.toggle');
+
+        toggle.addEventListener('click', (e) => {
+            e.stopPropagation();
+            createRipple(e, toggle);
+            handleToggle(row, toggle);
+        });
+
+        row.addEventListener('click', (e) => {
+            if (e.target.closest('.toggle')) return;
+            createRipple(e, row);
+            handleToggle(row, toggle);
+        });
+    });
+
+    // 日志
+    const logTemplates = [
+        { type: 'info', text: 'attach process com.netease.party (PID: 12458)' },
+        { type: 'info', text: 'Target module base: 0x7F2A3C0000' },
+        { type: 'info', text: 'NeoX engine detected, version 1.0.186' },
+        { type: 'info', text: 'Parsing NPK file: /emulated/0/Android/app/com.netease.party/assets/gui2.npk' },
+        { type: 'info', text: 'NPK header signature: NXPK' },
+        { type: 'info', text: 'Unpacking assets from gui2.npk...' },
+        { type: 'info', text: 'Found 3420 files in NPK archive' },
+        { type: 'info', text: 'Reading file list: gui2.npk index offset 0x1A2B3C' },
+        { type: 'info', text: 'Extracting gui/ui/panel_main.xml...' },
+        { type: 'info', text: 'Scanning memory for fly speed values...' },
+        { type: 'info', text: 'Pattern match: 0x00 0x00 0x80 0x3F (1.0f)' },
+        { type: 'info', text: 'Found 12 potential addresses for speed multiplier' },
+        { type: 'info', text: 'Searching for jump height (float 5.0)...' },
+        { type: 'info', text: 'Address 0x7F2A8C3A10 -> current value: 5.0' },
+        { type: 'info', text: 'Modifying jump height -> 50.0' },
+        { type: 'info', text: 'Local patch applied at 0x7F2A8C3A10' },
+        { type: 'info', text: 'Bypassing il2cpp anti-cheat check...' },
+        { type: 'info', text: 'Hooked: _ZN5neox5utils7getTimeEv' },
+        { type: 'info', text: 'Hooked: _ZN5neox3mem4readEPvS1_m' },
+        { type: 'warn', text: 'Anti-cheat thread detected, temporarily suspending injection' },
+        { type: 'info', text: 'Resuming injection in stealth mode...' },
+        { type: 'info', text: 'Searching for speed walk (0.8f)...' },
+        { type: 'info', text: 'Replacing 0.8f with 5.0f at 0x7F2A8C43B0' },
+        { type: 'info', text: 'Fly mode toggled: gravity = 0.0' },
+        { type: 'info', text: 'Injecting trampoline at 0x7F2A900000' },
+        { type: 'info', text: 'JMP patch verified at 0x7F2A3C2A' },
+        { type: 'info', text: 'NPK file hash: A3F9C2E1B4D6' },
+        { type: 'info', text: 'Searching for wolf king action ID: 30452' },
+        { type: 'info', text: 'Replacing wave action ID 1001 with 30452' },
+        { type: 'info', text: 'Action patch applied in memory: 0x7F2A8C5100' },
+        { type: 'info', text: 'Checking integrity of gui2.npk...' },
+        { type: 'warn', text: 'Integrity check mismatch at offset 0x4A2C (ignored)' },
+        { type: 'info', text: 'Re-routing NeoX asset loader to unpacked directory' },
+        { type: 'info', text: 'Local asset path: /data/local/tmp/party_assets/' },
+        { type: 'info', text: 'Loading gui2.npk from local patch...' },
+        { type: 'info', text: 'Modified: gui/ui/action_wolf_king.xml' },
+        { type: 'info', text: 'Speed multiplier set to 2.5x' },
+        { type: 'info', text: 'Applying memory write: 0x7F2A8C3A10 -> 0x42480000' },
+        { type: 'info', text: 'WriteProcessMemory success, bytes written: 4' },
+        { type: 'info', text: 'Fly height offset: +10.0m per frame' },
+        { type: 'info', text: 'Unpacked 3420 files to /data/local/tmp/party_assets/' },
+        { type: 'info', text: 'Building VMT hook for NeoX GameWorld' },
+        { type: 'info', text: 'VMT index 0x1A2B hooked successfully' },
+        { type: 'info', text: 'Patching libneox.so at 0x7F2A900000' },
+        { type: 'info', text: 'Setting memory protection to RWX...' },
+        { type: 'info', text: 'Calling original function from trampoline...' },
+        { type: 'info', text: 'Action replacement confirmed by game thread' },
+        { type: 'info', text: 'Detaching from com.netease.party...' },
+        { type: 'info', text: 'All patches applied. Game ready.' },
+        { type: 'info', text: 'Injected payload size: 2048 bytes' },
+        { type: 'info', text: 'NeoX NPK unpacker finished in 340ms' },
+        { type: 'info', text: 'Searching for fly action id...' },
+        { type: 'info', text: 'Found fly action at index 0x2C3A' },
+        { type: 'info', text: 'Modifying gravity constant: -9.8 -> 0.0' },
+        { type: 'info', text: 'Walking speed constant: 0.8 -> 2.0' },
+        { type: 'info', text: 'Jump force constant: 5.0 -> 15.0' },
+        { type: 'info', text: 'Hooked: _ZN5neox6player8setSpeedEf' },
+        { type: 'info', text: 'Hooked: _ZN5neox4game11getInstanceEv' },
+        { type: 'err', text: 'Failed to open NPK file: /emulated/0/Android/app/com.netease.party/assets/gui2.npk (Permission denied)' },
+        { type: 'err', text: 'OpenProcess failed for PID 12458' },
+        { type: 'err', text: 'NeoX memory read error at 0x7F2A8C3A10 (Access Violation)' },
+        { type: 'err', text: 'Anti-cheat detected memory write attempt, rolling back...' },
+        { type: 'err', text: 'NPK file is encrypted, need custom decryption key' },
+        { type: 'err', text: 'Injection failed: game process crashed unexpectedly' },
+        { type: 'err', text: 'Failed to locate speed value, pattern not found' },
+        { type: 'err', text: 'VirtualProtectEx returned error 0x5' },
+        { type: 'err', text: 'NeoX asset loader returned NULL for gui2.npk' },
+        { type: 'err', text: 'Game version mismatch: expected 1.0.186, found 1.0.182' },
+        { type: 'err', text: 'mprotect failed: Cannot allocate memory' },
+        { type: 'err', text: 'Hook installation failed: trampoline out of range' }
+    ];
+
+    function openLogs() {
+        logBody.innerHTML = '';
+        logModal.classList.add('show');
+
+        let index = 0;
+        const totalLogs = 100;
+
+        function appendLog() {
+            if (index >= totalLogs) return;
+
+            const p = document.createElement('div');
+            const now = new Date();
+            const timeStr = `[${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}]`;
+            
+            const template = logTemplates[Math.floor(Math.random() * logTemplates.length)];
+            let msg = template.text;
+            let colorClass = 'info';
+
+            const rand = Math.random();
+            if (rand < 0.15) colorClass = 'err';
+            else if (rand < 0.35) colorClass = 'warn';
+            else colorClass = template.type;
+
+            let prefix = '[INFO] ';
+            if (colorClass === 'warn') prefix = '[WARN] ';
+            else if (colorClass === 'err') prefix = '[ERROR] ';
+            
+            if (!msg.startsWith('[')) msg = prefix + msg;
+
+            let colorSpan = '';
+            if (colorClass === 'warn') colorSpan = `<span class="warn">${msg}</span>`;
+            else if (colorClass === 'err') colorSpan = `<span class="err">${msg}</span>`;
+            else colorSpan = `<span class="info">${msg}</span>`;
+
+            p.innerHTML = `<span class="time">${timeStr}</span> ${colorSpan}`;
+
+            logBody.appendChild(p);
+            logBody.scrollTop = logBody.scrollHeight;
+            index++;
+
+            const nextDelay = Math.random() < 0.1 
+                ? 800 + Math.random() * 500
+                : 30 + Math.random() * 200;
+            
+            logTimer = setTimeout(appendLog, nextDelay);
+        }
+
+        logTimer = setTimeout(appendLog, 300);
+    }
+
+    function closeLogs() {
+        logModal.classList.remove('show');
+        if (logTimer) {
+            clearTimeout(logTimer);
+            logTimer = null;
+        }
+    }
+
+    bugBtn.addEventListener('click', openLogs);
+    logCloseBtn.addEventListener('click', closeLogs);
+    logModal.addEventListener('click', (e) => {
+        if (e.target === logModal) closeLogs();
+    });
+
+    // 初始化
+    setStatusText('', false);
+    switchPage('home');
+
+    window.addEventListener('beforeunload', () => {
+        if (toastTimer) clearTimeout(toastTimer);
+        if (statusResetTimer) clearTimeout(statusResetTimer);
+        if (logTimer) clearTimeout(logTimer);
+        if (ggProgressTimer) clearInterval(ggProgressTimer);
+    });
+
+    overlay.addEventListener('click', (e) => e.stopPropagation());
+})();
+</script>
+</body>
+</html>
