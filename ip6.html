@@ -1,0 +1,2157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>鞍山软件库 · 登录</title>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <style>
+    /* ===== 全局重置 ===== */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Roboto', system-ui, -apple-system, 'Segoe UI', sans-serif;
+      background-color: #f5f5f5;
+      color: #1e1e1e;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      -webkit-tap-highlight-color: transparent;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+    }
+    img { -webkit-touch-callout: none; pointer-events: none; }
+
+    .phone-frame {
+      width: 100%;
+      max-width: 420px;
+      height: 100vh;
+      max-height: 100vh;
+      background-color: #ffffff;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    /* ============================================
+       登录页 (鞍山风格)
+       ============================================ */
+    .login-screen {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: #ffffff;
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+      transition: opacity 0.3s ease, visibility 0.3s ease;
+    }
+    .login-screen::-webkit-scrollbar { display: none; }
+    .login-screen.hidden {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .login-header {
+      padding: 40px 32px 0 32px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .anshan-logo {
+      width: 56px;
+      height: 56px;
+      display: block;
+    }
+    .anshan-logo svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+      transform: rotate(-1.5deg);
+    }
+
+    .login-body {
+      flex: 1;
+      padding: 24px 32px 32px 32px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .login-title {
+      font-size: 26px;
+      font-weight: 400;
+      color: #202124;
+      margin-bottom: 8px;
+      text-align: center;
+    }
+    .login-subtitle {
+      font-size: 15px;
+      color: #5f6368;
+      text-align: center;
+      margin-bottom: 32px;
+      line-height: 1.5;
+    }
+
+    .input-group {
+      position: relative;
+      margin-bottom: 16px;
+    }
+    .input-group input {
+      width: 100%;
+      padding: 20px 16px 8px 16px;
+      background-color: #ffffff;
+      border: 1px solid #dadce0;
+      border-radius: 4px;
+      font-size: 16px;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+      color: #202124;
+      -webkit-user-select: text;
+      -moz-user-select: text;
+      -ms-user-select: text;
+      user-select: text;
+    }
+    .input-group input:focus {
+      border-color: #1a73e8;
+      box-shadow: inset 0 0 0 1px #1a73e8;
+    }
+    .input-group label {
+      position: absolute;
+      left: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 16px;
+      color: #5f6368;
+      pointer-events: none;
+      transition: all 0.15s ease;
+      background-color: transparent;
+      padding: 0 4px;
+    }
+    .input-group input:focus + label,
+    .input-group input:not(:placeholder-shown) + label {
+      top: 10px;
+      transform: translateY(0);
+      font-size: 11px;
+      color: #1a73e8;
+      background-color: #ffffff;
+      left: 12px;
+    }
+    .input-group input:not(:focus):not(:placeholder-shown) + label {
+      color: #5f6368;
+    }
+
+    .input-group.error input {
+      border-color: #d93025;
+    }
+    .input-group.error input:focus {
+      box-shadow: inset 0 0 0 1px #d93025;
+    }
+    .input-group.error label {
+      color: #d93025;
+    }
+
+    .login-error-text {
+      color: #d93025;
+      font-size: 12px;
+      margin-top: 4px;
+      margin-left: 16px;
+      min-height: 18px;
+    }
+
+    /* 记住密码勾选框 */
+    .remember-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 4px 0 16px 4px;
+      cursor: pointer;
+      user-select: none;
+    }
+    .remember-row input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      accent-color: #1a73e8;
+      cursor: pointer;
+      -webkit-user-select: auto;
+      user-select: auto;
+    }
+    .remember-row span {
+      font-size: 14px;
+      color: #5f6368;
+    }
+
+    .forgot-password {
+      display: inline-block;
+      color: #1a73e8;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      padding: 8px 0;
+      margin-bottom: 24px;
+      transition: background 0.15s;
+      border-radius: 4px;
+    }
+    .forgot-password:hover { background-color: #f1f3f4; }
+    .forgot-password:active { background-color: #e8eaed; }
+
+    .login-btn {
+      background-color: #1a73e8;
+      color: #ffffff;
+      border: none;
+      border-radius: 4px;
+      padding: 12px 24px;
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s;
+      font-family: inherit;
+      width: 100%;
+      margin-top: 8px;
+      letter-spacing: 0.3px;
+    }
+    .login-btn:hover { background-color: #1765cc; }
+    .login-btn:active { background-color: #1354b0; }
+
+    .login-footer {
+      padding: 24px 32px 32px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .create-account-link {
+      color: #1a73e8;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      padding: 8px 12px;
+      border-radius: 4px;
+      transition: background 0.15s;
+    }
+    .create-account-link:hover { background-color: #f1f3f4; }
+    .create-account-link:active { background-color: #e8eaed; }
+
+    .language-select {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      color: #5f6368;
+      font-size: 12px;
+      cursor: pointer;
+      padding: 8px 12px;
+      border-radius: 4px;
+      transition: background 0.15s;
+    }
+    .language-select:hover { background-color: #f1f3f4; }
+    .language-select .material-icons { font-size: 16px; }
+
+    .privacy-footer {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      padding: 0 32px 24px 32px;
+      font-size: 12px;
+      color: #5f6368;
+    }
+    .privacy-footer span {
+      cursor: pointer;
+      padding: 4px 8px;
+      border-radius: 4px;
+      transition: background 0.15s;
+    }
+    .privacy-footer span:hover { background-color: #f1f3f4; }
+
+    .login-btn.loading {
+      background-color: #1a73e8;
+      opacity: 0.8;
+      pointer-events: none;
+    }
+    .login-btn.loading::after {
+      content: '';
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: #ffffff;
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+      margin-left: 8px;
+      vertical-align: middle;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ===== 主应用样式 ===== */
+    .main-app {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      transition: opacity 0.3s ease;
+    }
+    .main-app.hidden {
+      opacity: 0;
+      pointer-events: none;
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+    }
+
+    .app-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px 16px 8px 16px;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+    .app-content::-webkit-scrollbar { display: none; }
+
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      padding: 4px 0;
+    }
+    .header h1 {
+      font-size: 24px;
+      font-weight: 500;
+      letter-spacing: -0.5px;
+      color: #202124;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      border-radius: 8px;
+      padding: 4px 8px 4px 4px;
+      transition: background 0.15s;
+    }
+    .header h1:hover { background-color: #f1f3f4; }
+    .header h1:active { background-color: #e8eaed; }
+    .header h1 .material-icons { font-size: 28px; color: #5f6368; }
+    .header .icon-btn {
+      background: transparent;
+      border: none;
+      color: #5f6368;
+      font-size: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 8px;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .header .icon-btn:hover { background-color: #f1f3f4; }
+    .header .icon-btn:active { background-color: #e8eaed; }
+    .header .icon-btn.logged-in .material-icons { color: #1a73e8; }
+
+    .search-bar {
+      background-color: #f1f3f4;
+      border-radius: 28px;
+      padding: 12px 18px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
+      color: #5f6368;
+      font-size: 15px;
+      font-weight: 400;
+      box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.02);
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .search-bar:hover { background-color: #e8eaed; }
+    .search-bar:active { background-color: #dadce0; }
+    .search-bar .material-icons { font-size: 22px; color: #5f6368; }
+
+    .section-title {
+      font-size: 18px;
+      font-weight: 500;
+      color: #202124;
+      margin: 16px 0 12px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .section-title span {
+      font-size: 13px;
+      font-weight: 500;
+      color: #1a73e8;
+      letter-spacing: 0.3px;
+      cursor: pointer;
+      padding: 4px 8px;
+      border-radius: 12px;
+      transition: background 0.15s;
+    }
+    .section-title span:hover { background-color: #e8f0fe; }
+    .section-title span:active { background-color: #d2e3fc; }
+
+    .horizontal-scroll {
+      display: flex;
+      gap: 14px;
+      overflow-x: auto;
+      padding-bottom: 8px;
+      margin-bottom: 8px;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+    .horizontal-scroll::-webkit-scrollbar { display: none; }
+
+    .app-card {
+      flex: 0 0 100px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      cursor: pointer;
+      border-radius: 12px;
+      padding: 6px 4px;
+      transition: background 0.15s;
+    }
+    .app-card:hover { background-color: #f1f3f4; }
+    .app-card:active { background-color: #e8eaed; }
+
+    .app-icon {
+      width: 72px;
+      height: 72px;
+      border-radius: 18px;
+      overflow: hidden;
+      margin-bottom: 8px;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+      background-color: #f8f9fa;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+    .app-icon img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .app-icon .fallback {
+      display: none;
+      font-size: 40px;
+      color: #5f6368;
+      opacity: 0.8;
+      position: absolute;
+    }
+    .app-name {
+      font-size: 12px;
+      font-weight: 500;
+      color: #202124;
+      max-width: 100px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      line-height: 1.3;
+    }
+    .app-sub { font-size: 10px; color: #5f6368; margin-top: 2px; }
+
+    .list-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 10px 8px;
+      border-bottom: 1px solid #f0f0f0;
+      cursor: pointer;
+      border-radius: 8px;
+      transition: background 0.15s;
+    }
+    .list-item:hover { background-color: #f8f9fa; }
+    .list-item:active { background-color: #f1f3f4; }
+    .list-item:last-child { border-bottom: none; }
+
+    .list-icon {
+      width: 52px;
+      height: 52px;
+      border-radius: 14px;
+      overflow: hidden;
+      flex-shrink: 0;
+      background-color: #f8f9fa;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+    .list-icon img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .list-icon .fallback {
+      display: none;
+      font-size: 30px;
+      color: #5f6368;
+      opacity: 0.8;
+      position: absolute;
+    }
+
+    .list-info { flex: 1; }
+    .list-info h4 {
+      font-size: 16px;
+      font-weight: 500;
+      color: #202124;
+      margin-bottom: 4px;
+    }
+    .list-info p {
+      font-size: 13px;
+      color: #5f6368;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .list-info p .material-icons { font-size: 14px; color: #fbbc04; }
+    .list-action .material-icons {
+      color: #1a73e8;
+      font-size: 26px;
+      transition: transform 0.15s;
+    }
+    .list-item:hover .list-action .material-icons { transform: translateX(3px); }
+
+    .bottom-nav {
+      background-color: #ffffff;
+      border-top: 1px solid #e8eaed;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      padding: 8px 12px 12px 12px;
+      padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px));
+      flex-shrink: 0;
+      box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.02);
+    }
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: transparent;
+      border: none;
+      gap: 4px;
+      padding: 6px 12px;
+      border-radius: 24px;
+      transition: background 0.15s, color 0.15s;
+      color: #5f6368;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.2px;
+      cursor: pointer;
+      flex: 1;
+      max-width: 90px;
+    }
+    .nav-item:hover { background-color: #f1f3f4; }
+    .nav-item:active { background-color: #e8eaed; }
+    .nav-item .material-icons { font-size: 24px; color: #5f6368; transition: color 0.15s; }
+    .nav-item.active { color: #1a73e8; }
+    .nav-item.active .material-icons {
+      color: #1a73e8;
+      font-variation-settings: 'FILL' 1;
+    }
+
+    @media (max-width: 380px) {
+      .app-icon { width: 64px; height: 64px; }
+      .nav-item { padding: 4px 6px; }
+      .nav-item .material-icons { font-size: 22px; }
+    }
+
+    .status-bar { height: 8px; background-color: #ffffff; }
+
+    .toast-message {
+      position: fixed;
+      bottom: 100px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background-color: #202124;
+      color: #ffffff;
+      padding: 12px 24px;
+      border-radius: 32px;
+      font-size: 14px;
+      font-weight: 400;
+      opacity: 0;
+      transition: opacity 0.2s, transform 0.2s;
+      pointer-events: none;
+      z-index: 99999;
+      white-space: nowrap;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      max-width: 90vw;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .toast-message.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+    .nav-item.active .material-icons { animation: pulse 0.3s ease; }
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.15); }
+      100% { transform: scale(1); }
+    }
+
+    .page-my { display: none; padding: 8px 0; }
+    .app-content.my-mode .page-home { display: none; }
+    .app-content.my-mode .page-my { display: block; }
+
+    .page-search { display: none; padding: 8px 0; }
+    .app-content.search-mode .page-home { display: none; }
+    .app-content.search-mode .page-search { display: block; }
+    .app-content.search-mode .page-my { display: none; }
+
+    .page-detail { display: none; padding: 8px 0 16px 0; }
+    .app-content.detail-mode .page-home { display: none; }
+    .app-content.detail-mode .page-search { display: none; }
+    .app-content.detail-mode .page-my { display: none; }
+    .app-content.detail-mode .page-detail { display: block; }
+
+    .detail-back {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      color: #1a73e8;
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      padding: 8px 12px 8px 0;
+      margin-bottom: 8px;
+      border-radius: 20px;
+      transition: background 0.15s;
+    }
+    .detail-back:hover { background-color: #f1f3f4; }
+    .detail-back:active { background-color: #e8eaed; }
+    .detail-back .material-icons { font-size: 20px; }
+
+    .detail-header { display: flex; gap: 16px; margin-bottom: 20px; }
+    .detail-icon {
+      width: 88px;
+      height: 88px;
+      border-radius: 22px;
+      overflow: hidden;
+      flex-shrink: 0;
+      background-color: #f8f9fa;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+    .detail-icon img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .detail-icon .fallback {
+      display: none;
+      font-size: 48px;
+      color: #5f6368;
+      opacity: 0.8;
+      position: absolute;
+    }
+    .detail-head-info { flex: 1; min-width: 0; }
+    .detail-head-info h2 {
+      font-size: 22px;
+      font-weight: 500;
+      color: #202124;
+      margin-bottom: 4px;
+      word-break: break-word;
+    }
+    .detail-head-info .category {
+      font-size: 13px;
+      color: #1a73e8;
+      font-weight: 500;
+      margin-bottom: 6px;
+    }
+    .detail-head-info .rating-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      color: #5f6368;
+    }
+    .detail-head-info .rating-row .material-icons { font-size: 16px; color: #fbbc04; }
+
+    .detail-stats {
+      display: flex;
+      justify-content: space-around;
+      padding: 16px 0;
+      margin-bottom: 20px;
+      border-top: 1px solid #f0f0f0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .detail-stat { display: flex; flex-direction: column; align-items: center; gap: 4px; text-align: center; }
+    .detail-stat .value { font-size: 16px; font-weight: 500; color: #202124; }
+    .detail-stat .label { font-size: 11px; color: #5f6368; }
+    .detail-stat-divider { width: 1px; background-color: #f0f0f0; }
+
+    .detail-actions { display: flex; gap: 12px; margin-bottom: 24px; }
+    .download-btn {
+      flex: 1;
+      background-color: #1a73e8;
+      color: #ffffff;
+      border: none;
+      border-radius: 24px;
+      padding: 14px 24px;
+      font-size: 16px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.1s;
+      font-family: inherit;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .download-btn:hover { background-color: #1765cc; }
+    .download-btn:active { background-color: #1354b0; transform: scale(0.98); }
+    .download-btn.downloading { background-color: #e8f0fe; color: #1a73e8; cursor: default; }
+    .download-btn .material-icons { font-size: 20px; }
+
+    .detail-section-title {
+      font-size: 16px;
+      font-weight: 500;
+      color: #202124;
+      margin-bottom: 12px;
+    }
+
+    .screenshot-scroll {
+      display: flex;
+      gap: 12px;
+      overflow-x: auto;
+      padding-bottom: 12px;
+      margin-bottom: 20px;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+    .screenshot-scroll::-webkit-scrollbar { display: none; }
+    .screenshot-item {
+      flex: 0 0 auto;
+      width: 200px;
+      height: 360px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #e8f0fe 0%, #d2e3fc 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #1a73e8;
+      font-size: 13px;
+      font-weight: 500;
+    }
+    .screenshot-item .material-icons { font-size: 40px; opacity: 0.5; }
+
+    .detail-description { font-size: 14px; color: #5f6368; line-height: 1.6; margin-bottom: 20px; }
+
+    .app-info-list { display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px; }
+    .app-info-row { display: flex; justify-content: space-between; font-size: 13px; color: #5f6368; padding: 4px 0; }
+    .app-info-row .info-label { font-weight: 500; color: #202124; }
+
+    .profile-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 16px 8px 20px 8px;
+      border-bottom: 1px solid #f0f0f0;
+      margin-bottom: 16px;
+      cursor: pointer;
+      border-radius: 8px;
+      transition: background 0.15s;
+    }
+    .profile-header:hover { background-color: #f8f9fa; }
+    .profile-header:active { background-color: #f1f3f4; }
+    .profile-avatar {
+      width: 64px;
+      height: 64px;
+      background-color: #e8eaed;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #5f6368;
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+    .profile-avatar .material-icons { font-size: 44px; opacity: 0.7; }
+    .profile-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .profile-info h3 { font-size: 20px; font-weight: 500; color: #202124; margin-bottom: 4px; }
+    .profile-info p { font-size: 13px; color: #5f6368; }
+
+    .my-menu-item {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 14px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .my-menu-item:hover { background-color: #f8f9fa; }
+    .my-menu-item:active { background-color: #f1f3f4; }
+    .my-menu-item .material-icons { color: #5f6368; font-size: 24px; }
+    .my-menu-item span:last-child { font-size: 16px; color: #202124; flex: 1; }
+    .my-menu-item .arrow { color: #9aa0a6; font-size: 20px; }
+    .logout-item { margin-top: 8px; }
+    .logout-item .material-icons { color: #d93025; }
+    .logout-item span:last-child { color: #d93025; }
+
+    .search-field-large {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background-color: #f1f3f4;
+      border-radius: 28px;
+      padding: 14px 20px;
+      margin-bottom: 20px;
+      transition: background 0.15s;
+    }
+    .search-field-large .material-icons { color: #5f6368; font-size: 24px; }
+    .search-field-large input {
+      border: none;
+      background: transparent;
+      flex: 1;
+      font-size: 16px;
+      font-family: inherit;
+      outline: none;
+      color: #202124;
+      -webkit-user-select: text;
+      -moz-user-select: text;
+      -ms-user-select: text;
+      user-select: text;
+    }
+    .search-field-large input::placeholder { color: #9aa0a6; }
+
+    .search-hints { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px; }
+    .search-hint-chip {
+      background-color: #f1f3f4;
+      border-radius: 20px;
+      padding: 8px 16px;
+      font-size: 14px;
+      color: #202124;
+      cursor: pointer;
+      transition: background 0.15s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .search-hint-chip:hover { background-color: #e8eaed; }
+    .search-hint-chip:active { background-color: #dadce0; }
+    .search-hint-chip .material-icons { font-size: 16px; color: #5f6368; }
+
+    .recent-title { font-size: 16px; font-weight: 500; color: #202124; margin: 24px 0 12px 0; }
+    .recent-item {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 12px 8px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .recent-item:hover { background-color: #f8f9fa; }
+    .recent-item:active { background-color: #f1f3f4; }
+    .recent-item .material-icons { color: #9aa0a6; font-size: 22px; }
+    .recent-item span { font-size: 15px; color: #202124; flex: 1; }
+    .recent-item .close-icon {
+      color: #9aa0a6;
+      font-size: 18px;
+      cursor: pointer;
+      padding: 4px;
+      border-radius: 50%;
+    }
+    .recent-item .close-icon:hover { background-color: #e8eaed; }
+
+    .search-results { display: flex; flex-direction: column; gap: 4px; margin-top: 8px; }
+    .search-result-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 12px 8px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .search-result-item:hover { background-color: #f8f9fa; }
+    .search-result-item:active { background-color: #f1f3f4; }
+    .search-result-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      overflow: hidden;
+      flex-shrink: 0;
+      background-color: #f8f9fa;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+    .search-result-icon img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .search-result-icon .fallback {
+      display: none;
+      font-size: 28px;
+      color: #5f6368;
+      opacity: 0.8;
+      position: absolute;
+    }
+    .search-result-info { flex: 1; }
+    .search-result-info h4 { font-size: 15px; font-weight: 500; color: #202124; margin-bottom: 2px; }
+    .search-result-info p {
+      font-size: 12px;
+      color: #5f6368;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .search-result-info p .material-icons { font-size: 13px; color: #fbbc04; }
+    .search-result-info p .category-tag {
+      background-color: #e8f0fe;
+      color: #1a73e8;
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-weight: 500;
+    }
+
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 60px 20px;
+      color: #9aa0a6;
+      text-align: center;
+    }
+    .empty-state .material-icons { font-size: 56px; margin-bottom: 16px; opacity: 0.5; }
+    .empty-state h3 { font-size: 18px; font-weight: 500; color: #5f6368; margin-bottom: 8px; }
+    .empty-state p { font-size: 14px; color: #9aa0a6; }
+
+    .md-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      z-index: 10000;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.25s ease, visibility 0.25s ease;
+    }
+    .md-overlay.show { opacity: 1; visibility: visible; }
+    .md-bottom-sheet {
+      background-color: #ffffff;
+      border-radius: 28px 28px 0 0;
+      padding: 12px 24px 28px 24px;
+      max-width: 420px;
+      width: 100%;
+      transform: translateY(100%);
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.12);
+      position: relative;
+      max-height: 85vh;
+      overflow-y: auto;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+    .md-bottom-sheet::-webkit-scrollbar { display: none; }
+    .md-overlay.show .md-bottom-sheet { transform: translateY(0); }
+    .md-sheet-handle {
+      width: 32px;
+      height: 4px;
+      background-color: #dadce0;
+      border-radius: 2px;
+      margin: 0 auto 20px auto;
+    }
+    .md-sheet-title { font-size: 20px; font-weight: 500; color: #202124; margin-bottom: 6px; text-align: center; }
+    .md-sheet-subtitle { font-size: 13px; color: #5f6368; text-align: center; margin-bottom: 24px; }
+    .md-sheet-body { font-size: 14px; color: #5f6368; line-height: 1.6; margin-bottom: 24px; text-align: left; }
+    .md-sheet-icon {
+      width: 72px;
+      height: 72px;
+      background-color: #e8f0fe;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 16px auto;
+      overflow: hidden;
+    }
+    .md-sheet-icon .material-icons { font-size: 48px; color: #1a73e8; }
+    .md-sheet-icon img { width: 100%; height: 100%; object-fit: cover; }
+
+    .md-sheet-btn {
+      background-color: #1a73e8;
+      color: #ffffff;
+      border: none;
+      border-radius: 24px;
+      padding: 14px 32px;
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s;
+      font-family: inherit;
+      width: 100%;
+      margin-top: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .md-sheet-btn:hover { background-color: #1765cc; }
+    .md-sheet-btn:active { background-color: #1354b0; }
+    .md-sheet-btn.secondary { background-color: transparent; color: #5f6368; margin-top: 4px; }
+    .md-sheet-btn.secondary:hover { background-color: #f1f3f4; }
+    .md-sheet-btn.secondary:active { background-color: #e8eaed; }
+    .md-sheet-btn.danger { background-color: #d93025; }
+    .md-sheet-btn.danger:hover { background-color: #b3261e; }
+    .md-sheet-btn.danger:active { background-color: #8c1d18; }
+  </style>
+</head>
+<body>
+  <div class="phone-frame">
+
+    <!-- ============================================
+         登录页
+         ============================================ -->
+    <div class="login-screen" id="loginScreen">
+      <div class="login-header">
+        <div class="anshan-logo">
+          <svg viewBox="0 0 56 56" xmlns="http://www.w3.org/2000/svg">
+            <path d="M8 44 L22 12 L30 12 L16 44 Z" fill="#FBBC05" opacity="0.95"/>
+            <path d="M20 28 L38 28 L34 36 L16 36 Z" fill="#4285F4" opacity="0.95"/>
+            <path d="M34 12 L42 12 L56 44 L48 44 Z" fill="#34A853" opacity="0.95"/>
+            <path d="M28 8 L32 8 L30 16 L26 16 Z" fill="#EA4335" opacity="0.95"/>
+            <path d="M8 44 L22 12 L30 12 L16 44 Z" fill="none" stroke="#FBBC05" stroke-width="1.2" stroke-linejoin="round" opacity="0.6"/>
+            <path d="M20 28 L38 28 L34 36 L16 36 Z" fill="none" stroke="#4285F4" stroke-width="1.2" stroke-linejoin="round" opacity="0.6"/>
+            <path d="M34 12 L42 12 L56 44 L48 44 Z" fill="none" stroke="#34A853" stroke-width="1.2" stroke-linejoin="round" opacity="0.6"/>
+            <path d="M28 8 L32 8 L30 16 L26 16 Z" fill="none" stroke="#EA4335" stroke-width="1.2" stroke-linejoin="round" opacity="0.6"/>
+          </svg>
+        </div>
+      </div>
+
+      <div class="login-body">
+        <h1 class="login-title">登录鞍山软件库</h1>
+        <p class="login-subtitle">使用您的鞍山账号继续<br>
+https://m.youbaopu.com/item/3s0r3f购买卡密后使用</br>
+软件将不断更新</p>
+
+        <div class="input-group" id="emailGroup">
+          <input type="text" id="loginEmail" placeholder=" " autocomplete="off">
+          <label>手机号 / 账号</label>
+        </div>
+        <div class="login-error-text" id="emailError"></div>
+
+        <div class="input-group" id="passwordGroup">
+          <input type="password" id="loginPassword" placeholder=" " autocomplete="off">
+          <label>输入您的密码</label>
+        </div>
+        <div class="login-error-text" id="passwordError"></div>
+
+        <!-- 记住密码 -->
+        <label class="remember-row">
+          <input type="checkbox" id="rememberMe">
+          <span>记住密码</span>
+        </label>
+
+        <span class="forgot-password" id="forgotPassword">忘记密码？</span>
+
+        <button class="login-btn" id="loginBtn">下一步</button>
+      </div>
+
+      <div class="login-footer">
+        <span class="create-account-link" id="createAccountBtn">创建账号</span>
+        <span class="language-select">
+          <span class="material-icons">language</span>
+          简体中文
+        </span>
+      </div>
+
+      <div class="privacy-footer">
+        <span>隐私权</span>
+        <span>条款</span>
+        <span>帮助</span>
+      </div>
+    </div>
+
+    <!-- ============================================
+         主应用
+         ============================================ -->
+    <div class="main-app hidden" id="mainApp">
+      <div class="status-bar"></div>
+
+      <div class="app-content" id="appContent">
+        <!-- ========== 首页 ========== -->
+        <div class="page-home" id="pageHome">
+          <div class="header">
+            <h1 id="headerTitle">
+              <span class="material-icons">shop</span>
+              鞍山软件库
+            </h1>
+            <button class="icon-btn" id="accountBtn" title="账户">
+              <span class="material-icons">account_circle</span>
+            </button>
+          </div>
+
+          <div class="search-bar" id="searchBarHome">
+            <span class="material-icons">search</span>
+            <span>搜索应用和游戏</span>
+          </div>
+
+          <!-- 推荐位：两个应用 -->
+          <div class="section-title">
+            为你推荐 <span id="viewAllRecommended">查看全部</span>
+          </div>
+          <div class="horizontal-scroll" id="horizontalScroll">
+            <!-- Via 浏览器 -->
+            <div class="app-card" data-app="Via 浏览器" data-category="浏览器">
+              <div class="app-icon">
+                <img src="https://viayoo.com/zh-cn/images/via-logo.svg" alt="Via 浏览器" loading="lazy"
+                     onerror="this.style.display='none'; this.nextElementSibling.style.display='block'">
+                <span class="material-icons fallback">public</span>
+              </div>
+              <div class="app-name">Via 浏览器</div>
+              <div class="app-sub">浏览器</div>
+            </div>
+            <!-- X浏览器 -->
+            <div class="app-card" data-app="X浏览器" data-category="浏览器">
+              <div class="app-icon">
+                <img src="https://www.xbext.com/icons/apple-touch-icon-57x57.png" alt="X浏览器" loading="lazy"
+                     onerror="this.style.display='none'; this.nextElementSibling.style.display='block'">
+                <span class="material-icons fallback">web</span>
+              </div>
+              <div class="app-name">X浏览器</div>
+              <div class="app-sub">浏览器</div>
+            </div>
+          </div>
+
+          <!-- 热门应用列表 -->
+          <div class="section-title">
+            热门应用 <span id="viewAllHotApps">更多</span>
+          </div>
+
+          <!-- Via 浏览器 -->
+          <div class="list-item" data-app="Via 浏览器" data-rating="4.8" data-reviews="2.3M">
+            <div class="list-icon">
+              <img src="https://viayoo.com/zh-cn/images/via-logo.svg" alt="Via 浏览器" loading="lazy"
+                   onerror="this.style.display='none'; this.nextElementSibling.style.display='block'">
+              <span class="material-icons fallback">public</span>
+            </div>
+            <div class="list-info">
+              <h4>Via 浏览器</h4>
+              <p><span class="material-icons">star</span> 4.8 · 2.3M 评价</p>
+            </div>
+            <div class="list-action"><span class="material-icons">open_in_new</span></div>
+          </div>
+
+          <!-- X浏览器 -->
+          <div class="list-item" data-app="X浏览器" data-rating="4.7" data-reviews="1.8M">
+            <div class="list-icon">
+              <img src="https://www.xbext.com/icons/apple-touch-icon-57x57.png" alt="X浏览器" loading="lazy"
+                   onerror="this.style.display='none'; this.nextElementSibling.style.display='block'">
+              <span class="material-icons fallback">web</span>
+            </div>
+            <div class="list-info">
+              <h4>X浏览器</h4>
+              <p><span class="material-icons">star</span> 4.7 · 1.8M 评价</p>
+            </div>
+            <div class="list-action"><span class="material-icons">open_in_new</span></div>
+          </div>
+
+          <div style="height: 12px;"></div>
+        </div>
+
+        <!-- ========== 应用详情页 ========== -->
+        <div class="page-detail" id="pageDetail">
+          <div class="detail-back" id="detailBack">
+            <span class="material-icons">arrow_back</span>
+            返回
+          </div>
+
+          <div class="detail-header">
+            <div class="detail-icon" id="detailIcon">
+              <img id="detailIconImg" src="" alt="应用图标"
+                   onerror="this.style.display='none'; document.getElementById('detailIconFallback').style.display='block'">
+              <span class="material-icons fallback" id="detailIconFallback">apps</span>
+            </div>
+            <div class="detail-head-info">
+              <h2 id="detailName">应用名称</h2>
+              <div class="category" id="detailCategory">分类</div>
+              <div class="rating-row">
+                <span class="material-icons">star</span>
+                <span id="detailRating">4.5</span>
+                <span>·</span>
+                <span id="detailReviews">1M 评价</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="detail-stats">
+            <div class="detail-stat">
+              <div class="value" id="detailDownloads">10M+</div>
+              <div class="label">下载量</div>
+            </div>
+            <div class="detail-stat-divider"></div>
+            <div class="detail-stat">
+              <div class="value" id="detailSize">85 MB</div>
+              <div class="label">大小</div>
+            </div>
+            <div class="detail-stat-divider"></div>
+            <div class="detail-stat">
+              <div class="value">4+</div>
+              <div class="label">年龄</div>
+            </div>
+          </div>
+
+          <div class="detail-actions">
+            <button class="download-btn" id="downloadBtn">
+              <span class="material-icons">download</span>
+              下载
+            </button>
+          </div>
+
+          <div class="detail-section-title">应用截图</div>
+          <div class="screenshot-scroll">
+            <div class="screenshot-item"><span class="material-icons">photo</span></div>
+            <div class="screenshot-item"><span class="material-icons">photo</span></div>
+            <div class="screenshot-item"><span class="material-icons">photo</span></div>
+          </div>
+
+          <div class="detail-section-title">应用介绍</div>
+          <div class="detail-description" id="detailDescription">
+            这是一款功能丰富的应用，提供优质的用户体验。
+          </div>
+
+          <div class="detail-section-title">应用信息</div>
+          <div class="app-info-list">
+            <div class="app-info-row">
+              <span class="info-label">版本</span>
+              <span id="detailVersion">1.0.0</span>
+            </div>
+            <div class="app-info-row">
+              <span class="info-label">更新日期</span>
+              <span>2026-10-01</span>
+            </div>
+            <div class="app-info-row">
+              <span class="info-label">开发者</span>
+              <span id="detailDeveloper">官方</span>
+            </div>
+            <div class="app-info-row">
+              <span class="info-label">包名</span>
+              <span id="detailPackage">com.example.app</span>
+            </div>
+          </div>
+
+          <div style="height: 16px;"></div>
+        </div>
+
+        <!-- ========== 搜索页 ========== -->
+        <div class="page-search" id="pageSearch">
+          <div class="header" style="margin-bottom: 8px;">
+            <h1 style="font-size: 22px;">
+              <span class="material-icons">search</span>
+              搜索
+            </h1>
+          </div>
+          <div class="search-field-large">
+            <span class="material-icons">search</span>
+            <input type="text" id="searchInput" placeholder="搜索应用、游戏..." autocomplete="off">
+            <span class="material-icons" id="clearSearch" style="cursor: pointer; display: none;">close</span>
+          </div>
+
+          <div id="searchDefaultView">
+            <div class="recent-title">热门搜索</div>
+            <div class="search-hints">
+              <div class="search-hint-chip" data-query="Via">
+                <span class="material-icons">trending_up</span> Via
+              </div>
+              <div class="search-hint-chip" data-query="X浏览器">
+                <span class="material-icons">trending_up</span> X浏览器
+              </div>
+            </div>
+
+            <div class="recent-title">最近搜索</div>
+            <div class="recent-item">
+              <span class="material-icons">history</span>
+              <span>Via</span>
+              <span class="material-icons close-icon">close</span>
+            </div>
+          </div>
+
+          <div id="searchResultView" style="display: none;">
+            <div class="recent-title" id="searchResultTitle">搜索结果</div>
+            <div class="search-results" id="searchResultsContainer"></div>
+            <div class="empty-state" id="searchEmptyState" style="display: none;">
+              <span class="material-icons">search_off</span>
+              <h3>未找到相关应用</h3>
+              <p>试试其他关键词吧</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- ========== 我的页面 ========== -->
+        <div class="page-my" id="pageMy">
+          <div class="header" style="margin-bottom: 8px;">
+            <h1 style="font-size: 22px;">
+              <span class="material-icons">person</span>
+              我的
+            </h1>
+          </div>
+
+          <div class="profile-header" id="loggedInProfile">
+            <div class="profile-avatar" style="background-color: #e8f0fe;">
+              <img src="https://viayoo.com/zh-cn/images/via-logo.svg" alt="头像" 
+                   onerror="this.style.display='none'; this.parentNode.innerHTML='<span class=\'material-icons\' style=\'color:#1a73e8;font-size:44px;opacity:0.8\'>person</span>'">
+            </div>
+            <div class="profile-info">
+              <h3 id="userName">用户</h3>
+              <p id="userEmail">user@example.com</p>
+            </div>
+          </div>
+
+          <div class="my-menu-item" id="aboutAppBtn">
+            <span class="material-icons">info</span>
+            <span>关于APP</span>
+            <span class="material-icons arrow">chevron_right</span>
+          </div>
+
+          <div class="my-menu-item logout-item" id="logoutBtn">
+            <span class="material-icons">logout</span>
+            <span>退出登录</span>
+            <span class="material-icons arrow">chevron_right</span>
+          </div>
+
+          <div style="height: 24px;"></div>
+        </div>
+      </div>
+
+      <!-- 底部导航 -->
+      <div class="bottom-nav" id="bottomNav">
+        <button class="nav-item active" data-tab="apps">
+          <span class="material-icons">apps</span>
+          <span>应用</span>
+        </button>
+        <button class="nav-item" data-tab="search">
+          <span class="material-icons">search</span>
+          <span>搜索</span>
+        </button>
+        <button class="nav-item" data-tab="my">
+          <span class="material-icons">settings</span>
+          <span>设置</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 关于APP 弹窗 -->
+  <div class="md-overlay" id="aboutDialogOverlay">
+    <div class="md-bottom-sheet">
+      <div class="md-sheet-handle"></div>
+      <div class="md-sheet-icon">
+        <span class="material-icons">shop</span>
+      </div>
+      <div class="md-sheet-title">鞍山软件库</div>
+      <div class="md-sheet-subtitle">版本 0.6</div>
+      <div class="md-sheet-body">
+        欢迎使用
+有要上架的发给群主
+      </div>
+      <button class="md-sheet-btn" id="aboutDialogClose">确定</button>
+    </div>
+  </div>
+
+  <!-- 退出登录确认弹窗 -->
+  <div class="md-overlay" id="logoutDialogOverlay">
+    <div class="md-bottom-sheet">
+      <div class="md-sheet-handle"></div>
+      <div class="md-sheet-title">退出登录</div>
+      <div class="md-sheet-subtitle">确定要退出当前账户吗？</div>
+      <button class="md-sheet-btn danger" id="logoutConfirmBtn">
+        <span class="material-icons" style="font-size: 18px;">logout</span>
+        退出登录
+      </button>
+      <button class="md-sheet-btn secondary" id="logoutCancelBtn">取消</button>
+    </div>
+  </div>
+
+  <div id="toast" class="toast-message"></div>
+
+  <script>
+    (function() {
+      // ========== 应用数据（已移除 MT） ==========
+      const ALL_APPS = [
+        {
+          name: 'Via 浏览器',
+          category: '浏览器',
+          rating: '4.8',
+          reviews: '2.3M',
+          downloads: '100M+',
+          size: '5.2 MB',
+          version: '5.0.0',
+          developer: 'Via 官方',
+          package: 'mark.via',
+          icon: 'https://viayoo.com/zh-cn/images/via-logo.svg',
+          fallback: 'public',
+          description: 'Via 浏览器是一款极简、轻量、快速的手机浏览器，支持广告拦截、脚本扩展、无痕浏览等功能。',
+          downloadUrl: 'https://res.viayoo.com/v1/via-release-cn.apk'
+        },
+        {
+          name: 'icebox',
+          category: 'null',
+          rating: '0.0',
+          reviews: '0M',
+          downloads: 'null',
+          size: 'null',
+          version: 'null',
+          developer: 'null',
+          package: 'null',
+          icon: 'https://img.anfensi.com/upload/2021-1/20211301148423070.png',
+          fallback: 'web',
+          description: '慎用',
+          downloadUrl: 'https://icebox.catchingnow.com/icebox_latest.apk'
+        },
+       {
+          name: 'c_黑域',
+          category: 'null',
+          rating: '0.0',
+          reviews: '0M',
+          downloads: 'null',
+          size: 'null',
+          version: 'null',
+          developer: 'null',
+          package: 'null',
+          icon: 'https://img.downkuai.com/logo/20260701/316b55c003ad807334d7d622ac48ad6c.png',
+          fallback: 'web',
+          description: '慎用',
+          downloadUrl: 'https://dl.jianyv.com/br/latest.apk'
+        },
+        {
+          name: 'Taichi',
+          category: 'null',
+          rating: '0.0',
+          reviews: '0M',
+          downloads: 'null',
+          size: 'null',
+          version: 'null',
+          developer: 'null',
+          package: 'null',
+          icon: 'https://img.anfensi.com/upload/2021-6/2021621023424263.png',
+          fallback: 'web',
+          description: '慎用',
+          downloadUrl: 'https://www.ilanzou.com/s/essy16G7j'
+        },
+        {
+          name: 'Magisk',
+          category: 'null',
+          rating: '0.0',
+          reviews: '11.8M',
+          downloads: 'null',
+          size: 'null',
+          version: 'null',
+          developer: 'null',
+          package: 'null',
+          icon: 'https://img.anfensi.com/upload/2021-6/202162103523441.png',
+          fallback: 'web',
+          description: '慎用',
+          downloadUrl: 'https://www.ilanzou.com/s/pwTy16wjO'
+        },
+        {
+          name: 'X',
+          category: 'X',
+          rating: '0.0',
+          reviews: '101.8M',
+          downloads: 'null',
+          size: 'null',
+          version: 'null',
+          developer: 'null',
+          package: 'com.xbrowser.play',
+          icon: 'https://simg.doyo.cn/imgfile/bgame/202501/17112138tlrr.png',
+          fallback: 'web',
+          description: '慎用',
+          downloadUrl: 'https://www.doyo.cn/app/502833.html'
+        },
+       {
+          name: 'X浏览器',
+          category: '浏览器',
+          rating: '4.7',
+          reviews: '1.8M',
+          downloads: '50M+',
+          size: '3.8 MB',
+          version: '4.2.0',
+          developer: 'X浏览器官方',
+          package: 'com.xbrowser.play',
+          icon: 'https://www.xbext.com/icons/apple-touch-icon-57x57.png',
+          fallback: 'web',
+          description: '归浏览器本质，还你一个纯粹的手机浏览器。无新闻，无推送，无后台，小而强大，给你淋漓尽致的浏览体验。',
+          downloadUrl: 'https://www.xbext.com/download/xbrowser-release.apk'
+        },
+        {
+          name: 'NOVACLIENT',
+          category: '外挂',
+          rating: 'null',
+          reviews: '0',
+          downloads: '0',
+          size: '123.8 MB',
+          version: '4.2.0',
+          developer: 'null',
+          package: 'null',
+          icon: 'https://shikeimg.it168.com/img/rjpic/11111607dbf17RDkPFoTsQ3mys0.jpg',
+          fallback: 'web',
+          description: '787878',
+          downloadUrl: 'https://www.ilanzou.com/s/nSmy1M4zW'
+        }
+      ];
+
+      // ========== 后台验证账号密码（新增 ADMIN） ==========
+      const credentials = {
+        "17746407627": "DLZDOLsEStLHBkcMsZJ3DoMA7io9ZiZE",
+        "12230796233": "z6Ech9b2qtEzlHWSQ7P7LlqXD0ITbcQo",
+        "18180441077": "lLWVKv3wBrPTCnF87PN3DYl6cFxIRfUO",
+        "15207300356": "msUwv2OdDsv3dAUNYbiwrqZOzEUPCJoB",
+        "15326057335": "2OZ3zo5u5tQtqZx8Jcms47gYnIbpEqv0",
+        "17195077909": "TPDqE4vpXCJkQQ65gwhIb0OtRtKZzsNK",
+        "11605151350": "8ollVzGMyHtYrGeZpoA31xuEG3FEE1N9",
+        "12052280499": "peICQfudPZO9bs1LoG7WEqQhziMqpMBT",
+        "13594350666": "2O0WHaIJb1qy7j4XESFrSe5SS6CxsAij",
+        "18654862283": "jb9vfiS23up6zbUUwm2qq7nO9htbibSE",
+        "12246688654": "if8DNF6oLOxJlQEZPZgQlvSuPPPx7i3C",
+        "11088116521": "81HgH5VXDzlgNHrXDVBRizwXfS94tkKu",
+        "13385040984": "HMDWpFZk3EmoSRpD3ebLVERTpS1JAr9z",
+        "14103839562": "NiuFaWe5KvwmEbBX688crZAcxJP4dddn",
+        "13191303903": "hQbhUVCqVMztJiI275Rhs7bqBWYMjIBI",
+        "11860695160": "i5DTnXm0OoOJJlzgELm2LNSJBCf38Vl8",
+        "13440051561": "JNFxQXOhHWVSEL8TUxXB9akIeEhpTY4q",
+        "18029065238": "c2AB3zNhfn0ddrEqQNpzL20L6lHm1vSV",
+        "18101299028": "3foEbwtYy7KFQDpyiJbjqUNATqMavTU1",
+        "19549992208": "gRfe8gaRTahwLUZrtqAgtqMaZjD7rqeB",
+        "19322882376": "RL7iUfcfF19IG32lfUe4v9Dluk5SDc0m",
+        "12163202540": "PTvCnDjmOakQLkCCPXhiO7hD14KR2Vlh",
+        "11521803927": "iMir85G0tbYpAbySkn4JS1pO4b0ZGwf2",
+        "12575912640": "b9pFcfarVf0JakEdQMYeYKe9d4AoZJy7",
+        "10670503058": "HzdxROGN3LMDya75VxjNCFcHo9WJSNn1",
+        "16307425669": "WOogESV9JMEOkj1pvb8GFVZ8QRJTt7EB",
+        "11942647756": "3xW3aKcHLW7J49sQ8OLvPY6opEl6P6EQ",
+        "17045013845": "fhiYCMp8lw35olWq7gmwsHtuIY5heJ8M",
+        "18318939120": "B5NtrAkiBNzqazUCuHQyiWGvXbjGbhIt",
+        "10600074427": "fz7OhWXLXX1xzDOJaHTEAaPIvXxpUkE4",
+        "13696560087": "Ik2OEUKZn5WtgzQwoMY5D15JH99s3YCU",
+        "17797351905": "1xBfh7p2hQUQKDmqTYk2o82mE2klNYnM",
+        "19113913732": "rI2iIT03QHkYOpEj4oqAl9x4W435Hgh4",
+        "16126300215": "TTFlDiLj6ZV6hD4Cm0cYiXFymFSg4lDV",
+        "11092331308": "CjvzawqrVfRRzKuIuwFAc9el0Hjj1Sb5",
+        "16325050880": "1IPKX89PVMksqYqvNYrRf4iXSGpAgd6d",
+        "19168607855": "hXFLBaFqYFxdlEdtsmk7KMIj86kJMhQq",
+        "10583071720": "ACqTqmsMmGxTK8dtDWQcnL2GgEi32qAY",
+        "14225746789": "04tzV2ptty5qPVyvKVrXjMIEgD00LRBV",
+        "14599133166": "hZwBgjKD1MG5uGadb65QEBnOkwRiugjB",
+        "13431721934": "GZWM1o0jNvY7VIo1uGrStoQUyENr3Wlv",
+        "12052929263": "hfGuHKP3JPG4dkxoAKPjQqVFBattLJQH",
+        "11983237083": "FDUTLJHes3BZxmyL5hsWpDKtb9s1FqD0",
+        "18432812583": "E6SySS9YF8dVHr40byQlqpztwu1rNyHX",
+        "10129409083": "nZxDPvovVyYgL6PHgRhBlGt2Dem1Ybnn",
+        "11389878378": "8I8HtUovyd1p2S0j3pIxBQVteNNlQYdF",
+        "17267135464": "pkii1UiAXVFxqe5sD8zunIgi6Tk3dJRH",
+        "18865547410": "o5kLUYaCDIYPu8KsCujnu5iUacDagqX3",
+        "15431792235": "uYWOHqvj5r2l5HgsOkRxf7rEadFs97DW",
+        "12062845570": "t5ClErazb0BkO6CfURh51n0fwMdWVzit",
+        "12061628330": "lwcpXtnOCX0uOMOscyxt0BoQdszYv6Jj",
+        "18541597430": "rvzhDs1PBOdee4lCTiwaPN1Kb4FaZHhF",
+        "13984142354": "83xNCmtJPAzvEJV4aSkCnT7KocmxRS1y",
+        "11695786138": "0RfYevkBTWUGYrrzHLmlwrrOAc5NopF6",
+        "13599156156": "UShjLbm7VxBwlpySo9Xim1uiKLsTEKWR",
+        "10180063317": "X9Vo8JCTLJIyxXWvzXOvcnLovVgEwIcc",
+        "12337794156": "0RSdfi5Xwohq2zgMrLEdKwPmtTPnAvpw",
+        "14911307907": "VoXMkHnkdCSCS9utAjoN7yciq1ao59Vi",
+        "18522216274": "stOnhCzikXQhXlo9Nx6s5PIfEREMlrZ4",
+        "19928425609": "O9I7GY8nTy07VhVpELJf53jO6njn7bnW",
+        "13697490925": "29ZY4ijFwJScYOwQVJHFke8qu4UjwXsh",
+        "18468103446": "vID6yDeba4hxFQNMfRt6hGAnYZnnvT9v",
+        "10046871569": "X524CqIolqjwLrK3Yi4YH95v1PmI9k2B",
+        "18749119880": "t9tBy5opHrQDZjDQZalnxCx4vpMSYTKM",
+        "17073363041": "UEF3bHH8RY8PqmWOZA7bNUC4yEDbNADm",
+        "17505223412": "2GUE1WtcB2GntYrTtWYKzJpfzAGaO9As",
+        "14332841831": "oL0ygxdhx5x0WTcC6ONsqcxtOTBTzChE",
+        "10502405488": "GOUu1usIAnPwXEh5OAYl9htNt3Htn5kx",
+        "17167472154": "Kq0uhWUpaFcFXqoXLiHfZU9C6PGynh5k",
+        "10316054968": "Ahr5fw5ttPEc0BarQICwO7xd3QnxM5yx",
+        "11932260703": "DnRUQHxaah0yi05epFSH4Iq39EIPTYLO",
+        "16196701597": "IbsJZcJhgsMw0kVjx8N76ipj9oVZKb12",
+        "14557024220": "AUjCgL0oWalW5AcQOxg2kOkMuWe1Vx6n",
+        "16434410985": "GC7LMiuHpZZbfZbDhKh0QW02BYLtZdS4",
+        "14609062019": "85IRFPz3ieJPsM9MP93ANv83Eat839RR",
+        "10588182037": "sUUBtEfcvuaOF549qqpgZM8UH4InWU4l",
+        "10049871969": "SZjdQchlPF7DqWOEmoAVyp78wg5T0ayx",
+        "17972623813": "DI8dZuSRRG35tRVHUrIXkh1WAbVO4QSN",
+        "11728553700": "0aIBOZaLmzvBpifLF9MwGJ8Q9QosHowS",
+        "10687083218": "cMwNtISP9HMWig2FGo2DxuDXg2UJYsGA",
+        "11626175680": "RSWJKk4nkRq0Sq7rujXjNdXiIDBaDLcU",
+        "13890846511": "cQejqLlonju3mSxYQJv0xkIa6b6p6UcH",
+        "19130252000": "f6Jrq62tnqNkFv13C4AwixTRI5YZu3H7",
+        "18668001744": "hj7S0VlHacZXaCumEUx2wLEfpUyrN1oN",
+        "18637753295": "K8bbfaWnG2egK3ZdDbjPtS5G8bXaySyp",
+        "10146005260": "g0DyfYhIkCgRGREIQLpBBQeKCxshaTS5",
+        "11205309951": "J3mjGJkUpxAw2qG0z2EPQRG1KELcRvt7",
+        "16926974295": "pLo0ydm7Z2aErDNygeErGw9dhzKjFvml",
+        "11959585317": "0f94g7PTpsR6gFF7ZVNO7vvPWURlW66N",
+        "19682298373": "56sT32dEGVThV7Dj8n8XmdKUtSI3ysgB",
+        "12456501270": "B6DRMrRM2bZFAqRflKZyk9a5Vo4RBwKz",
+        "17812920207": "n7NW4WyofzkXUP4xUgaGYl5wIElD8dLh",
+        "15561168164": "iOy2R5VGcVUoRU6n8NukGXsxWYNwXNny",
+        "17696108893": "e90CHwzxNyHkmSEa9oWyGBP4aMBxZBjS",
+        "17629457239": "kBaFQ7fDmJW25i85nDxOSjhQY1hhKGUt",
+        "14127739316": "5sZrStOmeQ7CetoF09yx5UrqHtbcJTEF",
+        "14985167445": "R8NALNI1ig9IeOak6uAvwzZFz4SS0Sfq",
+        "14849630714": "NoMOb7cMO9Yp14kR7vUZA3eD9s3RgUrP",
+        "17179953349": "y58DovDYa8VKXA01p1gOwwP4jI4Up9NQ",
+        "11306866333": "RoXXoRUpwTDv7xnImmLG2Hm3Y5UvBdSi",
+        // 新增管理员账号
+        "ADMIN": "123456789010415522058"
+      };
+
+      // ---------- 全局引用 ----------
+      const loginScreen = document.getElementById('loginScreen');
+      const mainApp = document.getElementById('mainApp');
+      const appContent = document.getElementById('appContent');
+      const pageHome = document.getElementById('pageHome');
+      const pageSearch = document.getElementById('pageSearch');
+      const pageMy = document.getElementById('pageMy');
+      const pageDetail = document.getElementById('pageDetail');
+      const navItems = document.querySelectorAll('.nav-item');
+      const toast = document.getElementById('toast');
+
+      // 登录页引用
+      const loginEmail = document.getElementById('loginEmail');
+      const loginPassword = document.getElementById('loginPassword');
+      const emailGroup = document.getElementById('emailGroup');
+      const passwordGroup = document.getElementById('passwordGroup');
+      const emailError = document.getElementById('emailError');
+      const passwordError = document.getElementById('passwordError');
+      const loginBtn = document.getElementById('loginBtn');
+      const rememberMe = document.getElementById('rememberMe');
+      const forgotPassword = document.getElementById('forgotPassword');
+      const createAccountBtn = document.getElementById('createAccountBtn');
+
+      // 主应用引用
+      const aboutDialogOverlay = document.getElementById('aboutDialogOverlay');
+      const logoutDialogOverlay = document.getElementById('logoutDialogOverlay');
+      const userNameEl = document.getElementById('userName');
+      const userEmailEl = document.getElementById('userEmail');
+
+      const searchInput = document.getElementById('searchInput');
+      const clearSearch = document.getElementById('clearSearch');
+      const searchDefaultView = document.getElementById('searchDefaultView');
+      const searchResultView = document.getElementById('searchResultView');
+      const searchResultsContainer = document.getElementById('searchResultsContainer');
+      const searchEmptyState = document.getElementById('searchEmptyState');
+      const searchResultTitle = document.getElementById('searchResultTitle');
+
+      const detailIconImg = document.getElementById('detailIconImg');
+      const detailIconFallback = document.getElementById('detailIconFallback');
+      const detailName = document.getElementById('detailName');
+      const detailCategory = document.getElementById('detailCategory');
+      const detailRating = document.getElementById('detailRating');
+      const detailReviews = document.getElementById('detailReviews');
+      const detailDownloads = document.getElementById('detailDownloads');
+      const detailSize = document.getElementById('detailSize');
+      const detailDescription = document.getElementById('detailDescription');
+      const detailVersion = document.getElementById('detailVersion');
+      const detailDeveloper = document.getElementById('detailDeveloper');
+      const detailPackage = document.getElementById('detailPackage');
+      const downloadBtn = document.getElementById('downloadBtn');
+      const detailBack = document.getElementById('detailBack');
+
+      let toastTimer = null;
+      let isLoggedIn = false;
+      let currentUser = null;
+      let currentDetailApp = null;
+
+      // ---------- 记住密码：读取本地存储 ----------
+      const STORAGE_KEY = 'anshan_credentials';
+      function loadSavedCredentials() {
+        try {
+          const saved = localStorage.getItem(STORAGE_KEY);
+          if (!saved) return;
+          const data = JSON.parse(saved);
+          if (data && data.account && data.password) {
+            loginEmail.value = data.account;
+            loginPassword.value = data.password;
+            rememberMe.checked = true;
+          }
+        } catch (e) { /* 忽略解析错误 */ }
+      }
+      function saveCredentials(account, password) {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify({ account, password }));
+        } catch (e) { /* 忽略存储错误 */ }
+      }
+      function clearCredentials() {
+        try { localStorage.removeItem(STORAGE_KEY); } catch (e) { /* 忽略 */ }
+      }
+      loadSavedCredentials();
+
+      // ---------- Toast ----------
+      function showToast(message, duration = 1800) {
+        if (!toast) return;
+        if (toastTimer) clearTimeout(toastTimer);
+        toast.textContent = message;
+        toast.classList.add('show');
+        toastTimer = setTimeout(() => {
+          toast.classList.remove('show');
+        }, duration);
+      }
+
+      // ---------- 登录逻辑：后台精确验证 ----------
+      loginEmail.addEventListener('input', function() {
+        emailGroup.classList.remove('error');
+        emailError.textContent = '';
+      });
+
+      loginPassword.addEventListener('input', function() {
+        passwordGroup.classList.remove('error');
+        passwordError.textContent = '';
+      });
+
+      loginBtn.addEventListener('click', function() {
+        const email = loginEmail.value.trim();
+        const password = loginPassword.value.trim();
+        let hasError = false;
+
+        if (!email) {
+          emailGroup.classList.add('error');
+          emailError.textContent = '请输入手机号或账号';
+          hasError = true;
+        }
+
+        if (!password) {
+          passwordGroup.classList.add('error');
+          passwordError.textContent = '请输入密码';
+          hasError = true;
+        }
+
+        if (hasError) return;
+
+        // 后台验证
+        const expectedPassword = credentials[email];
+        if (!expectedPassword || expectedPassword !== password) {
+          emailGroup.classList.add('error');
+          passwordGroup.classList.add('error');
+          emailError.textContent = '账号或密码错误';
+          passwordError.textContent = '';
+          showToast('账号或密码错误', 2000);
+          return;
+        }
+
+        // 记住密码
+        if (rememberMe.checked) {
+          saveCredentials(email, password);
+        } else {
+          clearCredentials();
+        }
+
+        // 验证通过
+        loginBtn.classList.add('loading');
+        loginBtn.textContent = '正在登录...';
+
+        setTimeout(() => {
+          currentUser = { name: email || '鞍山用户', email: email };
+          isLoggedIn = true;
+
+          userNameEl.textContent = currentUser.name;
+          userEmailEl.textContent = currentUser.email;
+
+          loginScreen.classList.add('hidden');
+          mainApp.classList.remove('hidden');
+
+          loginBtn.classList.remove('loading');
+          loginBtn.textContent = '下一步';
+
+          switchPage('apps');
+          setTimeout(() => {
+            showToast(`欢迎回来，${currentUser.name}！`, 2000);
+          }, 400);
+        }, 800);
+      });
+
+      loginPassword.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          loginBtn.click();
+        }
+      });
+      loginEmail.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          loginPassword.focus();
+        }
+      });
+
+      forgotPassword.addEventListener('click', () => {
+        showToast('忘记密码功能暂未开放', 1500);
+      });
+
+      createAccountBtn.addEventListener('click', () => {
+        showToast('创建账号功能暂未开放', 1500);
+      });
+
+      // ---------- 页面切换 ----------
+      function switchPage(pageId) {
+        appContent.classList.remove('my-mode', 'search-mode', 'detail-mode');
+        pageHome.style.display = 'none';
+        pageSearch.style.display = 'none';
+        pageMy.style.display = 'none';
+        pageDetail.style.display = 'none';
+
+        if (pageId === 'apps') {
+          pageHome.style.display = 'block';
+        } else if (pageId === 'search') {
+          appContent.classList.add('search-mode');
+          pageSearch.style.display = 'block';
+          setTimeout(() => searchInput?.focus(), 100);
+          if (!searchInput.value.trim()) {
+            showDefaultSearchView();
+          }
+        } else if (pageId === 'my') {
+          appContent.classList.add('my-mode');
+          pageMy.style.display = 'block';
+        } else if (pageId === 'detail') {
+          appContent.classList.add('detail-mode');
+          pageDetail.style.display = 'block';
+        }
+
+        navItems.forEach(item => {
+          if (item.getAttribute('data-tab') === pageId) {
+            item.classList.add('active');
+          } else {
+            item.classList.remove('active');
+          }
+        });
+        if (pageId === 'detail') {
+          navItems.forEach(item => {
+            if (item.getAttribute('data-tab') === 'apps') {
+              item.classList.add('active');
+            } else {
+              item.classList.remove('active');
+            }
+          });
+        }
+      }
+
+      // ---------- 打开应用详情 ----------
+      function openAppDetail(appName) {
+        const app = ALL_APPS.find(a => a.name === appName);
+        if (!app) {
+          showToast('未找到应用信息', 1200);
+          return;
+        }
+        currentDetailApp = app;
+
+        detailIconImg.src = app.icon;
+        detailIconImg.style.display = 'block';
+        detailIconFallback.style.display = 'none';
+        detailIconFallback.textContent = app.fallback;
+
+        detailName.textContent = app.name;
+        detailCategory.textContent = app.category;
+        detailRating.textContent = app.rating;
+        detailReviews.textContent = `${app.reviews} 评价`;
+        detailDownloads.textContent = app.downloads;
+        detailSize.textContent = app.size;
+        detailDescription.textContent = app.description;
+        detailVersion.textContent = app.version;
+        detailDeveloper.textContent = app.developer;
+        detailPackage.textContent = app.package;
+
+        resetDownloadBtn();
+        switchPage('detail');
+        appContent.scrollTop = 0;
+      }
+
+      // ---------- 下载按钮 ----------
+      function resetDownloadBtn() {
+        if (!downloadBtn) return;
+        downloadBtn.classList.remove('downloading');
+        downloadBtn.innerHTML = '<span class="material-icons">download</span> 下载';
+        downloadBtn.disabled = false;
+        downloadBtn.style.backgroundColor = '';
+        downloadBtn.style.color = '';
+      }
+
+      downloadBtn?.addEventListener('click', function() {
+        if (!currentDetailApp) return;
+        if (this.classList.contains('downloading')) return;
+
+        const app = currentDetailApp;
+        if (app.downloadUrl) {
+          window.open(app.downloadUrl, '_blank');
+          showToast(`正在从 ${app.name} 官方源下载...`, 2000);
+        } else {
+          this.classList.add('downloading');
+          this.innerHTML = '<span class="material-icons">downloading</span> 准备下载...';
+          this.disabled = true;
+          let progress = 0;
+          const interval = setInterval(() => {
+            progress += Math.floor(Math.random() * 20) + 5;
+            if (progress >= 100) {
+              progress = 100;
+              clearInterval(interval);
+              downloadBtn.innerHTML = '<span class="material-icons">check_circle</span> 下载完成';
+              downloadBtn.classList.remove('downloading');
+              downloadBtn.style.backgroundColor = '#e6f4ea';
+              downloadBtn.style.color = '#137333';
+              showToast(`${app.name} 下载完成`, 2000);
+              setTimeout(() => {
+                resetDownloadBtn();
+              }, 3000);
+            } else {
+              downloadBtn.innerHTML = `<span class="material-icons">downloading</span> 下载中 ${progress}%`;
+            }
+          }, 300);
+        }
+      });
+
+      detailBack?.addEventListener('click', () => {
+        switchPage('apps');
+      });
+
+      // ---------- 搜索 ----------
+      function showDefaultSearchView() {
+        searchDefaultView.style.display = 'block';
+        searchResultView.style.display = 'none';
+        searchResultsContainer.innerHTML = '';
+        searchEmptyState.style.display = 'none';
+      }
+
+      function performSearch(query) {
+        const keyword = query.trim().toLowerCase();
+        if (!keyword) {
+          showDefaultSearchView();
+          return;
+        }
+
+        searchDefaultView.style.display = 'none';
+        searchResultView.style.display = 'block';
+
+        const results = ALL_APPS.filter(app =>
+          app.name.toLowerCase().includes(keyword) ||
+          app.category.toLowerCase().includes(keyword)
+        );
+
+        searchResultsContainer.innerHTML = '';
+
+        if (results.length === 0) {
+          searchResultTitle.style.display = 'none';
+          searchEmptyState.style.display = 'flex';
+          searchResultsContainer.style.display = 'none';
+          return;
+        }
+
+        searchResultTitle.style.display = 'block';
+        searchResultTitle.textContent = `搜索结果（${results.length} 个）`;
+        searchEmptyState.style.display = 'none';
+        searchResultsContainer.style.display = 'flex';
+
+        results.forEach(app => {
+          const item = document.createElement('div');
+          item.className = 'search-result-item';
+          item.setAttribute('data-app', app.name);
+          item.innerHTML = `
+            <div class="search-result-icon">
+              <img src="${app.icon}" alt="${app.name}" loading="lazy"
+                   onerror="this.style.display='none'; this.nextElementSibling.style.display='block'">
+              <span class="material-icons fallback">${app.fallback}</span>
+            </div>
+            <div class="search-result-info">
+              <h4>${app.name}</h4>
+              <p>
+                <span class="material-icons">star</span> ${app.rating} · ${app.reviews} 评价
+                <span class="category-tag">${app.category}</span>
+              </p>
+            </div>
+            <span class="material-icons" style="color:#1a73e8;font-size:22px;">open_in_new</span>
+          `;
+          item.addEventListener('click', (e) => {
+            e.stopPropagation();
+            openAppDetail(app.name);
+          });
+          searchResultsContainer.appendChild(item);
+        });
+      }
+
+      searchInput.addEventListener('input', function() {
+        const query = this.value;
+        if (query.length > 0) {
+          clearSearch.style.display = 'inline-block';
+        } else {
+          clearSearch.style.display = 'none';
+        }
+        performSearch(query);
+      });
+
+      searchInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          performSearch(this.value);
+        }
+      });
+
+      clearSearch.addEventListener('click', () => {
+        searchInput.value = '';
+        clearSearch.style.display = 'none';
+        showDefaultSearchView();
+        searchInput.focus();
+        showToast('已清空搜索', 1000);
+      });
+
+      document.querySelectorAll('.search-hint-chip').forEach(chip => {
+        chip.addEventListener('click', function() {
+          const query = this.getAttribute('data-query');
+          searchInput.value = query;
+          clearSearch.style.display = 'inline-block';
+          performSearch(query);
+          showToast(`搜索：${query}`, 1200);
+        });
+      });
+
+      document.querySelectorAll('.recent-item').forEach(item => {
+        item.addEventListener('click', (e) => {
+          if (e.target.classList.contains('close-icon')) return;
+          const keyword = item.querySelector('span:nth-child(2)')?.textContent || '';
+          if (keyword) {
+            searchInput.value = keyword;
+            clearSearch.style.display = 'inline-block';
+            performSearch(keyword);
+            showToast(`搜索：${keyword}`, 1200);
+          }
+        });
+      });
+
+      document.querySelectorAll('.recent-item .close-icon').forEach(closeBtn => {
+        closeBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const item = closeBtn.closest('.recent-item');
+          if (item) {
+            item.style.opacity = '0.5';
+            setTimeout(() => {
+              item.remove();
+              showToast('已移除记录', 1000);
+            }, 200);
+          }
+        });
+      });
+
+      // ---------- 底部导航 ----------
+      navItems.forEach(item => {
+        item.addEventListener('click', (e) => {
+          e.preventDefault();
+          const tab = item.getAttribute('data-tab');
+          switchPage(tab);
+          const tabNames = { apps: '应用', search: '搜索', my: '我的' };
+          showToast(`切换到「${tabNames[tab]}」`, 1200);
+        });
+      });
+
+      // ---------- 首页交互 ----------
+      document.getElementById('headerTitle')?.addEventListener('click', () => {
+        showToast('鞍山软件库 · 首页');
+      });
+
+      document.getElementById('accountBtn')?.addEventListener('click', () => {
+        switchPage('my');
+        showToast('已登录 · 我的账户', 1200);
+      });
+
+      document.getElementById('searchBarHome')?.addEventListener('click', () => {
+        switchPage('search');
+        showToast('搜索页面', 1000);
+      });
+
+      document.getElementById('viewAllRecommended')?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        showToast('为你推荐 · 查看全部应用');
+      });
+
+      document.getElementById('viewAllHotApps')?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        showToast('热门应用 · 查看全部列表');
+      });
+
+      document.querySelectorAll('.app-card').forEach(card => {
+        card.addEventListener('click', (e) => {
+          e.stopPropagation();
+          openAppDetail(card.getAttribute('data-app'));
+        });
+      });
+
+      document.querySelectorAll('.list-item').forEach(item => {
+        item.addEventListener('click', (e) => {
+          e.stopPropagation();
+          openAppDetail(item.getAttribute('data-app'));
+        });
+      });
+
+      // ---------- 我的页面 ----------
+      document.getElementById('loggedInProfile')?.addEventListener('click', () => {
+        showToast('查看个人资料');
+      });
+
+      // ---------- 退出登录 ----------
+      const logoutBtn = document.getElementById('logoutBtn');
+      const logoutConfirmBtn = document.getElementById('logoutConfirmBtn');
+      const logoutCancelBtn = document.getElementById('logoutCancelBtn');
+
+      logoutBtn?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        logoutDialogOverlay.classList.add('show');
+      });
+
+      logoutConfirmBtn?.addEventListener('click', () => {
+        isLoggedIn = false;
+        currentUser = null;
+        logoutDialogOverlay.classList.remove('show');
+
+        loginScreen.classList.remove('hidden');
+        mainApp.classList.add('hidden');
+
+        // 不自动清除已保存的密码，保留在输入框中（如果勾选了记住密码）
+        loginBtn.classList.remove('loading');
+        loginBtn.textContent = '下一步';
+
+        showToast('已退出登录', 1500);
+      });
+
+      logoutCancelBtn?.addEventListener('click', () => {
+        logoutDialogOverlay.classList.remove('show');
+      });
+
+      logoutDialogOverlay?.addEventListener('click', (e) => {
+        if (e.target === logoutDialogOverlay) {
+          logoutDialogOverlay.classList.remove('show');
+        }
+      });
+
+      document.querySelector('#logoutDialogOverlay .md-bottom-sheet')?.addEventListener('click', (e) => {
+        e.stopPropagation();
+      });
+
+      // ---------- 关于APP 弹窗 ----------
+      const aboutBtn = document.getElementById('aboutAppBtn');
+      const aboutClose = document.getElementById('aboutDialogClose');
+
+      aboutBtn?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        aboutDialogOverlay.classList.add('show');
+      });
+
+      aboutClose?.addEventListener('click', () => {
+        aboutDialogOverlay.classList.remove('show');
+      });
+
+      aboutDialogOverlay?.addEventListener('click', (e) => {
+        if (e.target === aboutDialogOverlay) {
+          aboutDialogOverlay.classList.remove('show');
+        }
+      });
+
+      document.querySelector('#aboutDialogOverlay .md-bottom-sheet')?.addEventListener('click', (e) => {
+        e.stopPropagation();
+      });
+
+      // ---------- 初始化 ----------
+      loginScreen.classList.remove('hidden');
+      mainApp.classList.add('hidden');
+      switchPage('apps');
+    })();
+  </script>
+</body>
+</html>
