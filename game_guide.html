@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>蛋仔派对 · 公告</title>
+<style>
+  /* ================= 全局重置 ================= */
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    width: 100%; height: 100%;
+    background: #000;
+    overflow: hidden;
+    font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+    user-select: none;
+  }
+
+  /* ================= 轮播与公告 ================= */
+  #stage { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; }
+  #stage img { display: block; max-width: 100%; max-height: 100%; object-fit: contain; }
+  .fullscreen-fill { width: 100% !important; height: 100% !important; max-width: none !important; max-height: none !important; object-fit: fill !important; }
+  .hidden { display: none !important; }
+
+  #announcement-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.5);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 2000;
+    opacity: 0; visibility: hidden;
+    transition: opacity 0.5s, visibility 0.5s;
+    background-image: url('https://pic.kts.g.mi.com/291faa6b144d97670e3992d92d9cf16a704855022155833164.png');
+    background-size: cover; background-position: center;
+  }
+  #announcement-overlay.show { opacity: 1; visibility: visible; }
+
+  .announcement-panel {
+    position: relative; width: 90%; max-width: 1200px; height: 85vh; max-height: 800px;
+    background: #f3f8ff; border-radius: 24px; box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+    display: flex; flex-direction: column; overflow: hidden;
+    transform: scale(0.9); transition: transform 0.4s;
+  }
+  #announcement-overlay.show .announcement-panel { transform: scale(1); }
+
+  .panel-header {
+    background: linear-gradient(90deg,#ff9d00,#ffcc00,#ff9d00);
+    height: 90px; display: flex; align-items: center; justify-content: center;
+    position: relative; flex-shrink: 0; box-shadow: 0 4px 10px rgba(255,157,0,0.3);
+  }
+  .header-title { font-size: 36px; font-weight: 900; color: #fff; text-shadow: 2px 2px 0px #d97000; letter-spacing: 2px; }
+
+  .close-btn {
+    position: absolute; right: -20px; top: -20px; width: 60px; height: 60px;
+    background: #4a4a4a; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    cursor: pointer; box-shadow: 0 6px 12px rgba(0,0,0,0.4); border: 3px solid #fff;
+    transition: transform 0.2s, background 0.2s; z-index: 10;
+  }
+  .close-btn:hover { transform: scale(1.1) rotate(90deg); background: #666; }
+  .close-btn::before, .close-btn::after { content: ''; position: absolute; width: 30px; height: 4px; background: #fff; border-radius: 2px; }
+  .close-btn::before { transform: rotate(45deg); }
+  .close-btn::after { transform: rotate(-45deg); }
+
+  .panel-content { display: flex; flex: 1; overflow: hidden; }
+  .sidebar {
+    width: 220px; background: #fff; border-right: 2px solid #e0e8f5; padding: 30px 15px;
+    display: flex; flex-direction: column; gap: 20px; flex-shrink: 0; overflow-y: auto;
+  }
+  .nav-item {
+    padding: 15px 20px; font-size: 20px; font-weight: bold; color: #666;
+    border-radius: 30px 10px 10px 30px; cursor: pointer; transition: all 0.2s;
+    position: relative; display: flex; align-items: center;
+  }
+  .nav-item:hover { color: #ff8c00; background: #fdf5e6; }
+  .nav-item.active {
+    background: linear-gradient(90deg,#fff3b0,#ffe066); color: #333; font-size: 22px;
+    box-shadow: -2px 2px 8px rgba(255,200,0,0.4); transform: scale(1.05);
+    margin-left: -10px; padding-left: 30px; border-radius: 40px 15px 15px 40px;
+  }
+  .nav-item.active::before {
+    content: ''; position: absolute; left: 10px; top: 50%; transform: translateY(-50%);
+    width: 8px; height: 8px; background: #ff8c00; border-radius: 50%;
+  }
+
+  .main-body { flex: 1; background: #fff; padding: 30px 40px; overflow-y: auto; position: relative; }
+  .main-body::-webkit-scrollbar { width: 8px; }
+  .main-body::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 4px; }
+  .main-body::-webkit-scrollbar-thumb { background: #ffc107; border-radius: 4px; }
+
+  .greeting { font-size: 22px; font-weight: bold; color: #333; margin-bottom: 20px; line-height: 1.5; }
+  .greeting .highlight-date { color: #e63946; }
+  .banner {
+    width: 100%; height: 140px; background: linear-gradient(135deg,#a1d4ff,#e0f0ff);
+    border-radius: 16px; margin-bottom: 20px; display: flex; align-items: center; justify-content: center;
+    position: relative; overflow: hidden; border: 3px solid #fff; box-shadow: 0 8px 15px rgba(0,0,0,0.05);
+  }
+  .banner::before { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at 20% 50%, rgba(255,255,255,0.4) 0%, transparent 50%); }
+  .banner-text { font-size: 46px; font-weight: 900; color: #e64a19; text-shadow: 2px 2px 0 #fff, -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 0 4px 10px rgba(0,0,0,0.2); letter-spacing: 4px; z-index: 2; }
+
+  .section-title {
+    display: inline-block; background: #ff9a3c; color: #fff; padding: 6px 20px;
+    border-radius: 20px 20px 20px 0; font-size: 20px; font-weight: bold; margin-bottom: 15px; margin-top: 20px;
+    box-shadow: 0 4px 8px rgba(255,154,60,0.4);
+  }
+  .section-title:first-of-type { margin-top: 0; }
+  .content-text { font-size: 16px; line-height: 1.8; color: #444; margin-bottom: 25px; }
+  .content-text p { margin: 0 0 8px 0; }
+  .sub-title { font-size: 18px; font-weight: bold; color: #d97000; margin: 15px 0 10px 0; border-left: 4px solid #ff9a3c; padding-left: 10px; }
+  .sub-sub-title { font-weight: bold; color: #333; margin: 10px 0 5px 0; }
+
+  .panel-footer {
+    height: 40px; background: #eef4fa; display: flex; align-items: center; justify-content: center;
+    font-size: 12px; color: #999; border-top: 1px solid #dce4ec; flex-shrink: 0;
+  }
+  .fade-in { animation: fadeInContent 0.3s ease forwards; }
+  @keyframes fadeInContent { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* ================= 背景层与点击进入 ================= */
+  #background-layer {
+    position: fixed; inset: 0;
+    background-image: url('https://pic.kts.g.mi.com/291faa6b144d97670e3992d92d9cf16a704855022155833164.png');
+    background-size: cover; background-position: center;
+    z-index: 1000; display: none; align-items: center; justify-content: center;
+  }
+  #background-layer.show { display: flex; }
+
+  #click-to-enter {
+    position: fixed; inset: 0; display: none; align-items: center; justify-content: center;
+    z-index: 1001; cursor: pointer; background: rgba(0,0,0,0.4);
+  }
+  #click-to-enter.show { display: flex; }
+  .enter-text { color: #fff; font-size: 28px; font-weight: bold; text-shadow: 0 2px 10px rgba(0,0,0,0.8); letter-spacing: 2px; animation: pulseText 1.5s infinite alternate; }
+  @keyframes pulseText { from { opacity: 0.6; transform: scale(0.98); } to { opacity: 1; transform: scale(1.02); } }
+</style>
+</head>
+<body>
+
+<div id="stage">
+  <img id="screenshot" src="https://raw.giteeusercontent.com/wrhip/newimgbed/raw/master/Screenshot_20261127-184405.png" alt="截图" class="fullscreen-fill">
+  <img id="gif" src="https://raw.giteeusercontent.com/wrhip/newimgbed/raw/master/screen-20261127-184530-1795776318465.gif" alt="GIF" class="hidden fullscreen-fill">
+</div>
+
+<div id="background-layer">
+  <div id="click-to-enter">
+    <div class="enter-text">点击屏幕任意处进入游戏</div>
+  </div>
+</div>
+
+<div id="announcement-overlay">
+  <div class="announcement-panel">
+    <div class="close-btn" id="close-announcement" title="关闭公告"></div>
+    <div class="panel-header">
+      <div class="header-title">11月26日不停服更新维护公告</div>
+    </div>
+    <div class="panel-content">
+      <div class="sidebar">
+        <div class="nav-item active" data-tab="0">玩法更新</div>
+        <div class="nav-item" data-tab="1">活动更新</div>
+        <div class="nav-item" data-tab="2">乐园&工坊更新</div>
+        <div class="nav-item" data-tab="3">系统更新</div>
+        <div class="nav-item" data-tab="4">调整优化</div>
+      </div>
+      <div class="main-body" id="main-body-content"></div>
+    </div>
+    <div class="panel-footer">
+      根据国家新闻出版署《关于防止未成年人沉迷网络游戏的通知》，所有用户必须用本人身份信息进行实名登记，未成年人将纳入防沉迷系统。
+    </div>
+  </div>
+</div>
+
+<script>
+  (function() {
+    const screenshot = document.getElementById('screenshot');
+    const gif        = document.getElementById('gif');
+    const overlay    = document.getElementById('announcement-overlay');
+    const closeBtn   = document.getElementById('close-announcement');
+    const backgroundLayer = document.getElementById('background-layer');
+    const clickToEnter = document.getElementById('click-to-enter');
+    const navItems   = document.querySelectorAll('.nav-item');
+    const mainBody   = document.getElementById('main-body-content');
+
+    const SCREENSHOT_DURATION = 3000;
+    const GIF_DURATION = 3000;
+
+    let screenshotTimer = null;
+    let gifTimer = null;
+
+    // 跳转目标地址
+    const ENTER_URL = 'https://dszx2026.github.io/game_home.html';
+
+    // 公告数据 (保持占位)
+    const announcementData = [
+      { greeting: `亲爱的蛋仔们：<br>为保证蛋仔们的游戏体验，我们将于 <span class="highlight-date">11/26~11/27</span> 进行一次不停服维护，具体更新结束时间以维护后公告为准。本次更新的内容如下：`, bannerText: "玩法更新", sections: [{ title: "一、&lt;逃出惊魂夜&gt;更新", content: `<p class="sub-sub-title">1.新追捕者&lt;执笔者-石英&gt;登场！</p><p>（内容待补充）</p><p class="sub-title">二、蛋仔岛更新</p><p>（内容待补充）</p><p class="sub-title">三、&lt;神奇艾比&gt;</p><p>（内容待补充）</p><p class="sub-title">四、&lt;超燃&gt;系列玩法更新</p><p>（内容待补充）</p><p class="sub-title">五、&lt;疯狂农场&gt;全新作物枫树</p><p>（内容待补充）</p><p class="sub-title">六、&lt;疯狂乱斗&gt;玩法更新</p><p>（内容待补充）</p><p class="sub-title">七、&lt;蛋仔拍卖王&gt;玩法更新</p><p>（内容待补充）</p><p class="sub-title">八、&lt;揪出捣蛋鬼-创意乐园&gt;玩法轮换</p><p>（内容待补充）</p>` }] },
+      { greeting: `亲爱的蛋仔们：<br>本次维护更新后，我们为大家准备了丰富的福利活动，千万别错过！`, bannerText: "活动更新", sections: [{ title: "一、&lt;汉堡博格&gt;活动开启", content: `<p>（内容待补充）</p><p class="sub-title">二、&lt;感恩赠礼&gt;活动开启</p><p>（内容待补充）</p><p class="sub-title">三、&lt;雪国漫步&gt;主页装扮上新</p><p>（内容待补充）</p><p class="sub-title">四、&lt;墨寄长风&gt;活动开启</p><p>（内容待补充）</p><p class="sub-title">五、&lt;艾比探索队&gt;</p><p>（内容待补充）</p><p class="sub-title">六、资质果购买上限重置</p><p>（内容待补充）</p><p class="sub-title">七、&lt;暖冬福利预热&gt;</p><p>（内容待补充）</p><p class="sub-title">八、&lt;狂欢星期六&gt;</p><p>（内容待补充）</p>` }] },
+      { greeting: `亲爱的蛋仔们：<br>乐园与工坊系统也迎来了更新，为创作者提供更多便利。`, bannerText: "乐园&工坊更新", sections: [{ title: "一、&lt;蛋码&gt;更新", content: `<p>（内容待补充）</p><p class="sub-title">二、&lt;邮件系统&gt;更新</p><p>（内容待补充）</p><p class="sub-title">三、其他更新与优化</p><p>（内容待补充）</p>` }] },
+      { greeting: `亲爱的蛋仔们：<br>为了提供更优质的游戏环境，我们对系统功能进行了如下优化。`, bannerText: "系统更新", sections: [{ title: "一、农场畜牧区动物放置优化", content: `<p>（内容待补充）</p><p class="sub-title">二、公共频道上线岛屿团建快捷语</p><p>（内容待补充）</p><p class="sub-title">三、&lt;蛋誉分·局内言论治理&gt;上线调整优化</p><p>（内容待补充）</p>` }] },
+      { greeting: `亲爱的蛋仔们：<br>根据玩家反馈与数据表现，我们对游戏内的多项玩法与平衡性进行了深度调整。`, bannerText: "调整优化", sections: [{ title: "一、巅峰模式与关卡优化", content: `<p>（内容待补充）</p><p class="sub-title">二、&lt;逃出惊魂夜&gt;调整优化</p><p>（内容待补充）</p><p class="sub-title">三、&lt;超燃&gt;系列调整优化</p><p>（内容待补充）</p><p class="sub-title">四、&lt;神奇艾比&gt;</p><p>（内容待补充）</p><p class="sub-title">五、&lt;揪出捣蛋鬼&gt;</p><p>（内容待补充）</p><p class="sub-title">六、农村甜点小铺优化</p><p>（内容待补充）</p><p class="sub-title">七、&lt;惊魂寻宝队&gt;调整优化</p><p>（内容待补充）</p><p class="sub-title">八、&lt;疯狂农场&gt;</p><p>（内容待补充）</p><p class="sub-title">九、跟随优化</p><p>（内容待补充）</p>` }] }
+    ];
+
+    function renderContent(tabIndex) {
+      const data = announcementData[tabIndex];
+      if (!data) return;
+      let html = '';
+      if (data.greeting) html += `<div class="greeting">${data.greeting}</div>`;
+      if (data.bannerText) html += `<div class="banner"><div class="banner-text">${data.bannerText}</div></div>`;
+      if (data.sections && data.sections.length > 0) {
+        data.sections.forEach(sec => {
+          html += `<div class="section-title">${sec.title}</div>`;
+          html += `<div class="content-text">${sec.content}</div>`;
+        });
+      }
+      mainBody.innerHTML = html;
+      mainBody.classList.remove('fade-in');
+      void mainBody.offsetWidth;
+      mainBody.classList.add('fade-in');
+      mainBody.scrollTop = 0;
+    }
+
+    navItems.forEach(item => {
+      item.addEventListener('click', () => {
+        navItems.forEach(nav => nav.classList.remove('active'));
+        item.classList.add('active');
+        const tabIndex = parseInt(item.getAttribute('data-tab'));
+        renderContent(tabIndex);
+      });
+    });
+
+    function clearAllTimers() {
+      if (screenshotTimer) clearTimeout(screenshotTimer);
+      if (gifTimer) clearTimeout(gifTimer);
+      screenshotTimer = null;
+      gifTimer = null;
+    }
+
+    function showAnnouncement() {
+      gif.classList.add('hidden');
+      overlay.classList.add('show');
+      navItems.forEach(nav => nav.classList.remove('active'));
+      navItems[0].classList.add('active');
+      renderContent(0);
+    }
+
+    function startSequence() {
+      clearAllTimers();
+      screenshot.classList.remove('hidden');
+      gif.classList.add('hidden');
+      overlay.classList.remove('show');
+      backgroundLayer.classList.remove('show');
+      clickToEnter.classList.remove('show');
+
+      screenshotTimer = setTimeout(() => {
+        screenshot.classList.add('hidden');
+        gif.classList.remove('hidden');
+        gifTimer = setTimeout(() => {
+          showAnnouncement();
+        }, GIF_DURATION);
+      }, SCREENSHOT_DURATION);
+    }
+
+    closeBtn.addEventListener('click', () => {
+      overlay.classList.remove('show');
+      setTimeout(() => {
+        backgroundLayer.classList.add('show');
+        clickToEnter.classList.add('show');
+      }, 500);
+    });
+
+    // 点击进入游戏 → 直接跳转百度
+    clickToEnter.addEventListener('click', () => {
+      window.location.href = ENTER_URL;
+    });
+
+    if (screenshot.complete) {
+      startSequence();
+    } else {
+      screenshot.addEventListener('load', startSequence, { once: true });
+    }
+
+    screenshot.addEventListener('error', () => { startSequence(); });
+    gif.addEventListener('error', () => {});
+  })();
+</script>
+</body>
+</html>
