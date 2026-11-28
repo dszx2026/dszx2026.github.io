@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>MainActivity</title>
+<style>
+  /* ===== 全局 ===== */
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    width: 100%; height: 100%;
+    background: #000;
+    overflow: hidden;
+    font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+    user-select: none;
+  }
+  .hidden { display: none !important; }
+
+  /* ============================================================
+     第一阶段：启动页（网易图 → GIF → 公告）
+  ============================================================ */
+  #stage-page {
+    position: fixed; inset: 0; z-index: 100; background: #000;
+  }
+  #stage-page .stage-viewport {
+    position: fixed; inset: 0; display: flex; align-items: center; justify-content: center;
+  }
+  #stage-page .stage-viewport img {
+    display: block; max-width: 100%; max-height: 100%;
+    width: 100% !important; height: 100% !important;
+    max-width: none !important; max-height: none !important;
+    object-fit: fill !important;
+  }
+
+  /* 公告弹窗 */
+  #announcement-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.5);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 2000;
+    opacity: 0; visibility: hidden;
+    transition: opacity 0.5s, visibility 0.5s;
+    background-image: url('https://nie.res.netease.com/r/pic/20240301/8f585502-85f6-46af-b5ad-e6c4a581d8eb.jpg');
+    background-size: cover; background-position: center;
+  }
+  #announcement-overlay.show { opacity: 1; visibility: visible; }
+
+  .announcement-panel {
+    position: relative; width: 90%; max-width: 1200px; height: 85vh; max-height: 800px;
+    background: #f3f8ff; border-radius: 24px; box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+    display: flex; flex-direction: column; overflow: hidden;
+    transform: scale(0.9); transition: transform 0.4s;
+  }
+  #announcement-overlay.show .announcement-panel { transform: scale(1); }
+
+  .panel-header {
+    background: linear-gradient(90deg,#ff9d00,#ffcc00,#ff9d00);
+    height: 90px; display: flex; align-items: center; justify-content: center;
+    position: relative; flex-shrink: 0; box-shadow: 0 4px 10px rgba(255,157,0,0.3);
+  }
+  .header-title { font-size: 36px; font-weight: 900; color: #fff; text-shadow: 2px 2px 0px #d97000; letter-spacing: 2px; }
+
+  .close-btn {
+    position: absolute; right: -20px; top: -20px; width: 60px; height: 60px;
+    background: #4a4a4a; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    cursor: pointer; box-shadow: 0 6px 12px rgba(0,0,0,0.4); border: 3px solid #fff;
+    transition: transform 0.2s, background 0.2s; z-index: 10;
+  }
+  .close-btn:hover { transform: scale(1.1) rotate(90deg); background: #666; }
+  .close-btn::before, .close-btn::after { content: ''; position: absolute; width: 30px; height: 4px; background: #fff; border-radius: 2px; }
+  .close-btn::before { transform: rotate(45deg); }
+  .close-btn::after { transform: rotate(-45deg); }
+
+  .panel-content { display: flex; flex: 1; overflow: hidden; }
+  .sidebar {
+    width: 220px; background: #fff; border-right: 2px solid #e0e8f5; padding: 30px 15px;
+    display: flex; flex-direction: column; gap: 20px; flex-shrink: 0; overflow-y: auto;
+  }
+  .nav-item {
+    padding: 15px 20px; font-size: 20px; font-weight: bold; color: #666;
+    border-radius: 30px 10px 10px 30px; cursor: pointer; transition: all 0.2s;
+    position: relative; display: flex; align-items: center;
+  }
+  .nav-item:hover { color: #ff8c00; background: #fdf5e6; }
+  .nav-item.active {
+    background: linear-gradient(90deg,#fff3b0,#ffe066); color: #333; font-size: 22px;
+    box-shadow: -2px 2px 8px rgba(255,200,0,0.4); transform: scale(1.05);
+    margin-left: -10px; padding-left: 30px; border-radius: 40px 15px 15px 40px;
+  }
+  .nav-item.active::before {
+    content: ''; position: absolute; left: 10px; top: 50%; transform: translateY(-50%);
+    width: 8px; height: 8px; background: #ff8c00; border-radius: 50%;
+  }
+
+  .main-body { flex: 1; background: #fff; padding: 30px 40px; overflow-y: auto; position: relative; }
+  .main-body::-webkit-scrollbar { width: 8px; }
+  .main-body::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 4px; }
+  .main-body::-webkit-scrollbar-thumb { background: #ffc107; border-radius: 4px; }
+
+  .greeting { font-size: 22px; font-weight: bold; color: #333; margin-bottom: 20px; line-height: 1.5; }
+  .greeting .highlight-date { color: #e63946; }
+  .banner {
+    width: 100%; height: 140px; background: linear-gradient(135deg,#a1d4ff,#e0f0ff);
+    border-radius: 16px; margin-bottom: 20px; display: flex; align-items: center; justify-content: center;
+    position: relative; overflow: hidden; border: 3px solid #fff; box-shadow: 0 8px 15px rgba(0,0,0,0.05);
+  }
+  .banner::before { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at 20% 50%, rgba(255,255,255,0.4) 0%, transparent 50%); }
+  .banner-text { font-size: 46px; font-weight: 900; color: #e64a19; text-shadow: 2px 2px 0 #fff, -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 0 4px 10px rgba(0,0,0,0.2); letter-spacing: 4px; z-index: 2; }
+
+  .section-title {
+    display: inline-block; background: #ff9a3c; color: #fff; padding: 6px 20px;
+    border-radius: 20px 20px 20px 0; font-size: 20px; font-weight: bold; margin-bottom: 15px; margin-top: 20px;
+    box-shadow: 0 4px 8px rgba(255,154,60,0.4);
+  }
+  .section-title:first-of-type { margin-top: 0; }
+  .content-text { font-size: 16px; line-height: 1.8; color: #444; margin-bottom: 25px; }
+  .content-text p { margin: 0 0 8px 0; }
+  .sub-title { font-size: 18px; font-weight: bold; color: #d97000; margin: 15px 0 10px 0; border-left: 4px solid #ff9a3c; padding-left: 10px; }
+  .sub-sub-title { font-weight: bold; color: #333; margin: 10px 0 5px 0; }
+
+  .panel-footer {
+    height: 40px; background: #eef4fa; display: flex; align-items: center; justify-content: center;
+    font-size: 12px; color: #999; border-top: 1px solid #dce4ec; flex-shrink: 0;
+  }
+  .fade-in { animation: fadeInContent 0.3s ease forwards; }
+  @keyframes fadeInContent { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* ============================================================
+     第二阶段：loginpagenew 登录界面
+     ============================================================ */
+  #login-page {
+    position: fixed; inset: 0; z-index: 150;
+    display: none;
+  }
+  #login-page.show { display: block; }
+
+  #login-page .game-container {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    background-image: url('https://nie.res.netease.com/r/pic/20240301/8f585502-85f6-46af-b5ad-e6c4a581d8eb.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    overflow: hidden;
+    cursor: pointer;
+  }
+
+  #login-page .top-bar {
+    position: absolute;
+    top: 10px; left: 15px;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 12px;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+    z-index: 10;
+  }
+
+  /* 左上角 LOGO 图片 */
+  #login-page .logo-area {
+    position: absolute;
+    top: 40px; left: 40px;
+    z-index: 10;
+  }
+  #login-page .logo-img {
+    width: 180px;
+    height: auto;
+    display: block;
+    filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.5));
+  }
+
+  #login-page .side-menu {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    z-index: 10;
+  }
+  #login-page .left-menu { left: 20px; }
+  #login-page .right-menu { right: 20px; }
+
+  #login-page .menu-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  #login-page .menu-item:hover { transform: scale(1.1); }
+  #login-page .menu-item span {
+    color: #fff;
+    font-size: 12px;
+    margin-top: 4px;
+    text-shadow: 1px 1px 3px #000;
+    font-weight: bold;
+  }
+
+  #login-page .icon-circle {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.15);
+    border: 2px solid rgba(255, 255, 255, 0.5);
+    box-shadow: 0 0 15px rgba(100, 200, 255, 0.4), inset 0 0 10px rgba(255,255,255,0.2);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    backdrop-filter: blur(5px);
+    font-size: 22px;
+  }
+  /* 自定义图片图标 */
+  #login-page .icon-circle img {
+    width: 28px;
+    height: 28px;
+    object-fit: contain;
+  }
+
+  #login-page .start-prompt {
+    position: absolute;
+    bottom: 22%;
+    width: 100%;
+    text-align: center;
+    z-index: 10;
+    animation: breathe 1.5s infinite alternate;
+  }
+  #login-page .start-prompt h1 {
+    color: #fff;
+    font-size: 26px;
+    font-weight: bold;
+    letter-spacing: 3px;
+    text-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff, 2px 2px 4px rgba(0,0,0,0.8);
+  }
+
+  @keyframes breathe {
+    0% { opacity: 0.7; transform: scale(0.98); }
+    100% { opacity: 1; transform: scale(1.02); }
+  }
+
+  /* 左下角 CADPA 图片 */
+  #login-page .age-rating {
+    position: absolute;
+    bottom: 20px; left: 20px;
+    z-index: 10;
+  }
+  #login-page .age-rating img {
+    width: 70px;
+    height: auto;
+    display: block;
+    border-radius: 4px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+  }
+
+  #login-page .repair-client {
+    position: absolute;
+    bottom: 20px; right: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    z-index: 10;
+  }
+  #login-page .repair-client span {
+    color: #fff;
+    font-size: 12px;
+    margin-top: 4px;
+    text-shadow: 1px 1px 2px #000;
+  }
+
+  #login-page .footer-text {
+    position: absolute;
+    bottom: 5px; left: 50%;
+    transform: translateX(-50%);
+    width: 75%;
+    text-align: center;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 10px;
+    line-height: 1.5;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.9);
+    z-index: 10;
+    pointer-events: none;
+  }
+
+  /* ============================================================
+     第三阶段：小黄蛋走路进度条
+     ============================================================ */
+  #loading-stage {
+    position: fixed; inset: 0; z-index: 3000;
+    display: none; flex-direction: column; justify-content: flex-end;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+  #loading-stage.show { display: flex; }
+
+  .progress-track {
+    position: relative; width: 100%; height: 16px;
+    background: #1a2536;
+    border-top: 2px solid rgba(255, 255, 255, 0.1);
+    border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+    box-shadow: inset 0 2px 5px rgba(0,0,0,0.5);
+    z-index: 10;
+  }
+
+  .progress-fill {
+    position: absolute; top: 0; left: 0; height: 100%;
+    width: 0%;
+    background: #00ffff;
+    box-shadow: 0 0 15px #00ffff, 0 0 30px #00ffff;
+    transition: width 0.1s linear;
+  }
+
+  .egg-walker {
+    position: absolute;
+    top: -56px;
+    left: 0;
+    width: 50px; 
+    height: 50px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 3px solid #fff;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+    background-color: #fff;
+    transition: left 0.1s linear;
+    z-index: 10;
+  }
+  
+  .egg-walker img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .loading-tip {
+    position: absolute;
+    bottom: 30px; left: 50%;
+    transform: translateX(-50%);
+    color: #fff;
+    font-size: 16px;
+    font-weight: bold;
+    letter-spacing: 1px;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+    white-space: nowrap;
+    z-index: 10;
+  }
+
+  /* 横屏提示 */
+  #orientation-mask {
+    position: fixed; inset: 0; z-index: 99999;
+    background: #000; color: #fff;
+    display: none; flex-direction: column;
+    align-items: center; justify-content: center;
+    text-align: center; font-size: 18px; letter-spacing: 1px;
+    padding: 20px;
+  }
+  #orientation-mask.show { display: flex; }
+  #orientation-mask .icon { font-size: 54px; margin-bottom: 18px; animation: rotatePhone 2s ease-in-out infinite; }
+  #orientation-mask .sub { font-size: 14px; opacity: 0.6; margin-top: 10px; }
+  @keyframes rotatePhone {
+    0%, 100% { transform: rotate(0deg); }
+    50% { transform: rotate(90deg); }
+  }
+</style>
+</head>
+<body>
+
+<!-- 横屏提示 -->
+<div id="orientation-mask">
+  <div class="icon">📱</div>
+  <div>请旋转设备至横屏模式</div>
+  <div class="sub">以获得最佳游戏体验（电脑端请将窗口调整为横向）</div>
+</div>
+
+<!-- ============================================================
+     第一阶段：启动页
+============================================================ -->
+<div id="stage-page">
+  <div class="stage-viewport">
+    <img id="screenshot" src="https://origin.picgo.net/2026/11/28/wangyichongzhi89bb2d67664f4e9a.png" alt="网易图" class="hidden">
+    <img id="gif" src="https://origin.picgo.net/2026/11/28/screen-20261127-184530-1795776318465862758c1d87103b2.gif" alt="GIF" class="hidden">
+  </div>
+</div>
+
+<!-- 公告弹窗 -->
+<div id="announcement-overlay">
+  <div class="announcement-panel">
+    <div class="close-btn" id="close-announcement" title="关闭公告"></div>
+    <div class="panel-header">
+      <div class="header-title">《蛋仔派对》11月17日更新公告</div>
+    </div>
+    <div class="panel-content">
+      <div class="sidebar">
+        <div class="nav-item active" data-tab="0">活动更新</div>
+        <div class="nav-item" data-tab="1">内容更新</div>
+        <div class="nav-item" data-tab="2">调整优化</div>
+        <div class="nav-item" data-tab="3">问题修复</div>
+        <div class="nav-item" data-tab="4">开发组声明</div>
+      </div>
+      <div class="main-body" id="main-body-content"></div>
+    </div>
+    <div class="panel-footer">
+      根据国家新闻出版署《关于防止未成年人沉迷网络游戏的通知》，所有用户必须用本人身份信息进行实名登记，未成年人将纳入防沉迷系统。
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     第二阶段：loginpagenew 登录界面（精简版，仅保留有图片的按钮）
+============================================================ -->
+<div id="login-page">
+  <div class="game-container" id="login-container">
+    <div class="top-bar">
+      1.0.295(1788841401-1794484929_04becac403.4502531.295-1) 蛋仔岛 awpXJkl
+    </div>
+
+    <!-- 左上角 蛋仔派对 LOGO 图片 -->
+    <div class="logo-area">
+      <img class="logo-img" src="https://origin.picgo.net/2026/11/28/dz-removebgcb2b5121287d58c3.png" alt="蛋仔派对">
+    </div>
+
+    <!-- 左侧菜单（保留离线挑战） -->
+    <div class="side-menu left-menu">
+      <div class="menu-item">
+        <div class="icon-circle">
+          <img src="https://origin.picgo.net/2026/11/28/39d3898cbd1ce7b1f4c25e7570272ab06bd635cf47d58bfd.png" alt="离线挑战">
+        </div>
+        <span>离线挑战</span>
+      </div>
+    </div>
+
+    <!-- 右侧菜单（已全部清空） -->
+    <div class="side-menu right-menu">
+      <!-- 无内容 -->
+    </div>
+
+    <div class="start-prompt">
+      <h1>点击任意位置开始游戏</h1>
+    </div>
+
+    <!-- 左下角 CADPA 图片 -->
+    <div class="age-rating">
+      <img src="https://origin.picgo.net/2026/11/28/CADPA277c99a2b4d1640d.jpg" alt="CADPA 8+">
+    </div>
+
+    <!-- 右下角 修复客户端图片 -->
+    <div class="repair-client">
+      <div class="icon-circle">
+        <img src="https://origin.picgo.net/2026/11/28/xiufukehuduan8c98a9a93c8bddb5.png" alt="修复客户端">
+      </div>
+      <span>修复客户端</span>
+    </div>
+
+    <div class="footer-text">
+      <p>本公司积极履行《网络游戏行业防沉迷自律公约》</p>
+      <p>健康游戏忠告：抵制不良游戏，拒绝盗版游戏。注意自我保护，谨防受骗上当。适度游戏益脑，沉迷游戏伤身。合理安排时间，享受健康生活。</p>
+      <p>著作权人：网易（杭州）网络有限公司 出版单位：广州网易计算机系统有限公司 批准文号：国新出审【2021】1349号 出版物号：ISBN 978-7-498-09309-7</p>
+      <p>ICP备案号：浙B2-20090185-74A | 根据国家新闻出版署《关于防止未成年人沉迷网络游戏的通知》所有用户必须用本人身份信息进行实名登记</p>
+      <p>本网络游戏适合8周岁及以上用户使用。为了您的健康，请合理安排游戏时间</p>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     第三阶段：小黄蛋走路进度条
+============================================================ -->
+<div id="loading-stage">
+  <div class="progress-track">
+    <div class="progress-fill" id="progress-bar"></div>
+    <div class="egg-walker" id="egg-walker">
+      <img src="https://pic.danji100.com/d/file/2024/09-20/f823cbdc5a90495af47088098ddcd205.png" alt="小黄蛋">
+    </div>
+  </div>
+  <div class="loading-tip">小提示：关卡玩腻了？去蛋仔乐园逛逛吧</div>
+</div>
+
+<script>
+(function() {
+  /* ===== 横屏检测 ===== */
+  const orientationMask = document.getElementById('orientation-mask');
+  function checkOrientation() {
+    const portrait = window.innerHeight > window.innerWidth;
+    orientationMask.classList.toggle('show', portrait);
+  }
+  window.addEventListener('resize', checkOrientation);
+  window.addEventListener('orientationchange', () => setTimeout(checkOrientation, 150));
+  window.addEventListener('pageshow', checkOrientation);
+  if (window.screen && window.screen.orientation) {
+    window.screen.orientation.addEventListener('change', () => setTimeout(checkOrientation, 150));
+  }
+  checkOrientation();
+
+  /* ===== 元素引用 ===== */
+  const stagePage    = document.getElementById('stage-page');
+  const screenshot   = document.getElementById('screenshot');
+  const gif          = document.getElementById('gif');
+  const overlay      = document.getElementById('announcement-overlay');
+  const closeBtn     = document.getElementById('close-announcement');
+  const navItems     = document.querySelectorAll('.nav-item');
+  const mainBody     = document.getElementById('main-body-content');
+  
+  const loginPage    = document.getElementById('login-page');
+  const loginContainer = document.getElementById('login-container');
+  
+  const loadingStage = document.getElementById('loading-stage');
+  const progressBar  = document.getElementById('progress-bar');
+  const eggWalker    = document.getElementById('egg-walker');
+
+  const SCREENSHOT_DURATION = 3000;
+  const GIF_DURATION = 3000;
+  const WALK_DURATION = 3500;
+
+  let screenshotTimer = null;
+  let gifTimer = null;
+
+  const ENTER_URL = 'https://dszx2026.github.io/h5ep_main.html';
+
+  /* ===== 随机背景图配置 ===== */
+  const LOADING_BACKGROUNDS = [
+    'https://ts3.tc.mm.bing.net/th/id/OIP-C.YPU-zRr7wsJYM9esPsMBOgHaEK?r=0&rs=1&pid=ImgDetMain&o=7&rm=3',
+    'https://ts1.tc.mm.bing.net/th/id/OIP-C.O-rBFtYtWKSIDC487P-q8gHaEJ?r=0&rs=1&pid=ImgDetMain&o=7&rm=3'
+  ];
+
+  /* ===== 公告数据 ===== */
+  const announcementData = [
+    {
+      greeting: `亲爱的蛋仔们：<br>《蛋仔派对》国服预计将于 <span class="highlight-date">2022年11月17日 9:00-11:00</span> 进行不停服维护，本次更新的内容如下：`,
+      bannerText: "活动更新",
+      sections: [
+        {
+          title: "一、蛋仔派对×保卫萝卜联动开启",
+          content: `<p class="sub-sub-title">活动时间：2022年11月18日0:00-2022年12月1日23:59</p><p>萝卜阿波和呆兔一起登陆蛋仔岛啦！活动期间每日参与签到，即可获得大量瓶盖、限定阿波表情！参与保卫萝卜抽奖，即有机会获得阿波联动盲盒、呆兔布偶、呆兔背包、手足无措动作等丰富奖励！本次联动盲盒更有全新阿波语音助阵，快来蛋仔岛，和阿波携手闯关吧！</p>`
+        },
+        {
+          title: "二、赛季活动新阶段开放",
+          content: `<p class="sub-sub-title">活动时间：11月18日0:00-11月24日23:59</p><p class="sub-sub-title">活动范围：全服玩家</p><p>赛季活动新阶段&lt;祈愿精灵&gt;即将开放，糖果王国昵称框即将上架，快来收集星星糖兑换吧！此外，翻糖壳壳盲盒、奶油巧克力配饰等已开启兑换，快来蛋仔岛看看吧！</p>`
+        },
+        {
+          title: "三、绿茵赛场",
+          content: `<p class="sub-sub-title">活动时间：11月19日10:00-12月18日23:59期间首次登录起14天内</p><p class="sub-sub-title">活动范围：全服玩家</p><p>蛋仔杯即将开始，皮蛋精心准备了一系列惊喜好礼：燃情足球套装，燃情足球限定昵称框、头像框等，包蛋满意。完成每日活动任务，收集蓝色足球币，即可兑换丰富奖励。快快行动起来吧！</p>`
+        }
+      ]
+    },
+    {
+      greeting: `亲爱的蛋仔们：<br>本次内容更新包含全新玩法、系统功能与蛋仔岛变化，具体如下：`,
+      bannerText: "内容更新",
+      sections: [
+        {
+          title: "一、玩法更新",
+          content: `<p class="sub-sub-title">1. 新增玩法：&lt;乱斗足球&gt;</p><p>开放时间：每周六、周日的18:00-24:00</p><p>在踢球的同时可以用道具和决战技干扰对方，突破防线来一个精彩的射门。在4对4的比赛中，守门员也变的至关重要，当然合理使用飞扑、道具，守门员也可以从自家大门位置直接射门进球！</p><p>热爱足球，爱的不仅是观看比赛的刺激，还有自己在场上挥洒的激情，叫上好碰友，到&lt;乱斗足球&gt;来一场肆意的足球比赛吧！</p><p class="sub-sub-title">2. 捉迷藏玩法增加&lt;战斗内表现评价以及战绩回顾功能&gt;</p>`
+        },
+        {
+          title: "二、系统更新",
+          content: `<p>1. 在&lt;设置&gt;界面中新增了“隐私”分页，增设了数个隐私选项，允许对派对数据、派对回顾、盲盒收藏、亲密关系内容进行精细化隐藏</p><p>2. 在盲盒图鉴新增了&lt;联动盲盒&gt;分类，现在各位蛋仔可以更快速更清楚地看到各个联动盲盒们可爱的样子啦~</p>`
+        },
+        {
+          title: "三、蛋仔岛更新",
+          content: `<p>1. &lt;蛋仔射箭馆&gt;将会替换为&lt;足球场&gt;</p>`
+        },
+        {
+          title: "四、商城更新",
+          content: `<p>1. 赤枫将军、清姬樱子、逐风浪客、风魔小忍支持使用幸运碎片赠送</p>`
+        }
+      ]
+    },
+    {
+      greeting: `亲爱的蛋仔们：<br>本次调整优化涉及派对手册、移动方式与工坊组件，具体如下：`,
+      bannerText: "调整优化",
+      sections: [
+        {
+          title: "调整优化内容",
+          content: `<p>1. 优化派对手册一键领取功能，赛季挑战分页内支持一键领取参赛挑战和活跃挑战的任务奖励</p><p>2. 蛋仔的移动方式会从“水平面上的前后左右移动”变为“基于当前视角方向、立体空间上的前后左右移动”</p><p>3. 优化了工坊组件的性能消耗，地图的组件占用值上限从10000提高至15000</p>`
+        }
+      ]
+    },
+    {
+      greeting: `亲爱的蛋仔们：<br>本次更新修复了以下问题，感谢大家的反馈与支持：`,
+      bannerText: "问题修复",
+      sections: [
+        {
+          title: "修复问题列表",
+          content: `<p>1. 修复好友申请数量超过100无法操作的问题</p><p>2. 修复了主城-密室门口碰撞异常问题</p><p>3. 修复了新手任务界面套装图标显示错误的问题</p><p>4. 修复了模式中使用传送按钮。现在玩家在绳子卡在奇怪的地方时，可以使用传送功能尝试脱离</p><p>5. 修复了乐园房间邀请好友时，偶尔会收不到邀请的问题</p><p>6. 修复了玩家自制地图中自定义添加的按钮会遮挡退出按钮的问题</p><p>7. 修复了观战时无法转动镜头的问题</p><p>8. 修复风魔小忍衣服换色后颜色显示不对的问题</p><p>9. 修复更换外观后蛋仔面部表情显示不对的问题</p><p>10. 修复了游戏结束时的音效错乱问题</p><p>11. 修复了偶发的关卡错乱问题</p>`
+        }
+      ]
+    },
+    {
+      greeting: `亲爱的蛋仔们：<br>开发组就公平游戏环境与恶意组队打击作出如下声明：`,
+      bannerText: "开发组声明",
+      sections: [
+        {
+          title: "开发组声明",
+          content: `<p>最后，皮蛋想向大家承诺，《蛋仔派对》将努力为玩家打造公平的游戏环境，对任何违规游戏行为均予以严厉处罚。</p><p>对于游戏内“恶意组队”的行为，我们始终保持关注与重点打击。“恶意组队”指的是违反游戏公平原则，在游戏中与非队友的玩家有组织地合作，获取更高收益、或对其他玩家实质形成不公平竞争的行为。</p><p>近期我们已针对游戏中上述行为开展持续性的处罚行动，当确认违规后将按照严重程度进行降段、降分及封号处理。</p><p>欢迎蛋仔们的监督和举报，发现派对中有恶意组队的情况时，请及时在游戏内进行举报。</p><p>皮蛋还陆陆续续收到了许多优化建议，我们已经都一字不落地记在小本本上了。感谢大家对蛋仔派对的支持与喜爱，皮蛋的监督工作还会继续！</p><p style="text-align:right;margin-top:12px;">您的蛋仔岛向导 皮蛋</p>`
+        }
+      ]
+    }
+  ];
+
+  /* ===== 渲染公告内容 ===== */
+  function renderContent(tabIndex) {
+    const data = announcementData[tabIndex];
+    if (!data) return;
+    let html = '';
+    if (data.greeting) html += `<div class="greeting">${data.greeting}</div>`;
+    if (data.bannerText) html += `<div class="banner"><div class="banner-text">${data.bannerText}</div></div>`;
+    if (data.sections && data.sections.length > 0) {
+      data.sections.forEach(sec => {
+        html += `<div class="section-title">${sec.title}</div>`;
+        html += `<div class="content-text">${sec.content}</div>`;
+      });
+    }
+    mainBody.innerHTML = html;
+    mainBody.classList.remove('fade-in');
+    void mainBody.offsetWidth;
+    mainBody.classList.add('fade-in');
+    mainBody.scrollTop = 0;
+  }
+
+  navItems.forEach(item => {
+    item.addEventListener('click', () => {
+      navItems.forEach(nav => nav.classList.remove('active'));
+      item.classList.add('active');
+      const tabIndex = parseInt(item.getAttribute('data-tab'));
+      renderContent(tabIndex);
+    });
+  });
+
+  /* ===== 启动流程控制 ===== */
+  function clearAllTimers() {
+    if (screenshotTimer) clearTimeout(screenshotTimer);
+    if (gifTimer) clearTimeout(gifTimer);
+    screenshotTimer = null;
+    gifTimer = null;
+  }
+
+  function showAnnouncement() {
+    if (gif) gif.classList.add('hidden');
+    overlay.classList.add('show');
+    navItems.forEach(nav => nav.classList.remove('active'));
+    if (navItems[0]) navItems[0].classList.add('active');
+    renderContent(0);
+  }
+
+  function startSequence() {
+    clearAllTimers();
+    stagePage.classList.remove('hidden');
+    overlay.classList.remove('show');
+    loginPage.classList.remove('show');
+    loadingStage.classList.remove('show'); 
+
+    screenshot.classList.remove('hidden');
+    if (gif) gif.classList.add('hidden');
+
+    screenshotTimer = setTimeout(() => {
+      screenshot.classList.add('hidden');
+      if (gif) {
+        gif.classList.remove('hidden');
+        gifTimer = setTimeout(showAnnouncement, GIF_DURATION);
+      } else {
+        showAnnouncement();
+      }
+    }, SCREENSHOT_DURATION);
+  }
+
+  /* ===== 核心流程：关闭公告 → 显示登录页 ===== */
+  closeBtn.addEventListener('click', () => {
+    overlay.classList.remove('show');
+    setTimeout(() => {
+      stagePage.classList.add('hidden');  
+      loginPage.classList.add('show'); 
+    }, 500); 
+  });
+
+  /* ===== 核心流程：点击登录页任意位置 → 启动走路进度条 ===== */
+  loginContainer.addEventListener('click', (e) => {
+    if (e.target.closest('.menu-item') || e.target.closest('.repair-client')) return;
+
+    loginPage.classList.remove('show');
+    loadingStage.classList.add('show');
+
+    const randomIndex = Math.floor(Math.random() * LOADING_BACKGROUNDS.length);
+    loadingStage.style.backgroundImage = `url('${LOADING_BACKGROUNDS[randomIndex]}')`;
+
+    progressBar.style.width = '0%';
+    eggWalker.style.left = '0px';
+
+    const startTime = performance.now();
+    const screenWidth = window.innerWidth;
+    const eggWidth = 50; 
+    const maxLeft = screenWidth - eggWidth;
+
+    function walk(now) {
+      const elapsed = now - startTime;
+      let progress = elapsed / WALK_DURATION;
+      if (progress > 1) progress = 1;
+
+      progressBar.style.width = (progress * 100) + '%';
+      
+      const currentLeft = progress * maxLeft;
+      eggWalker.style.left = currentLeft + 'px';
+
+      if (progress < 1) {
+        requestAnimationFrame(walk);
+      } else {
+        setTimeout(() => {
+          window.location.href = ENTER_URL;
+        }, 300);
+      }
+    }
+    requestAnimationFrame(walk);
+  });
+
+  /* ===== 启动 ===== */
+  if (screenshot.complete) {
+    startSequence();
+  } else {
+    screenshot.addEventListener('load', startSequence, { once: true });
+  }
+  screenshot.addEventListener('error', () => { startSequence(); });
+})();
+</script>
+
+</body>
+</html>

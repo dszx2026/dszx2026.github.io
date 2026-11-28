@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
+    <title>3D 蛋仔 - 移动预览版</title>
+    <!-- 引入 Google Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+    <style>
+        body { margin: 0; overflow: hidden; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #111; user-select: none; }
+        
+        /* --- 横屏提示 --- */
+        #orientation-mask {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #111; color: white; display: none; flex-direction: column;
+            align-items: center; justify-content: center; z-index: 9999;
+            font-size: 18px; text-align: center;
+        }
+        #orientation-mask .icon { font-size: 50px; margin-bottom: 20px; animation: rotate 2s infinite; }
+        @keyframes rotate { 0% { transform: rotate(0deg); } 50% { transform: rotate(90deg); } 100% { transform: rotate(0deg); } }
+        
+        /* --- 顶部按钮与信息 --- */
+        #top-right-actions { position: absolute; top: 20px; right: 20px; display: flex; gap: 15px; z-index: 400; }
+        .icon-btn {
+            width: 50px; height: 50px; background: rgba(0,0,0,0.6); border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 50%; color: white; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; backdrop-filter: blur(4px); transition: all 0.3s;
+        }
+        .icon-btn:hover { background: rgba(0,0,0,0.8); transform: scale(1.05); }
+        .icon-btn i { font-size: 26px; }
+        
+        /* 复位按钮特有样式 (图片替换) */
+        #reset-btn { background-image: url('https://origin.picgo.net/2026/11/28/fwnew3283229c0c789a02.png'); background-size: 60%; background-position: center; background-repeat: no-repeat; }
+        
+        #fps-display {
+            position: absolute; top: 25px; left: 25px; color: #00ff00; font-family: monospace;
+            font-size: 16px; font-weight: bold; z-index: 100; display: none;
+            text-shadow: 1px 1px 2px #000;
+        }
+
+        /* --- 操作提示 --- */
+        #controls { position: absolute; bottom: 25px; left: 50%; transform: translateX(-50%); color: white; background: rgba(0,0,0,0.5); padding: 8px 16px; border-radius: 30px; pointer-events: none; z-index: 100; display: flex; gap: 20px; font-size: 13px; backdrop-filter: blur(4px); white-space: nowrap; }
+        .key span { display: inline-block; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); border-radius: 6px; padding: 2px 8px; margin: 0 2px; font-weight: bold; min-width: 24px; text-align: center; }
+
+        /* --- 移动端控制 --- */
+        #joystick-zone {
+            position: absolute; bottom: 30px; left: 30px; width: 120px; height: 120px;
+            background: rgba(255, 255, 255, 0.1); border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%; backdrop-filter: blur(4px); display: none; touch-action: none; z-index: 200;
+        }
+        #joystick-knob {
+            position: absolute; top: 50%; left: 50%; width: 50px; height: 50px; background: rgba(255, 255, 255, 0.6);
+            border-radius: 50%; transform: translate(-50%, -50%); box-shadow: 0 4px 10px rgba(0,0,0,0.3); pointer-events: none;
+        }
+        #button-group { position: absolute; bottom: 40px; right: 40px; display: none; flex-direction: column; gap: 20px; z-index: 200; touch-action: none; }
+        .action-btn {
+            width: 80px; height: 80px; border: none; border-radius: 50%;
+            background-color: transparent; background-size: contain; background-position: center; background-repeat: no-repeat;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.4); touch-action: none;
+        }
+        .action-btn:active { transform: scale(0.95); filter: brightness(0.8); }
+        /* 跳跃按钮 (图片替换) */
+        #jump-btn { background-image: url('https://origin.picgo.net/2026/11/28/ed4ac6bf6acca59bd96347c7bd7706717afb5e1a659f5a21.png'); }
+        /* 滚动按钮 (图片替换) */
+        #roll-btn { background-image: url('https://origin.picgo.net/2026/11/28/gundongc51a25a6694edc6e.png'); }
+        #roll-btn.cooldown { filter: grayscale(100%) opacity(0.5); }
+
+        @media (max-width: 768px) {
+            #controls { display: none; }
+            #top-right-actions { top: 10px; right: 10px; gap: 10px; }
+            .icon-btn { width: 40px; height: 40px; }
+            .icon-btn i { font-size: 22px; }
+        }
+
+        /* ================= 设置面板 UI ================= */
+        #settings-modal, #keybind-modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6); backdrop-filter: blur(5px);
+            display: none; align-items: center; justify-content: center; z-index: 1000;
+        }
+
+        .settings-container {
+            width: 800px; height: 500px; max-width: 95vw; max-height: 90vh;
+            background: #f0f8ff; border-radius: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5), inset 0 0 0 4px #fff;
+            display: flex; flex-direction: column; overflow: hidden;
+            position: relative;
+        }
+
+        .settings-header {
+            height: 80px; background: linear-gradient(to right, #6fe3e1, #9af0ef);
+            display: flex; align-items: center; justify-content: center;
+            position: relative;
+            clip-path: polygon(0 0, 100% 0, 95% 100%, 5% 100%);
+        }
+        .settings-header h2 { margin: 0; color: #1a5b5a; font-size: 28px; font-weight: 900; letter-spacing: 2px; }
+        .close-btn {
+            position: absolute; top: 15px; right: 15px; width: 40px; height: 40px;
+            background: #3b8d8a; border-radius: 50%; color: white;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; border: 3px solid #fff;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2); transition: transform 0.2s;
+            z-index: 10;
+        }
+        .close-btn:active { transform: scale(0.9); }
+
+        .settings-body { display: flex; flex: 1; padding: 20px; gap: 20px; }
+        
+        .sidebar {
+            width: 200px; background: #d4f0f0; border-radius: 20px;
+            padding: 20px 10px; display: flex; flex-direction: column; gap: 15px;
+        }
+        .tab-btn {
+            padding: 15px 20px; border-radius: 15px; font-size: 20px; font-weight: bold;
+            color: #1a5b5a; cursor: pointer; text-align: center; transition: all 0.2s;
+            background: #fff; box-shadow: 0 4px 0 #c2d6d6; display: flex; align-items: center; gap: 10px;
+        }
+        .tab-btn i { font-size: 24px; }
+        .tab-btn.active {
+            background: linear-gradient(to right, #ffe259, #ffa751);
+            color: #553300; box-shadow: 0 4px 0 #cc8833;
+            transform: translateY(2px);
+        }
+
+        .content-area {
+            flex: 1; background: #ffffff; border-radius: 20px; padding: 30px;
+            overflow-y: auto; box-shadow: inset 0 0 10px rgba(0,0,0,0.05);
+            position: relative;
+        }
+        .tab-panel { display: none; flex-direction: column; gap: 25px; }
+        .tab-panel.active { display: flex; }
+
+        .setting-row { display: flex; align-items: center; justify-content: space-between; font-size: 20px; color: #333; font-weight: bold; }
+        
+        /* 单选按钮 */
+        .radio-group { display: flex; gap: 20px; }
+        .radio-label { display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: normal; font-size: 18px; color: #555; }
+        .radio-label input[type="radio"] { display: none; }
+        .radio-custom {
+            width: 24px; height: 24px; border-radius: 50%; background: #e0e0e0;
+            display: inline-block; position: relative; border: 2px solid #ccc;
+        }
+        .radio-label input[type="radio"]:checked + .radio-custom {
+            background: #333; border-color: #333;
+        }
+        .radio-label input[type="radio"]:checked + .radio-custom::after {
+            content: '✔'; color: #fff; font-size: 14px; position: absolute;
+            top: 50%; left: 50%; transform: translate(-50%, -50%);
+        }
+        .radio-label input[type="radio"]:checked ~ span { color: #111; font-weight: bold; }
+
+        /* 开关 */
+        .toggle-switch {
+            width: 60px; height: 30px; background: #a0c4ff; border-radius: 15px;
+            position: relative; cursor: pointer; transition: background 0.3s;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .toggle-switch .knob {
+            width: 26px; height: 26px; background: #fff; border-radius: 50%;
+            position: absolute; top: 2px; left: 2px; transition: transform 0.3s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        .toggle-switch.active { background: #72e072; }
+        .toggle-switch.active .knob { transform: translateX(30px); }
+        .toggle-text { position: absolute; font-size: 12px; font-weight: bold; color: #fff; top: 50%; transform: translateY(-50%); left: 8px; pointer-events: none; }
+        .toggle-switch.active .toggle-text { left: auto; right: 8px; }
+
+        /* 自定义按键样式 */
+        .custom-btn {
+            padding: 10px 20px; background: #6fe3e1; color: #1a5b5a;
+            border: none; border-radius: 10px; font-size: 16px; font-weight: bold;
+            cursor: pointer; box-shadow: 0 4px 0 #4ab3b0; transition: transform 0.1s;
+        }
+        .custom-btn:active { transform: translateY(4px); box-shadow: none; }
+
+        /* 按键绑定弹窗 */
+        .keybind-panel {
+            width: 400px; background: #f0f8ff; border-radius: 20px; padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 4px solid #fff;
+        }
+        .keybind-panel .header { font-size: 22px; font-weight: bold; color: #1a5b5a; display: flex; justify-content: space-between; margin-bottom: 20px; align-items: center;}
+        .keybind-panel .header i { cursor: pointer; color: #ff4d4d; }
+        .key-item { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; font-size: 18px; color: #333; }
+        .key-box {
+            width: 100px; height: 40px; background: #fff; border: 2px solid #ccc; border-radius: 8px;
+            display: flex; align-items: center; justify-content: center; font-weight: bold;
+            cursor: pointer; transition: all 0.2s;
+        }
+        .key-box.listening { background: #ffe259; border-color: #ffa751; animation: pulse 1s infinite; }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+
+    </style>
+</head>
+<body>
+    <div id="orientation-mask">
+        <div class="icon">📱</div>
+        <div>请旋转设备至横屏模式</div>
+        <div style="font-size: 14px; opacity: 0.6; margin-top: 10px;">（电脑端请将窗口调整为横向）</div>
+    </div>
+
+    <!-- 左上角 FPS 显示 -->
+    <div id="fps-display">FPS: 60</div>
+
+    <!-- 右上角按钮 -->
+    <div id="top-right-actions">
+        <div id="settings-btn" class="icon-btn"><i class="material-icons-round">settings</i></div>
+        <!-- 复位按钮 替换为图片 -->
+        <div id="reset-btn" class="icon-btn"></div>
+    </div>
+
+    <!-- 操作提示 -->
+    <div id="controls">
+        <div class="key"><span id="ui-key-w">W</span><span id="ui-key-a">A</span><span id="ui-key-s">S</span><span id="ui-key-d">D</span> 移动</div>
+        <div class="key"><span id="ui-key-jump">空格</span> 跳跃</div>
+        <div class="key"><span id="ui-key-roll">R</span> 滚动</div>
+    </div>
+    
+    <!-- 移动端控件 -->
+    <div id="joystick-zone"><div id="joystick-knob"></div></div>
+    <div id="button-group">
+        <!-- 跳跃按钮 替换为图片 -->
+        <div id="jump-btn" class="action-btn"></div>
+        <!-- 滚动按钮 替换为图片 -->
+        <div id="roll-btn" class="action-btn"></div>
+    </div>
+
+    <!-- ================= 设置面板 DOM ================= -->
+    <div id="settings-modal">
+        <div class="settings-container">
+            <div class="settings-header">
+                <h2>游戏设置</h2>
+                <div class="close-btn" id="close-settings"><i class="material-icons-round">close</i></div>
+            </div>
+            <div class="settings-body">
+                <div class="sidebar">
+                    <div class="tab-btn active" data-tab="ui"><i class="material-icons-round">desktop_windows</i> 界面</div>
+                    <div class="tab-btn" data-tab="sound"><i class="material-icons-round">volume_up</i> 声音</div>
+                    <div class="tab-btn" data-tab="game"><i class="material-icons-round">sports_esports</i> 游戏</div>
+                </div>
+                <div class="content-area">
+                    <!-- 界面 Tab -->
+                    <div id="tab-ui" class="tab-panel active">
+                        <div class="setting-row">
+                            <label>分辨率</label>
+                            <div class="radio-group">
+                                <label class="radio-label"><input type="radio" name="res" value="high" checked><div class="radio-custom"></div><span>高</span></label>
+                                <label class="radio-label"><input type="radio" name="res" value="mid"><div class="radio-custom"></div><span>中</span></label>
+                                <label class="radio-label"><input type="radio" name="res" value="low"><div class="radio-custom"></div><span>低</span></label>
+                            </div>
+                        </div>
+                        <div class="setting-row">
+                            <label>帧率显示</label>
+                            <div class="toggle-switch active" id="toggle-fps">
+                                <div class="knob"></div><div class="toggle-text">开</div>
+                            </div>
+                        </div>
+                        <div class="setting-row">
+                            <label>网络显示</label>
+                            <div class="toggle-switch" id="toggle-net">
+                                <div class="knob"></div><div class="toggle-text">关</div>
+                            </div>
+                        </div>
+                        <div class="setting-row">
+                            <label>帧率</label>
+                            <div class="radio-group">
+                                <label class="radio-label"><input type="radio" name="fps" value="30"><div class="radio-custom"></div><span>节能 (30)</span></label>
+                                <label class="radio-label"><input type="radio" name="fps" value="60" checked><div class="radio-custom"></div><span>高 (60)</span></label>
+                                <label class="radio-label"><input type="radio" name="fps" value="144"><div class="radio-custom"></div><span>极限 (144)</span></label>
+                            </div>
+                        </div>
+                        <div class="setting-row">
+                            <label>左侧摇杆</label>
+                            <div class="radio-group">
+                                <label class="radio-label"><input type="radio" name="joystick" value="fixed" checked><div class="radio-custom"></div><span>固定摇杆</span></label>
+                                <label class="radio-label"><input type="radio" name="joystick" value="float"><div class="radio-custom"></div><span>活动摇杆</span></label>
+                            </div>
+                        </div>
+                        <div class="setting-row">
+                            <label>移动端预览 (PC)</label>
+                            <div class="toggle-switch" id="toggle-mobile-preview">
+                                <div class="knob"></div><div class="toggle-text">关</div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- 声音 Tab -->
+                    <div id="tab-sound" class="tab-panel">
+                        <div class="setting-row"><label>主音量</label><span>敬请期待...</span></div>
+                    </div>
+                    <!-- 游戏 Tab -->
+                    <div id="tab-game" class="tab-panel">
+                        <div class="setting-row">
+                            <label>自定义按键</label>
+                            <button class="custom-btn" id="open-keybind">修改按键</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 按键绑定弹窗 -->
+    <div id="keybind-modal">
+        <div class="keybind-panel">
+            <div class="header">自定义按键 <i class="material-icons-round" id="close-keybind">close</i></div>
+            <div class="body">
+                <div class="key-item"><span>前进</span> <div class="key-box" data-action="forward">W</div></div>
+                <div class="key-item"><span>后退</span> <div class="key-box" data-action="backward">S</div></div>
+                <div class="key-item"><span>左移</span> <div class="key-box" data-action="left">A</div></div>
+                <div class="key-item"><span>右移</span> <div class="key-box" data-action="right">D</div></div>
+                <div class="key-item"><span>跳跃</span> <div class="key-box" data-action="jump">Space</div></div>
+                <div class="key-item"><span>滚动</span> <div class="key-box" data-action="roll">R</div></div>
+            </div>
+        </div>
+    </div>
+
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.128.0/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.128.0/examples/jsm/"
+            }
+        }
+    </script>
+
+    <script type="module">
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+        // --- 0. 基础环境检测（必须横屏才能玩）---
+        const isMobileDevice = ('ontouchstart' in window || navigator.maxTouchPoints > 0);
+        let isMobilePreview = false;   // 提前声明，避免 TDZ 报错
+        let maskVisible = false;       // 竖屏遮罩是否显示（用于暂停游戏）
+
+        const mask = document.getElementById('orientation-mask');
+
+        function checkOrientation() {
+            // 竖屏判定：高度 > 宽度（PC 窗口拉成竖条也会拦截）
+            const portrait = window.innerHeight > window.innerWidth;
+            maskVisible = portrait;
+            mask.style.display = portrait ? 'flex' : 'none';
+        }
+
+        window.addEventListener('resize', checkOrientation);
+        window.addEventListener('orientationchange', () => setTimeout(checkOrientation, 150));
+        // 部分浏览器横竖屏切换会延迟，兜底再检测一次
+        window.addEventListener('pageshow', checkOrientation);
+        if (window.screen && window.screen.orientation) {
+            window.screen.orientation.addEventListener('change', () => setTimeout(checkOrientation, 150));
+        }
+        checkOrientation();
+
+        // --- 1. 设置面板交互逻辑 ---
+        const settingsBtn = document.getElementById('settings-btn');
+        const settingsModal = document.getElementById('settings-modal');
+        const closeSettingsBtn = document.getElementById('close-settings');
+        
+        settingsBtn.addEventListener('click', () => settingsModal.style.display = 'flex');
+        closeSettingsBtn.addEventListener('click', () => settingsModal.style.display = 'none');
+        settingsModal.addEventListener('click', (e) => { if (e.target === settingsModal) settingsModal.style.display = 'none'; });
+
+        // 左侧 Tab 切换
+        const tabBtns = document.querySelectorAll('.tab-btn');
+        const tabPanels = document.querySelectorAll('.tab-panel');
+        tabBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                tabBtns.forEach(b => b.classList.remove('active'));
+                tabPanels.forEach(p => p.classList.remove('active'));
+                btn.classList.add('active');
+                document.getElementById(`tab-${btn.dataset.tab}`).classList.add('active');
+            });
+        });
+
+        // FPS 开关
+        const toggleFps = document.getElementById('toggle-fps');
+        const toggleNet = document.getElementById('toggle-net');
+        const fpsDisplay = document.getElementById('fps-display');
+        
+        toggleFps.addEventListener('click', () => {
+            toggleFps.classList.toggle('active');
+            const isOn = toggleFps.classList.contains('active');
+            toggleFps.querySelector('.toggle-text').textContent = isOn ? '开' : '关';
+            fpsDisplay.style.display = isOn ? 'block' : 'none';
+        });
+
+        toggleNet.addEventListener('click', () => {
+            toggleNet.classList.toggle('active');
+            const isOn = toggleNet.classList.contains('active');
+            toggleNet.querySelector('.toggle-text').textContent = isOn ? '开' : '关';
+        });
+
+        // 帧率限制逻辑
+        let targetFPS = 60;
+        document.querySelectorAll('input[name="fps"]').forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                targetFPS = parseInt(e.target.value);
+            });
+        });
+
+        // --- 移动端预览逻辑 ---
+        const toggleMobilePreview = document.getElementById('toggle-mobile-preview');
+        const joyZone = document.getElementById('joystick-zone');
+        const btnGroup = document.getElementById('button-group');
+
+        function updateMobileUI() {
+            if (isMobilePreview || isMobileDevice) {
+                joyZone.style.display = 'block';
+                btnGroup.style.display = 'flex';
+            } else {
+                joyZone.style.display = 'none';
+                btnGroup.style.display = 'none';
+            }
+            checkOrientation();
+        }
+
+        // 初始化显示状态
+        updateMobileUI();
+
+        toggleMobilePreview.addEventListener('click', () => {
+            toggleMobilePreview.classList.toggle('active');
+            isMobilePreview = toggleMobilePreview.classList.contains('active');
+            toggleMobilePreview.querySelector('.toggle-text').textContent = isMobilePreview ? '开' : '关';
+            updateMobileUI();
+        });
+
+        // --- 自定义按键功能 ---
+        const keyMap = {
+            forward: 'w', backward: 's', left: 'a', right: 'd', jump: ' ', roll: 'r'
+        };
+
+        const openKeybindBtn = document.getElementById('open-keybind');
+        const keybindModal = document.getElementById('keybind-modal');
+        const closeKeybindBtn = document.getElementById('close-keybind');
+        const keyBoxes = document.querySelectorAll('.key-box');
+
+        openKeybindBtn.addEventListener('click', () => keybindModal.style.display = 'flex');
+        closeKeybindBtn.addEventListener('click', () => keybindModal.style.display = 'none');
+
+        function updateUIKeys() {
+            document.getElementById('ui-key-w').textContent = keyMap.forward.toUpperCase();
+            document.getElementById('ui-key-s').textContent = keyMap.backward.toUpperCase();
+            document.getElementById('ui-key-a').textContent = keyMap.left.toUpperCase();
+            document.getElementById('ui-key-d').textContent = keyMap.right.toUpperCase();
+            document.getElementById('ui-key-jump').textContent = keyMap.jump === ' ' ? '空格' : keyMap.jump.toUpperCase();
+            document.getElementById('ui-key-roll').textContent = keyMap.roll.toUpperCase();
+        }
+
+        let listeningBox = null;
+        keyBoxes.forEach(box => {
+            box.addEventListener('click', () => {
+                if (listeningBox) listeningBox.classList.remove('listening');
+                listeningBox = box;
+                box.textContent = '按下按键...';
+                box.classList.add('listening');
+            });
+        });
+
+        window.addEventListener('keydown', (e) => {
+            if (!listeningBox) return;
+            e.preventDefault();
+            let key = e.key.toLowerCase();
+            if (key === ' ') key = ' ';
+            if (e.code === 'Space') key = ' ';
+            
+            const action = listeningBox.dataset.action;
+            keyMap[action] = key;
+            
+            listeningBox.textContent = key === ' ' ? 'Space' : key.toUpperCase();
+            listeningBox.classList.remove('listening');
+            listeningBox = null;
+            
+            updateUIKeys();
+        });
+
+        // --- 2. 场景与渲染初始化 ---
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x111122);
+
+        const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
+        camera.position.set(0, 2.7, 5);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        document.body.appendChild(renderer.domElement);
+
+        const controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.08;
+        controls.enablePan = false;
+        controls.maxPolarAngle = Math.PI / 2.1;
+
+        // 判断是否在右半屏拖动
+        const originalOnPointerDown = controls._onPointerDown;
+        controls._onPointerDown = function(event) {
+            if (event.clientX > window.innerWidth / 2) {
+                originalOnPointerDown.call(this, event);
+            }
+        };
+
+        // --- 3. 灯光与地面 ---
+        scene.add(new THREE.AmbientLight(0xffffff, 0.9));
+        const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+        dirLight.position.set(5, 10, 7);
+        scene.add(dirLight);
+        
+        const groundGeo = new THREE.PlaneGeometry(18, 18);
+        const groundMat = new THREE.MeshStandardMaterial({ color: 0x1a1a2e, roughness: 0.8, transparent: true, opacity: 0.6, side: THREE.DoubleSide });
+        const groundMesh = new THREE.Mesh(groundGeo, groundMat);
+        groundMesh.rotation.x = -Math.PI / 2;
+        scene.add(groundMesh);
+
+        // --- 4. 面部贴图与材质 ---
+        const canvas = document.createElement('canvas');
+        canvas.width = 1024; canvas.height = 1024;
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#FFD700'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        const cx = canvas.width / 2, cy = canvas.height / 2;
+        const grad = ctx.createRadialGradient(cx, cy, 75, cx, cy, 150);
+        grad.addColorStop(0, '#FFF5E6'); grad.addColorStop(1, '#FFE8CC');
+        ctx.fillStyle = grad;
+        ctx.beginPath(); ctx.ellipse(cx, cy, 150, 250, 0, 0, Math.PI * 2); ctx.fill();
+
+        ctx.fillStyle = '#222222';
+        ctx.beginPath(); ctx.arc(cx - 60, cy - 32, 15, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.arc(cx + 60, cy - 32, 15, 0, Math.PI * 2); ctx.fill();
+        ctx.lineWidth = 8; ctx.lineCap = 'round';
+        ctx.beginPath(); ctx.moveTo(cx - 20, cy + 50); ctx.lineTo(cx + 20, cy + 50); ctx.stroke();
+
+        const eggTexture = new THREE.CanvasTexture(canvas);
+        eggTexture.colorSpace = THREE.SRGBColorSpace;
+        eggTexture.center.set(0.5, 0.5); eggTexture.offset.set(0, -0.05); 
+
+        // --- 5. 蛋仔本体 ---
+        const sphereRadius = 1.0;
+        const sphereGeo = new THREE.SphereGeometry(sphereRadius, 64, 64);
+        const sphereMat = new THREE.MeshStandardMaterial({ map: eggTexture, roughness: 0.4, metalness: 0.05 });
+        
+        const pivotGroup = new THREE.Group();
+        scene.add(pivotGroup);
+        
+        const sphere = new THREE.Mesh(sphereGeo, sphereMat);
+        sphere.position.y = 1.2; sphere.rotation.y = Math.PI / 2; 
+        pivotGroup.add(sphere);
+
+        const yellowMat = new THREE.MeshStandardMaterial({ color: 0xFFD700, roughness: 0.4 });
+        const whiteMat = new THREE.MeshStandardMaterial({ color: 0xFFFFFF, roughness: 0.5 });
+        const blackMat = new THREE.MeshStandardMaterial({ color: 0x222222, roughness: 0.5 });
+
+        // 小啾啾
+        const ahogeGroup = new THREE.Group();
+        const ahogeBall = new THREE.Mesh(new THREE.SphereGeometry(0.11, 16, 16), yellowMat);
+        ahogeBall.position.y = 0.14;
+        const ahogeStem = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 0.12, 8), yellowMat);
+        ahogeStem.position.y = 0.05;
+        ahogeGroup.add(ahogeBall); ahogeGroup.add(ahogeStem);
+        ahogeGroup.position.set(0, 2.15, 0); 
+        pivotGroup.add(ahogeGroup);
+
+        // 左臂
+        const leftArmPivot = new THREE.Group();
+        leftArmPivot.position.set(-0.95, 1.28, 0);
+        leftArmPivot.rotation.z = -0.85; leftArmPivot.rotation.x = 0.10;
+        const leftArmMesh = new THREE.Mesh(new THREE.SphereGeometry(0.2, 32, 32), yellowMat);
+        leftArmMesh.scale.set(0.8, 1.7, 0.8); leftArmMesh.position.y = -0.32;
+        leftArmPivot.add(leftArmMesh); pivotGroup.add(leftArmPivot);
+
+        // 右臂
+        const rightArmPivot = new THREE.Group();
+        rightArmPivot.position.set(0.95, 1.28, 0);
+        rightArmPivot.rotation.z = 0.85; rightArmPivot.rotation.x = 0.10;
+        const rightArmMesh = new THREE.Mesh(new THREE.SphereGeometry(0.2, 32, 32), yellowMat);
+        rightArmMesh.scale.set(0.8, 1.7, 0.8); rightArmMesh.position.y = -0.32;
+        rightArmPivot.add(rightArmMesh); pivotGroup.add(rightArmPivot);
+
+        // 腿和鞋子
+        const legStartY = 1.0;
+        const legLength = 0.6;
+        const bootHeight = 0.28;
+        const soleHeight = 0.08;
+        const shoeForward = -0.18;
+
+        const buildLeg = (isLeft) => {
+            const pivot = new THREE.Group();
+            pivot.position.set(isLeft ? -0.35 : 0.35, legStartY, 0);
+            
+            const legMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.15, legLength, 8), yellowMat);
+            legMesh.position.y = -legLength / 2;
+            pivot.add(legMesh);
+            
+            const bootShaft = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.17, bootHeight, 16), whiteMat);
+            bootShaft.position.y = -legLength - bootHeight / 2 + 0.02;
+            pivot.add(bootShaft);
+            
+            const stripe = new THREE.Mesh(new THREE.CylinderGeometry(0.165, 0.165, 0.04, 16), blackMat);
+            stripe.position.y = -legLength - bootHeight + 0.1;
+            pivot.add(stripe);
+            
+            const sole = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.18, soleHeight, 16), whiteMat);
+            sole.scale.set(1, 1, 1.2); sole.position.set(0, -legLength - bootHeight - soleHeight / 2 + 0.02, -0.03);
+            pivot.add(sole);
+            
+            const toe = new THREE.Mesh(new THREE.SphereGeometry(0.17, 16, 16), whiteMat);
+            toe.scale.set(0.9, 0.6, 1.4); toe.position.set(0, -legLength - bootHeight - soleHeight + 0.06, shoeForward);
+            pivot.add(toe);
+            
+            return pivot;
+        };
+        const leftLegPivot = buildLeg(true); pivotGroup.add(leftLegPivot);
+        const rightLegPivot = buildLeg(false); pivotGroup.add(rightLegPivot);
+
+        // --- 6. 状态与逻辑 ---
+        let isGrounded = true, verticalVelocity = 0;
+        const gravity = -25.0, jumpForce = 9.0;
+        let isRolling = false, rollTimer = 0;
+        const ROLL_DURATION = 5.0;
+        let walkTime = 0; 
+        const velocity = new THREE.Vector3();
+
+        let isFalling = false, fallTimer = 0;
+        const FALL_RESET_TIME = 3.0;
+        const GROUND_BOUND = 9.0;
+
+        function resetEgg() {
+            velocity.set(0, 0, 0); verticalVelocity = 0;
+            isGrounded = true; isRolling = false; rollTimer = 0;
+            isFalling = false; fallTimer = 0;
+            restoreStand();
+
+            pivotGroup.position.set(0, 0, 0);
+            pivotGroup.rotation.set(0, 0, 0);
+            sphere.position.y = 1.2; 
+            sphere.quaternion.copy(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI / 2));
+
+            controls.target.set(0, 1.2, 0); 
+            camera.position.set(0, 2.7, 5);
+            
+            joyVec.set(0, 0); joyActive = false;
+            joyKnob.style.transform = `translate(-50%, -50%)`;
+        }
+        document.getElementById('reset-btn').addEventListener('click', resetEgg);
+
+        const keys = { w: false, a: false, s: false, d: false };
+        window.addEventListener('keydown', (e) => {
+            const k = e.key.toLowerCase();
+            if (k === keyMap.forward) keys.w = true;
+            if (k === keyMap.backward) keys.s = true;
+            if (k === keyMap.left) keys.a = true;
+            if (k === keyMap.right) keys.d = true;
+
+            if ((k === keyMap.jump || e.code === 'Space' && keyMap.jump === ' ') && isGrounded && !isFalling) { 
+                verticalVelocity = jumpForce; isGrounded = false; 
+            }
+            if (k === keyMap.roll && !isFalling) triggerRoll();
+        });
+        window.addEventListener('keyup', (e) => {
+            const k = e.key.toLowerCase();
+            if (k === keyMap.forward) keys.w = false;
+            if (k === keyMap.backward) keys.s = false;
+            if (k === keyMap.left) keys.a = false;
+            if (k === keyMap.right) keys.d = false;
+        });
+
+        // --- 7. 摇杆与按钮 (Pointer Events) ---
+        const joyKnob = document.getElementById('joystick-knob');
+        let joyActive = false, joyVec = new THREE.Vector2(0, 0), joyCenter = { x: 0, y: 0 };
+        
+        // 使用 Pointer Events 兼容鼠标和触摸
+        joyZone.addEventListener('pointerdown', (e) => {
+            e.preventDefault();
+            joyZone.setPointerCapture(e.pointerId);
+            const rect = joyZone.getBoundingClientRect();
+            joyCenter.x = rect.left + rect.width / 2;
+            joyCenter.y = rect.top + rect.height / 2;
+            joyActive = true;
+        });
+
+        joyZone.addEventListener('pointermove', (e) => {
+            if (!joyActive) return;
+            e.preventDefault();
+            let dx = e.clientX - joyCenter.x;
+            let dy = e.clientY - joyCenter.y;
+            const dist = Math.sqrt(dx*dx + dy*dy);
+            const maxDist = 35;
+            if (dist > maxDist) { dx = (dx/dist)*maxDist; dy = (dy/dist)*maxDist; }
+            joyKnob.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
+            joyVec.set(dx/maxDist, dy/maxDist);
+        });
+
+        joyZone.addEventListener('pointerup', (e) => {
+            if (!joyActive) return;
+            e.preventDefault();
+            joyZone.releasePointerCapture(e.pointerId);
+            joyActive = false; joyVec.set(0, 0);
+            joyKnob.style.transform = `translate(-50%, -50%)`;
+        });
+        
+        joyZone.addEventListener('pointercancel', (e) => {
+            joyActive = false; joyVec.set(0, 0);
+            joyKnob.style.transform = `translate(-50%, -50%)`;
+        });
+
+        // 跳跃与滚动按钮事件
+        const jumpBtn = document.getElementById('jump-btn');
+        const rollBtn = document.getElementById('roll-btn');
+
+        jumpBtn.addEventListener('pointerdown', (e) => {
+            e.preventDefault();
+            if (isGrounded && !isFalling) { verticalVelocity = jumpForce; isGrounded = false; }
+        });
+
+        rollBtn.addEventListener('pointerdown', (e) => {
+            e.preventDefault();
+            if (!isFalling) triggerRoll();
+        });
+
+        function triggerRoll() {
+            if (isRolling || isFalling) return;
+            isRolling = true; rollTimer = ROLL_DURATION;
+            leftArmPivot.visible = false; rightArmPivot.visible = false;
+            leftLegPivot.visible = false; rightLegPivot.visible = false;
+            ahogeGroup.visible = false;
+            document.getElementById('roll-btn').classList.add('cooldown');
+        }
+
+        function restoreStand() {
+            isRolling = false; rollTimer = 0;
+            leftArmPivot.visible = true; rightArmPivot.visible = true;
+            leftLegPivot.visible = true; rightLegPivot.visible = true;
+            ahogeGroup.visible = true;
+            document.getElementById('roll-btn').classList.remove('cooldown');
+        }
+
+        // --- 8. 动画循环与帧率控制 ---
+        const clock = new THREE.Clock();
+        const camTarget = new THREE.Vector3();
+        const camDir = new THREE.Vector3();
+        const camRight = new THREE.Vector3();
+        const moveDir = new THREE.Vector3();
+        const axis = new THREE.Vector3();
+        const targetQuaternion = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI / 2);
+        const minDistance = 3.5; 
+        const camOffset = new THREE.Vector3();
+
+        let lastRenderTime = 0;
+        let fpsFrameCount = 0;
+        let fpsTimer = 0;
+
+        function animate(now) {
+            requestAnimationFrame(animate);
+
+            // 竖屏遮罩期间：暂停游戏逻辑，并清空输入，防止按键/摇杆卡住
+            if (maskVisible) {
+                keys.w = keys.s = keys.a = keys.d = false;
+                joyActive = false;
+                joyVec.set(0, 0);
+                joyKnob.style.transform = `translate(-50%, -50%)`;
+                lastRenderTime = now;   // 恢复横屏时不会出现超大 dt
+                return;
+            }
+
+            const deltaMs = now - lastRenderTime;
+            if (deltaMs < 1000 / targetFPS - 2) {
+                return;
+            }
+            lastRenderTime = now - (deltaMs % (1000 / targetFPS));
+            let dt = Math.min(deltaMs / 1000, 0.05);
+
+            // FPS 统计
+            if (toggleFps.classList.contains('active')) {
+                fpsFrameCount++;
+                fpsTimer += deltaMs;
+                if (fpsTimer >= 1000) {
+                    fpsDisplay.textContent = `FPS: ${fpsFrameCount}`;
+                    fpsFrameCount = 0; fpsTimer = 0;
+                }
+            }
+
+            // --- 物理更新开始 ---
+            if (isFalling) {
+                fallTimer += dt;
+                verticalVelocity += gravity * dt;
+                pivotGroup.position.y += verticalVelocity * dt;
+                camera.position.y += verticalVelocity * dt * 0.3;
+                if (fallTimer >= FALL_RESET_TIME) resetEgg();
+                renderer.render(scene, camera);
+                return;
+            }
+
+            if (isRolling) {
+                rollTimer -= dt;
+                if (rollTimer <= 0) restoreStand();
+            }
+
+            camera.getWorldDirection(camDir);
+            camDir.y = 0;
+            if (camDir.lengthSq() < 0.0001) camDir.set(0, 0, -1);
+            camDir.normalize();
+            camRight.crossVectors(camDir, new THREE.Vector3(0,1,0)).normalize();
+
+            moveDir.set(0,0,0);
+            if (keys.w) moveDir.add(camDir);
+            if (keys.s) moveDir.sub(camDir);
+            if (keys.a) moveDir.sub(camRight);
+            if (keys.d) moveDir.add(camRight);
+            if (joyActive) {
+                moveDir.add(camDir.clone().multiplyScalar(-joyVec.y));
+                moveDir.add(camRight.clone().multiplyScalar(joyVec.x));
+            }
+
+            const maxSpd  = isRolling ? 12.0 : 5.0;
+            const accel   = isRolling ? 50.0 : 30.0;
+            const decel   = isRolling ? 4.0  : 6.0;
+
+            if (moveDir.lengthSq() > 0) {
+                moveDir.normalize();
+                velocity.x += moveDir.x * accel * dt;
+                velocity.z += moveDir.z * accel * dt;
+            }
+
+            const damp = Math.exp(-decel * dt);
+            velocity.x *= damp;
+            velocity.z *= damp;
+
+            const spdSq = velocity.x*velocity.x + velocity.z*velocity.z;
+            if (spdSq > maxSpd*maxSpd) {
+                const s = Math.sqrt(spdSq);
+                velocity.x = (velocity.x/s)*maxSpd;
+                velocity.z = (velocity.z/s)*maxSpd;
+            }
+
+            pivotGroup.position.x += velocity.x * dt;
+            pivotGroup.position.z += velocity.z * dt;
+
+            const distFromCenter = Math.sqrt(pivotGroup.position.x * pivotGroup.position.x + pivotGroup.position.z * pivotGroup.position.z);
+            if (distFromCenter > GROUND_BOUND && isGrounded) {
+                isGrounded = false; isFalling = true;
+                verticalVelocity = -2; fallTimer = 0;
+                if (isRolling) restoreStand();
+            }
+
+            if (!isGrounded && !isFalling) {
+                verticalVelocity += gravity * dt;
+                pivotGroup.position.y += verticalVelocity * dt;
+                if (pivotGroup.position.y <= 0) {
+                    pivotGroup.position.y = 0; verticalVelocity = 0; isGrounded = true;
+                }
+            }
+
+            const currentSpeed = Math.sqrt(velocity.x * velocity.x + velocity.z * velocity.z);
+
+            if (isRolling) {
+                const mx = velocity.x * dt;
+                const mz = velocity.z * dt;
+                const dist = Math.sqrt(mx*mx + mz*mz);
+                if (dist > 0.001) {
+                    axis.set(mz, 0, -mx).normalize();
+                    sphere.rotateOnWorldAxis(axis, dist / sphereRadius);
+                }
+            } else {
+                sphere.quaternion.slerp(targetQuaternion, 0.2);
+                pivotGroup.rotation.y = THREE.MathUtils.lerp(pivotGroup.rotation.y, 0, 0.2);
+
+                if (currentSpeed > 0.3) {
+                    walkTime += dt * (currentSpeed * 3.5);
+                    sphere.position.y = 1.2 + Math.abs(Math.sin(walkTime)) * 0.06;
+                    leftArmPivot.rotation.x = Math.sin(walkTime) * 0.6;
+                    rightArmPivot.rotation.x = -Math.sin(walkTime) * 0.6;
+                    leftLegPivot.rotation.x = -Math.sin(walkTime) * 0.6;
+                    rightLegPivot.rotation.x = Math.sin(walkTime) * 0.6;
+                    ahogeGroup.rotation.z = Math.sin(walkTime * 0.5) * 0.2;
+                } else {
+                    walkTime = 0;
+                    sphere.position.y = THREE.MathUtils.lerp(sphere.position.y, 1.2, 0.15);
+                    leftArmPivot.rotation.x = THREE.MathUtils.lerp(leftArmPivot.rotation.x, 0, 0.15);
+                    rightArmPivot.rotation.x = THREE.MathUtils.lerp(rightArmPivot.rotation.x, 0, 0.15);
+                    leftLegPivot.rotation.x = THREE.MathUtils.lerp(leftLegPivot.rotation.x, 0, 0.15);
+                    rightLegPivot.rotation.x = THREE.MathUtils.lerp(rightLegPivot.rotation.x, 0, 0.15);
+                    ahogeGroup.rotation.z = THREE.MathUtils.lerp(ahogeGroup.rotation.z, 0, 0.15);
+                }
+            }
+
+            camOffset.subVectors(camera.position, pivotGroup.position);
+            camOffset.y = 0;
+            const currentDistance = camOffset.length();
+            if (currentDistance < minDistance) {
+                const pushDir = camOffset.clone().normalize();
+                const pushAmount = (minDistance - currentDistance) * 10 * dt;
+                camera.position.x += pushDir.x * pushAmount;
+                camera.position.z += pushDir.z * pushAmount;
+            }
+
+            camTarget.subVectors(pivotGroup.position, controls.target).multiplyScalar(Math.min(1, dt * 10));
+            controls.target.add(camTarget);
+            camera.position.add(camTarget);
+            if (camera.position.y < 1.2) camera.position.y = 1.2;
+            
+            controls.update();
+            renderer.render(scene, camera);
+        }
+
+        // 初始化UI并启动
+        updateUIKeys();
+        requestAnimationFrame(animate);
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            checkOrientation();
+        });
+    </script>
+</body>
+</html>
